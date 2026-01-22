@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Místico | Plataforma Premium</title>
+    <title>Hub Místico | Dropshipping Premium</title>
     
     <!-- ==========================================
          BIBLIOTECAS EXTERNAS (CDN)
@@ -128,8 +128,8 @@
     <!-- ==========================================
          1. CAMADA DE AUTENTICAÇÃO (LOGIN)
     =========================================== -->
-    <div id="auth-layer" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print">
-        <div class="w-full max-w-md bg-surface border border-white/10 rounded-[2rem] p-8 relative overflow-hidden shadow-2xl animate-slide-up">
+    <div id="auth-layer" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print overflow-y-auto">
+        <div class="w-full max-w-md bg-surface border border-white/10 rounded-[2rem] p-8 relative overflow-hidden shadow-2xl animate-slide-up my-auto">
             <!-- Brilho Decorativo -->
             <div class="absolute -top-32 -right-32 w-80 h-80 bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
             
@@ -177,15 +177,17 @@
          2. MODAL DE CADASTRO E CONTRATO
     =========================================== -->
     <div id="registration-modal" class="fixed inset-0 z-[110] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print">
-        <div class="w-full max-w-2xl bg-surface border border-white/10 rounded-[2rem] p-8 md:p-10 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
+        <!-- MODAL FIX: Flex col e max-h-[90vh] para garantir rolagem em mobile -->
+        <div class="w-full max-w-2xl bg-surface border border-white/10 rounded-[2rem] p-6 md:p-10 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
             
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <h2 class="text-2xl font-black text-white italic uppercase tracking-tighter">Solicitação de Parceria</h2>
                 <button onclick="closeRegistrationModal()" class="text-zinc-500 hover:text-white transition-colors"><iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon></button>
             </div>
 
-            <div class="overflow-y-auto pr-2 space-y-6 flex-1">
+            <!-- Scroll Area (FIX DE SCROLL APLICADO AQUI: min-h-0 e overscroll-contain) -->
+            <div class="overflow-y-auto pr-2 space-y-6 flex-1 custom-scrollbar min-h-0 overscroll-contain">
                 <!-- Etapa 1: Dados -->
                 <div class="space-y-4">
                     <h3 class="text-primary font-bold uppercase text-sm border-b border-white/10 pb-2">1. Dados da Loja</h3>
@@ -222,7 +224,7 @@
                     <div class="bg-black/30 border border-white/10 rounded-2xl p-6 h-64 overflow-y-auto text-xs text-zinc-400 font-mono leading-relaxed text-justify">
                         <p class="font-bold text-white mb-4 text-center">CONTRATO DE ADESÃO E PRESTAÇÃO DE SERVIÇOS DE INTERMEDIAÇÃO DIGITAL - HUB MÍSTICO</p>
                         
-                        <p class="mb-2"><strong>CONTRATADA:</strong> LEONARDO LUIZ MACHADO, doravante denominado "PLATAFORMA".</p>
+                        <p class="mb-2"><strong>CONTRATADA:</strong> PLATAFORMA HUB MÍSTICO.</p>
                         <p class="mb-2"><strong>CONTRATANTE:</strong> A pessoa física ou jurídica identificada no formulário de cadastro, doravante denominada "LOJISTA".</p>
 
                         <p class="mb-2"><strong>1. DO OBJETO:</strong> O presente contrato tem por objeto a disponibilização de espaço virtual na plataforma "Hub Místico Premium" para que o LOJISTA anuncie e comercialize seus produtos digitais ou físicos.</p>
@@ -236,20 +238,21 @@
                         <p class="mb-2 pl-4">3.2. É vetada a venda de produtos ilícitos ou que violem direitos autorais.</p>
 
                         <p class="mb-2"><strong>4. DA APROVAÇÃO E VIGÊNCIA:</strong></p>
-                        <p class="mb-2 pl-4">4.1. O cadastro do LOJISTA passará por uma análise prévia. A PLATAFORMA, representada por Leonardo Luiz Machado, reserva-se o direito de aprovar ou recusar o cadastro a seu exclusivo critério.</p>
+                        <p class="mb-2 pl-4">4.1. O cadastro do LOJISTA passará por uma análise prévia. A PLATAFORMA reserva-se o direito de aprovar ou recusar o cadastro a seu exclusivo critério.</p>
                         <p class="mb-2 pl-4">4.2. A PLATAFORMA poderá excluir a conta do LOJISTA a qualquer momento em caso de descumprimento destes termos.</p>
 
-                        <p class="mt-4 text-center">Curitiba, PR - Brasil.</p>
+                        <p class="mt-4 text-center">Brasil.</p>
                     </div>
                     
                     <div class="flex items-center gap-3 bg-surfaceLight p-4 rounded-xl border border-white/5">
-                        <input type="checkbox" id="reg-agree" class="w-5 h-5 rounded border-zinc-600 bg-black text-primary focus:ring-primary cursor-pointer">
+                        <input type="checkbox" id="reg-agree" class="w-5 h-5 rounded border-zinc-600 bg-black text-primary focus:ring-primary cursor-pointer shrink-0">
                         <label for="reg-agree" class="text-sm text-white font-bold cursor-pointer select-none">Declaro que li e concordo com os termos do contrato acima.</label>
                     </div>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-white/10 mt-4">
+            <!-- Footer Fixo do Modal -->
+            <div class="pt-6 border-t border-white/10 mt-4 shrink-0">
                 <button onclick="submitRegistration()" class="w-full bg-success text-black font-black py-5 rounded-2xl uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-xl flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:pen-new-square-bold"></iconify-icon> Assinar e Enviar Solicitação
                 </button>
@@ -447,14 +450,15 @@
     =========================================== -->
     <div id="product-modal" class="fixed inset-0 z-[80] hidden flex items-center justify-center p-4 no-print">
         <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="closeProductModal()"></div>
-        <div class="relative w-full max-w-5xl bg-[#09090b] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[95vh] animate-slide-up">
+        <!-- MODAL FIX: max-h-[90vh] e overflow handling -->
+        <div class="relative w-full max-w-5xl bg-[#09090b] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] animate-slide-up">
             
             <button onclick="closeProductModal()" class="absolute top-6 right-6 z-20 bg-black/50 text-white p-3 rounded-full hover:bg-white hover:text-black transition-colors backdrop-blur-md border border-white/10">
                 <iconify-icon icon="solar:close-circle-bold" width="28"></iconify-icon>
             </button>
             
             <!-- Seção da Galeria -->
-            <div class="w-full md:w-1/2 bg-surfaceLight flex flex-col relative">
+            <div class="w-full md:w-1/2 bg-surfaceLight flex flex-col relative h-64 md:h-auto shrink-0">
                 <div class="flex-1 relative overflow-hidden group bg-black">
                     <img id="modal-main-img" class="absolute inset-0 w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" src="">
                 </div>
@@ -465,22 +469,22 @@
             </div>
 
             <!-- Seção de Informações -->
-            <div class="w-full md:w-1/2 p-10 md:p-14 flex flex-col overflow-y-auto bg-surface/50">
-                <span id="modal-cat-tag" class="text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4 bg-primary/10 inline-block px-3 py-1 rounded-full w-max border border-primary/20">Categoria</span>
+            <div class="w-full md:w-1/2 p-6 md:p-14 flex flex-col overflow-y-auto bg-surface/50">
+                <span id="modal-cat-tag" class="text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-4 bg-primary/10 inline-block px-3 py-1 rounded-full w-max border border-primary/20 shrink-0">Categoria</span>
                 
-                <h2 id="modal-title" class="text-4xl md:text-5xl font-black text-white uppercase leading-[0.9] italic mb-6 tracking-tighter">Nome do Produto</h2>
+                <h2 id="modal-title" class="text-3xl md:text-5xl font-black text-white uppercase leading-[0.9] italic mb-6 tracking-tighter shrink-0">Nome do Produto</h2>
                 
-                <div class="text-4xl font-black text-accent mb-8 tracking-tighter flex items-center gap-2" id="modal-price">
+                <div class="text-3xl md:text-4xl font-black text-accent mb-8 tracking-tighter flex items-center gap-2 shrink-0" id="modal-price">
                     R$ 0,00
                 </div>
                 
-                <div class="h-px bg-white/5 w-full mb-8"></div>
+                <div class="h-px bg-white/5 w-full mb-8 shrink-0"></div>
                 
-                <div class="flex-1 overflow-y-auto pr-2 mb-8 max-h-40">
+                <div class="flex-1 overflow-y-auto pr-2 mb-8 min-h-[100px]">
                     <p id="modal-desc" class="text-zinc-400 text-sm leading-relaxed font-medium">Descrição...</p>
                 </div>
                 
-                <button id="modal-add-btn" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-xl text-sm flex items-center justify-center gap-3">
+                <button id="modal-add-btn" class="w-full bg-white text-black font-black py-5 rounded-2xl uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-xl text-sm flex items-center justify-center gap-3 shrink-0">
                     <iconify-icon icon="solar:cart-plus-bold" width="20"></iconify-icon>
                     Adicionar à Sacola
                 </button>
@@ -493,18 +497,18 @@
     =========================================== -->
     <div id="icon-picker-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 no-print">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeIconPicker()"></div>
-        <div class="relative w-full max-w-3xl bg-surface rounded-[2rem] border border-white/10 p-8 shadow-2xl flex flex-col h-[85vh] animate-slide-up">
-            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
+        <div class="relative w-full max-w-3xl bg-surface rounded-[2rem] border border-white/10 p-6 md:p-8 shadow-2xl flex flex-col max-h-[85vh] animate-slide-up">
+            <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4 shrink-0">
                 <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Biblioteca de Ícones</h3>
                 <button onclick="closeIconPicker()" class="text-zinc-500 hover:text-white"><iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon></button>
             </div>
             
-            <div class="mb-6 relative">
+            <div class="mb-6 relative shrink-0">
                 <iconify-icon icon="solar:magnifer-bold" class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></iconify-icon>
                 <input type="text" id="icon-search-input" placeholder="Pesquise em inglês (ex: star, home, bag, diamond...)" class="w-full glass-input p-4 pl-12 rounded-2xl text-white text-sm font-bold uppercase tracking-wider" onkeyup="searchIcons(this.value)">
             </div>
             
-            <div id="icon-grid" class="flex-1 overflow-y-auto grid grid-cols-6 md:grid-cols-8 gap-4 content-start pr-2 pb-4">
+            <div id="icon-grid" class="flex-1 overflow-y-auto grid grid-cols-5 md:grid-cols-8 gap-3 content-start pr-2 pb-4">
                 <!-- Ícones injetados aqui -->
                 <div class="col-span-full text-center text-zinc-500 py-10 text-xs font-bold uppercase tracking-widest">Digite para buscar...</div>
             </div>
@@ -512,49 +516,102 @@
     </div>
 
     <!-- ==========================================
-         7. MODAL DE CHECKOUT (PIX + WHATSAPP)
+         7. MODAL DE CHECKOUT (ENDEREÇO + PIX)
     =========================================== -->
     <div id="checkout-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center p-4 no-print">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeCheckout()"></div>
-        <div class="relative bg-surface w-full max-w-lg rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-slide-up">
-            <div class="p-8 border-b border-white/10 bg-surfaceLight text-center">
-                <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Pagamento Seguro</h3>
-                <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Finalize via Pix</p>
-            </div>
+        <!-- MODAL FIX: Container principal com altura máxima correta -->
+        <div class="relative bg-surface w-full max-w-lg rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
             
-            <div class="p-8 space-y-6 text-center">
-                <p class="text-sm text-zinc-400 font-medium">Escaneie o QR Code no app do seu banco ou use o botão "Copia e Cola".</p>
-                
-                <div class="bg-white p-4 rounded-3xl inline-block mx-auto shadow-2xl border-4 border-white">
-                    <img id="pix-qr-img" src="" class="w-56 h-56 object-contain">
+            <!-- ETAPA 1: ENDEREÇO (FIX SCROLL: flex-1 e min-h-0 para permitir rolagem interna) -->
+            <div id="checkout-step-1" class="transition-all duration-300 flex flex-col flex-1 min-h-0">
+                <div class="p-8 border-b border-white/10 bg-surfaceLight text-center shrink-0">
+                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Dados de Entrega</h3>
+                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Para onde enviamos?</p>
                 </div>
-                
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-primary uppercase tracking-widest">Pix Copia e Cola</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="pix-code-text" readonly class="w-full bg-black/30 border border-white/10 p-4 rounded-2xl text-xs text-zinc-400 truncate font-mono">
-                        <button onclick="copyPix()" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-5 rounded-2xl font-bold transition-colors border border-primary/20">
-                            <iconify-icon icon="solar:copy-bold" width="20"></iconify-icon>
+                <!-- Conteúdo Rola Aqui (overscroll-contain adicionado) -->
+                <div class="p-6 md:p-8 space-y-4 flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
+                    <input id="chk-name" placeholder="Nome Completo do Recebedor" class="w-full glass-input p-4 rounded-2xl text-white">
+                    <div class="flex gap-4">
+                         <input id="chk-cep" placeholder="CEP" class="w-1/3 glass-input p-4 rounded-2xl text-white">
+                         <input id="chk-street" placeholder="Rua / Avenida" class="w-2/3 glass-input p-4 rounded-2xl text-white">
+                    </div>
+                    <div class="flex gap-4">
+                         <input id="chk-num" placeholder="Número" class="w-1/3 glass-input p-4 rounded-2xl text-white">
+                         <input id="chk-comp" placeholder="Complemento" class="w-2/3 glass-input p-4 rounded-2xl text-white">
+                    </div>
+                    <input id="chk-bairro" placeholder="Bairro" class="w-full glass-input p-4 rounded-2xl text-white">
+                    <div class="flex gap-4">
+                         <input id="chk-city" placeholder="Cidade" class="w-2/3 glass-input p-4 rounded-2xl text-white">
+                         <select id="chk-uf" onchange="calculateShipping()" class="w-1/3 glass-input p-4 rounded-2xl text-white bg-surface">
+                            <option value="">UF</option>
+                            <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                         </select>
+                    </div>
+                    
+                    <div class="bg-black/30 p-4 rounded-2xl border border-white/5 flex justify-between items-center mt-4">
+                        <span class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Frete Estimado:</span>
+                        <span id="chk-shipping-val" class="text-white font-black">Selecione UF</span>
+                    </div>
+
+                    <div class="pt-4 pb-2">
+                         <button onclick="handleCheckoutNext()" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all uppercase tracking-widest text-sm shrink-0">
+                            Continuar para Pagamento
                         </button>
                     </div>
                 </div>
-
-                <div class="h-px bg-white/5 w-full my-4"></div>
-
-                <div class="space-y-3">
-                    <p class="text-xs text-zinc-500 font-bold uppercase">Já pagou? Anexe o comprovante (Opcional)</p>
-                    <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleReceiptUpload(this)">
-                    <button onclick="document.getElementById('receipt-upload').click()" id="btn-upload-receipt" class="w-full py-4 border border-dashed border-zinc-700 rounded-2xl text-zinc-400 hover:border-primary hover:text-white transition-all text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group">
-                        <iconify-icon icon="solar:camera-minimalistic-bold" class="group-hover:scale-110 transition-transform"></iconify-icon> 
-                        <span id="upload-text">Enviar Comprovante</span>
-                    </button>
-                </div>
-
-                <button onclick="finishOrderWhatsApp()" class="w-full bg-success text-black font-black py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-3 mt-6 uppercase tracking-widest text-sm">
-                    <iconify-icon icon="logos:whatsapp-icon" width="20"></iconify-icon> 
-                    Confirmar no WhatsApp
-                </button>
             </div>
+
+            <!-- ETAPA 2: PAGAMENTO (FIX SCROLL: flex-1 e min-h-0) -->
+            <div id="checkout-step-2" class="hidden transition-all duration-300 flex flex-col flex-1 min-h-0">
+                <div class="p-8 border-b border-white/10 bg-surfaceLight text-center relative shrink-0">
+                    <button onclick="backToAddress()" class="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><iconify-icon icon="solar:arrow-left-bold" width="24"></iconify-icon></button>
+                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Pagamento Seguro</h3>
+                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Finalize via Pix</p>
+                </div>
+                
+                <div class="p-6 md:p-8 space-y-6 text-center flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
+                    <div class="flex justify-between items-center bg-black/30 p-4 rounded-2xl border border-white/5">
+                         <span class="text-zinc-400 text-xs font-bold uppercase">Total com Frete</span>
+                         <span id="chk-final-total" class="text-2xl font-black text-success">R$ 0,00</span>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 font-medium">Escaneie o QR Code no app do seu banco ou use o botão "Copia e Cola".</p>
+                    
+                    <div class="bg-white p-4 rounded-3xl inline-block mx-auto shadow-2xl border-4 border-white">
+                        <img id="pix-qr-img" src="" class="w-48 h-48 object-contain">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-primary uppercase tracking-widest">Pix Copia e Cola</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="pix-code-text" readonly class="w-full bg-black/30 border border-white/10 p-4 rounded-2xl text-xs text-zinc-400 truncate font-mono">
+                            <button onclick="copyPix()" class="bg-primary/10 text-primary hover:bg-primary hover:text-white px-5 rounded-2xl font-bold transition-colors border border-primary/20">
+                                <iconify-icon icon="solar:copy-bold" width="20"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-white/5 w-full my-4"></div>
+
+                    <div class="space-y-3">
+                        <p class="text-xs text-zinc-500 font-bold uppercase">Já pagou? Anexe o comprovante (Opcional)</p>
+                        <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleReceiptUpload(this)">
+                        <button onclick="document.getElementById('receipt-upload').click()" id="btn-upload-receipt" class="w-full py-4 border border-dashed border-zinc-700 rounded-2xl text-zinc-400 hover:border-primary hover:text-white transition-all text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group">
+                            <iconify-icon icon="solar:camera-minimalistic-bold" class="group-hover:scale-110 transition-transform"></iconify-icon> 
+                            <span id="upload-text">Enviar Comprovante</span>
+                        </button>
+                    </div>
+
+                    <div class="pt-2 pb-4">
+                        <button onclick="finishOrderWhatsApp()" class="w-full bg-success text-black font-black py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-3 mt-6 uppercase tracking-widest text-sm shrink-0">
+                            <iconify-icon icon="logos:whatsapp-icon" width="20"></iconify-icon> 
+                            Confirmar no WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -562,12 +619,13 @@
          8. MODAL DE APROVAÇÃO (MASTER)
     =========================================== -->
     <div id="shop-approval-modal" class="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print">
+        <!-- MODAL FIX: Flex col e max-h para mobile -->
         <div class="w-full max-w-lg bg-surface border border-white/10 rounded-[2rem] p-8 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-6 shrink-0">
                 <h3 class="text-xl font-black text-white italic uppercase tracking-tighter">Análise de Loja</h3>
                 <button onclick="closeApprovalModal()" class="text-zinc-500 hover:text-white"><iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon></button>
             </div>
-            <div id="approval-modal-content" class="space-y-4 overflow-y-auto pr-2 flex-1">
+            <div id="approval-modal-content" class="space-y-4 overflow-y-auto pr-2 flex-1 custom-scrollbar">
                 <!-- Conteúdo Injetado via JS -->
             </div>
         </div>
@@ -694,6 +752,7 @@
         const appId = "hub-mistico-v3-final"; // Banco de dados Preservado
         const IMGBB_API_KEY = "c3d86c0c95606522cb1f5faa1be29231";
         const MASTER_EMAIL = "admin@corvo.com";
+        const ALL_UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
         // ESTADO DA APLICAÇÃO (STATE MANAGEMENT)
         let state = {
@@ -712,7 +771,12 @@
             tempLoginData: null,  // Dados temporários para login híbrido
             iconTargetInput: null, // Qual input receberá o ícone escolhido
             activeHubTab: 'national', // Aba da Home: 'national' ou 'local'
-            searchQuery: '' // Filtro de busca por nome
+            searchQuery: '', // Filtro de busca por nome
+            // Novos campos para Checkout com Endereço
+            checkoutData: {
+                address: {},
+                shippingCost: 0
+            }
         };
 
         // --- HELPERS (Funções Auxiliares) ---
@@ -1076,24 +1140,84 @@
             el('cart-total-price').innerText = formatBRL(total);
         }
 
-        // --- 5. CHECKOUT & PIX ---
+        // --- 5. CHECKOUT REFORMULADO (ENDEREÇO + PIX) ---
         window.initCheckout = () => {
-            if(!state.cart.length) return;
+            if(!state.cart.length) return alert("Sua sacola está vazia! Adicione produtos primeiro.");
             toggleCart(); 
             state.receiptUrl = null; 
+            state.checkoutData = { address: {}, shippingCost: 0 };
+            
+            // Reseta visual
+            show('checkout-step-1');
+            hide('checkout-step-2');
+            el('chk-uf').value = "";
+            el('chk-shipping-val').innerText = "Selecione UF";
+            
+            show('checkout-modal');
+        };
+
+        // Calcula frete com base na UF selecionada
+        window.calculateShipping = () => {
+            const uf = el('chk-uf').value;
+            if(!uf) {
+                state.checkoutData.shippingCost = 0;
+                el('chk-shipping-val').innerText = "Selecione UF";
+                return;
+            }
+
+            // Pega o valor configurado pelo lojista (ou 0 se não existir)
+            const rates = state.currentShop.shippingRates || {};
+            const cost = Number(rates[uf]) || 0;
+            
+            state.checkoutData.shippingCost = cost;
+            el('chk-shipping-val').innerText = cost === 0 ? "Grátis" : formatBRL(cost);
+        };
+
+        // Avança para o pagamento após validar endereço
+        window.handleCheckoutNext = () => {
+            const address = {
+                name: el('chk-name').value,
+                cep: el('chk-cep').value,
+                street: el('chk-street').value,
+                num: el('chk-num').value,
+                comp: el('chk-comp').value,
+                bairro: el('chk-bairro').value,
+                city: el('chk-city').value,
+                uf: el('chk-uf').value
+            };
+
+            if(!address.name || !address.street || !address.num || !address.city || !address.uf) {
+                return alert("Por favor, preencha todos os campos obrigatórios do endereço.");
+            }
+
+            state.checkoutData.address = address;
+            calculateShipping(); // Garante cálculo atualizado
+
+            goToPayment();
+        };
+
+        window.backToAddress = () => {
+            show('checkout-step-1');
+            hide('checkout-step-2');
+        };
+
+        window.goToPayment = () => {
+            hide('checkout-step-1');
+            show('checkout-step-2');
+
             el('upload-text').innerText = "Enviar Comprovante"; 
             el('btn-upload-receipt').classList.remove('border-success', 'text-success');
             
-            const total = state.cart.reduce((a,b)=>a+Number(b.price),0);
-            const shop = state.currentShop;
+            const subtotal = state.cart.reduce((a,b)=>a+Number(b.price),0);
+            const total = subtotal + state.checkoutData.shippingCost;
             
+            el('chk-final-total').innerText = formatBRL(total);
+            
+            const shop = state.currentShop;
             if(shop.pixKey) {
                 const payload = generateEMVPix(shop.pixKey, shop.pixName, shop.pixCity, total.toFixed(2));
                 el('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}&color=000000&bgcolor=ffffff`;
                 el('pix-code-text').value = payload;
-                show('checkout-modal');
-            } else { 
-                finishOrderWhatsApp(); 
             }
         };
 
@@ -1161,15 +1285,41 @@
         };
 
         window.finishOrderWhatsApp = async () => {
-            const shop = state.currentShop, total = state.cart.reduce((a,b)=>a+Number(b.price),0);
-            let msg = `*NOVO PEDIDO - ${shop.name.toUpperCase()}* ✨\n\n`;
+            const shop = state.currentShop;
+            const subtotal = state.cart.reduce((a,b)=>a+Number(b.price),0);
+            const shipping = state.checkoutData.shippingCost;
+            const total = subtotal + shipping;
+            const addr = state.checkoutData.address;
+
+            // --- FORMATO DE MENSAGEM DO WHATSAPP ATUALIZADO ---
+            let msg = `🤖 *NOVO PEDIDO - ${shop.name.toUpperCase()}* 🚀\n\n`; // Emoji de foguete/sacola
+            
+            msg += `😎 *Cliente:* ${addr.name}\n`;
+            msg += `🗺️ *Entrega:* ${addr.street}, ${addr.num} ${addr.comp ? `(${addr.comp})` : ''} - ${addr.bairro}\n`;
+            msg += `🌆 *Cidade:* ${addr.city} / ${addr.uf}\n`;
+            msg += `📦 *CEP:* ${addr.cep}\n\n`;
+            
+            msg += `👜 *ITENS:*\n`;
             state.cart.forEach(i => msg += `• ${i.name} - ${formatBRL(i.price)}\n`);
-            msg += `\n*TOTAL: ${formatBRL(total)}*\n`;
-            if(state.receiptUrl) msg += `\n🧾 *Comprovante Pix:* ${state.receiptUrl}`;
-            else msg += `\n⏳ *Pagamento:* A Combinar/Pendente`;
+            
+            msg += `\n 🏷️ *Subtotal:* ${formatBRL(subtotal)}`;
+            msg += `\n 🚚 *Frete (${addr.uf}):* ${formatBRL(shipping)}`;
+            msg += `\n 💰 *TOTAL FINAL: ${formatBRL(total)}*\n`;
+            
+            msg += `\n💳 *Pagamento:* A Combinar/Pendente`;
+            
+            if(state.receiptUrl) msg += `\n🧾 *Comprovante:* ${state.receiptUrl}`;
             
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
-                shopId: shop.id, shopName: shop.name, total, receipt: state.receiptUrl, at: Date.now(), items: state.cart.map(i=>i.name) 
+                shopId: shop.id, 
+                shopName: shop.name, 
+                total, 
+                subtotal,
+                shipping,
+                address: addr,
+                receipt: state.receiptUrl, 
+                at: Date.now(), 
+                items: state.cart.map(i=>i.name) 
             });
             window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
             closeCheckout(); 
@@ -1305,7 +1455,6 @@
                 mHtml += btn('hub-config','solar:settings-minimalistic-bold-duotone','Config Hub'); 
                 mHtml += btn('finance','solar:wad-of-money-bold-duotone','Financeiro (3%)'); 
                 mHtml += btn('shops-list','solar:shop-bold-duotone','Gerenciar Lojas');
-                // Nova aba de Aprovações
                 const pendingCount = state.shops.filter(s => s.status === 'pending').length;
                 mHtml += btn('approvals','solar:bell-bold-duotone',`Solicitações (${pendingCount})`); 
             }
@@ -1313,9 +1462,7 @@
                 mHtml += btn('shop-settings','solar:tuning-square-2-bold-duotone','Minha Loja'); 
                 mHtml += btn('products','solar:t-shirt-bold-duotone','Produtos'); 
                 mHtml += btn('categories','solar:tag-horizontal-bold-duotone','Categorias');
-                // Nova aba de Histórico
                 mHtml += btn('orders','solar:bag-check-bold-duotone','Histórico de Pedidos'); 
-                // Nova aba de Tutorial e Ajuda
                 mHtml += btn('tutorial','solar:book-bookmark-bold-duotone','Tutorial & Ajuda');
             }
             menu.innerHTML = mHtml;
@@ -1340,7 +1487,7 @@
                 </div>`;
             }
 
-            // --- ABA: APROVAÇÕES (MASTER - NOVO) ---
+            // --- ABA: APROVAÇÕES (MASTER) ---
             if(tab === 'approvals' && state.role === 'master') {
                 title.innerText = "Solicitações de Parceria";
                 const pending = state.shops.filter(s => s.status === 'pending');
@@ -1384,7 +1531,7 @@
                 }
             }
 
-            // --- ABA: LOJAS LIST (MASTER - ATUALIZADO) ---
+            // --- ABA: LOJAS LIST (MASTER) ---
             if(tab === 'shops-list' && state.role === 'master') {
                 title.innerText = "Lojas Ativas";
                 const active = state.shops.filter(s => s.status !== 'pending');
@@ -1420,7 +1567,7 @@
                 </div>`;
             }
 
-            // --- ABA: HISTÓRICO DE PEDIDOS (SHOP - NOVO) ---
+            // --- ABA: HISTÓRICO DE PEDIDOS (SHOP) ---
             if(tab === 'orders' && state.role === 'shop') {
                 title.innerText = "Histórico de Pedidos";
                 const myOrders = state.orders.filter(o => o.shopId === state.currentShop.id).sort((a,b) => b.at - a.at);
@@ -1440,21 +1587,20 @@
                 <div class="overflow-hidden bg-surface rounded-[2rem] border border-white/5">
                     <table class="w-full text-left text-sm text-zinc-400">
                         <thead class="bg-black/30 text-white uppercase text-xs tracking-widest font-black">
-                            <tr><th class="p-6">Data</th><th class="p-6">Itens</th><th class="p-6 text-right">Total</th><th class="p-6 text-right">Status</th></tr>
+                            <tr><th class="p-6">Data</th><th class="p-6">Cliente</th><th class="p-6 text-right">Itens</th><th class="p-6 text-right">Total</th></tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-mono">
                             ${myOrders.map(o => `
                                 <tr>
                                     <td class="p-6 text-white">${new Date(o.at).toLocaleDateString()} <span class="text-zinc-600 text-[10px]">${new Date(o.at).toLocaleTimeString()}</span></td>
                                     <td class="p-6">
-                                        <div class="flex flex-col gap-1">
-                                            ${o.items.map(i => `<span class="bg-white/5 px-2 py-1 rounded text-xs w-max">${i}</span>`).join('')}
-                                        </div>
+                                        <div class="text-white font-bold text-xs">${o.address?.name || 'Cliente'}</div>
+                                        <div class="text-zinc-600 text-[10px]">${o.address?.city || ''}/${o.address?.uf || ''}</div>
+                                    </td>
+                                    <td class="p-6 text-right text-xs">
+                                        ${o.items.join(', ')}
                                     </td>
                                     <td class="p-6 text-right font-bold text-white">${formatBRL(o.total)}</td>
-                                    <td class="p-6 text-right">
-                                        <span class="text-[10px] bg-green-500/10 text-green-500 px-3 py-1 rounded-full uppercase font-bold">Concluído</span>
-                                    </td>
                                 </tr>
                             `).join('')}
                             ${myOrders.length === 0 ? '<tr><td colspan="4" class="p-8 text-center text-zinc-500 italic">Nenhum pedido registrado ainda.</td></tr>' : ''}
@@ -1463,7 +1609,7 @@
                 </div>`;
             }
 
-            // --- ABA: TUTORIAL E AJUDA (SHOP - NOVO) ---
+            // --- ABA: TUTORIAL E AJUDA (SHOP) ---
             if(tab === 'tutorial' && state.role === 'shop') {
                 title.innerText = "Tutorial & Ajuda";
                 const videoId = state.hubData.tutorialVideoUrl ? getYouTubeId(state.hubData.tutorialVideoUrl) : '';
@@ -1514,7 +1660,62 @@
                 </div>`;
             }
 
-            // ... (Outras abas permanecem iguais) ...
+            // --- ABA: SHOP SETTINGS (Atualizado com Frete) ---
+            if(tab === 'shop-settings' && state.role === 'shop') {
+                title.innerText = "Minha Loja"; const s = state.currentShop;
+                const rates = s.shippingRates || {};
+                
+                content.innerHTML = `
+                <div class="max-w-4xl bg-surfaceLight p-8 rounded-[2rem] border border-white/5 space-y-6">
+                    <h3 class="text-white font-bold border-b border-white/10 pb-2 uppercase text-sm">Dados Básicos</h3>
+                    <input id="edit-shop-name" value="${s.name}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="Nome da Loja">
+                    <div class="flex gap-4">
+                        <div class="flex-1 space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Logo</label>
+                            <div class="flex gap-2"><input id="edit-shop-logo" value="${s.logo||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-logo')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Banner Principal</label>
+                            <div class="flex gap-2"><input id="edit-shop-banner" value="${s.banner||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-8 border-t border-white/10">
+                        <h3 class="text-primary font-bold mb-6 uppercase text-sm flex items-center gap-2"><iconify-icon icon="logos:pix"></iconify-icon> Dados para Recebimento Pix</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input id="edit-shop-pixkey" value="${s.pixKey||''}" placeholder="Chave Pix (CPF/Email/Tel)" class="glass-input p-4 rounded-2xl text-white">
+                            <input id="edit-shop-pixname" value="${s.pixName||''}" placeholder="Nome do Beneficiário" class="glass-input p-4 rounded-2xl text-white">
+                            <input id="edit-shop-pixcity" value="${s.pixCity||''}" placeholder="Cidade" class="glass-input p-4 rounded-2xl text-white md:col-span-2">
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/10">
+                        <h3 class="text-accent font-bold mb-6 uppercase text-sm flex items-center gap-2">
+                            <iconify-icon icon="solar:truck-bold"></iconify-icon> Tabela de Fretes (Por Estado)
+                        </h3>
+                        <p class="text-xs text-zinc-500 mb-4">Defina o valor fixo do frete para cada UF. Deixe 0 para Grátis.</p>
+                        <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-3">
+                            ${ALL_UFS.map(uf => `
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-black text-zinc-500 text-center block">${uf}</label>
+                                    <input type="number" id="rate-${uf}" value="${rates[uf] || 0}" class="w-full glass-input p-2 rounded-xl text-white text-center text-xs font-bold" min="0" step="0.01">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button>
+                </div>`;
+            }
+
+            if(tab === 'categories' && state.role === 'shop') {
+                title.innerText = "Categorias"; const shopId = state.currentShop.id;
+                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Nova Categoria</h4><div class="flex flex-col gap-4"><div class="flex gap-4"><input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white"><div class="flex gap-2 w-1/3"><input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white"><button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white"><iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon></button></div></div><div class="flex gap-2"><input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div><button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button></div></div><div class="space-y-3">${state.shopCategories.map(c => `<div class="flex justify-between items-center bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><iconify-icon icon="${c.icon||'solar:tag-bold'}"></iconify-icon></div><div><span class="block text-white font-bold">${c.name}</span>${c.banner ? '<span class="text-[10px] text-green-500 uppercase font-bold">Com Banner</span>' : ''}</div></div><button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
+            }
+            if(tab === 'products' && state.role === 'shop') {
+                title.innerText = "Produtos"; const shopId = state.currentShop.id;
+                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Novo Produto</h4><div class="space-y-4 mb-6"><div class="grid grid-cols-2 gap-4"><input id="new-prod-name" placeholder="Nome" class="glass-input p-4 rounded-2xl text-white"><input id="new-prod-price" type="number" placeholder="Preço" class="glass-input p-4 rounded-2xl text-white"></div><p class="text-[10px] font-bold text-zinc-500 uppercase ml-2 tracking-widest">Galeria (Até 6 Fotos)</p><div class="grid grid-cols-3 md:grid-cols-6 gap-2">${[0,1,2,3,4,5].map(i => `<div class="flex flex-col gap-1"><input id="new-prod-img-${i}" placeholder="${i+1}" class="prod-img-input glass-input p-2 rounded-xl text-[10px] text-white text-center"><button onclick="uploadImg('new-prod-img-${i}')" class="bg-white/5 p-2 rounded-xl hover:bg-white/10"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>`).join('')}</div><textarea id="new-prod-desc" placeholder="Descrição completa..." class="w-full glass-input p-4 rounded-2xl text-white h-32"></textarea><select id="new-prod-cat" class="glass-input p-4 rounded-2xl text-white bg-black"><option value="all">Sem Categoria</option>${state.shopCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><button onclick="addProduct('${shopId}')" class="bg-success text-black font-black px-8 py-5 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform w-full">Publicar Produto</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4">${state.shopProducts.map(p => `<div class="bg-surface p-4 rounded-3xl border border-white/5 relative group hover:border-white/20 transition-all"><img src="${p.images?.[0]||''}" class="w-full aspect-square object-cover rounded-2xl mb-3 bg-black"><h5 class="text-white font-bold truncate uppercase text-sm">${p.name}</h5><p class="text-primary font-black text-xs">${formatBRL(p.price)}</p><button onclick="deleteProduct('${shopId}','${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
+            }
             if(tab === 'hub-config' && state.role === 'master') {
                 title.innerText = "Configuração Hub";
                 content.innerHTML = `
@@ -1527,8 +1728,6 @@
                     </div>
                     
                     <h3 class="text-white font-bold border-b border-white/10 pb-2 mb-4 uppercase text-sm mt-8">Imagem Hero (Capa)</h3>
-                    <p class="text-xs text-zinc-500 mb-2">Se definir a "Imagem Padrão", ela será usada como capa estática. Se adicionar "Banners Rotativos", eles terão prioridade e criarão um carrossel.</p>
-                    
                     <div class="flex gap-2 mb-6">
                         <input id="hub-hero-default" value="${state.hubData.heroDefault||''}" class="flex-1 glass-input p-4 rounded-2xl text-white" placeholder="URL Imagem Padrão (Estática)">
                         <button onclick="uploadImg('hub-hero-default')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold" width="24"></iconify-icon></button>
@@ -1555,7 +1754,7 @@
                             <input id="cfg-video" value="${state.hubData.tutorialVideoUrl||''}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="https://youtube.com/watch?v=...">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2">Link Manual PDF (Google Drive/Link Direto)</label>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2">Link Manual PDF</label>
                             <input id="cfg-pdf" value="${state.hubData.tutorialPdfUrl||''}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="https://drive.google.com/...">
                         </div>
                     </div>
@@ -1567,18 +1766,6 @@
                 title.innerText = "Financeiro";
                 content.innerHTML = `<div class="bg-surfaceLight p-6 rounded-[2rem] border border-white/5 mb-8"><div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="text-xs font-bold text-zinc-500 uppercase ml-2 mb-2 block">Filtrar Relatório</label><select id="fin-filter-shop" onchange="filterFinance()" class="w-full glass-input p-4 rounded-2xl text-white bg-surface appearance-none font-bold"><option value="all">Visão Geral (Todas as Lojas)</option>${state.shops.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div><button onclick="exportReport()" class="bg-primary px-8 py-4 rounded-2xl text-white font-black uppercase text-xs tracking-widest hover:bg-primaryDark w-full md:w-auto flex items-center justify-center gap-2"><iconify-icon icon="solar:printer-bold" width="20"></iconify-icon> Imprimir / PDF</button></div></div><div class="overflow-hidden bg-surface rounded-[2rem] border border-white/5"><table class="w-full text-left text-sm text-zinc-400"><thead class="bg-black/30 text-white uppercase text-xs tracking-widest font-black"><tr><th class="p-6">Data</th><th class="p-6">Loja</th><th class="p-6 text-right">Venda</th><th class="p-6 text-right text-accent">Royalty (3%)</th></tr></thead><tbody id="finance-table-body" class="divide-y divide-white/5 font-mono"></tbody></table></div><div class="text-right mt-6 pr-4"><p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">Total Comissões a Receber</p><p class="text-4xl font-black text-accent mt-2"><span id="finance-total">R$ 0,00</span></p></div>`; setTimeout(filterFinance,100);
             }
-            if(tab === 'shop-settings' && state.role === 'shop') {
-                title.innerText = "Minha Loja"; const s = state.currentShop;
-                content.innerHTML = `<div class="max-w-3xl bg-surfaceLight p-8 rounded-[2rem] border border-white/5 space-y-6"><h3 class="text-white font-bold border-b border-white/10 pb-2 uppercase text-sm">Dados Básicos</h3><input id="edit-shop-name" value="${s.name}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="Nome da Loja"><div class="flex gap-4"><div class="flex-1 space-y-1"><label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Logo</label><div class="flex gap-2"><input id="edit-shop-logo" value="${s.logo||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-logo')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div></div><div class="flex-1 space-y-1"><label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Banner Principal</label><div class="flex gap-2"><input id="edit-shop-banner" value="${s.banner||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div></div></div><div class="pt-8 border-t border-white/10"><h3 class="text-primary font-bold mb-6 uppercase text-sm flex items-center gap-2"><iconify-icon icon="logos:pix"></iconify-icon> Dados para Recebimento Pix</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input id="edit-shop-pixkey" value="${s.pixKey||''}" placeholder="Chave Pix (CPF/Email/Tel)" class="glass-input p-4 rounded-2xl text-white"><input id="edit-shop-pixname" value="${s.pixName||''}" placeholder="Nome do Beneficiário" class="glass-input p-4 rounded-2xl text-white"><input id="edit-shop-pixcity" value="${s.pixCity||''}" placeholder="Cidade" class="glass-input p-4 rounded-2xl text-white md:col-span-2"></div></div><button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button></div>`;
-            }
-            if(tab === 'categories' && state.role === 'shop') {
-                title.innerText = "Categorias"; const shopId = state.currentShop.id;
-                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Nova Categoria</h4><div class="flex flex-col gap-4"><div class="flex gap-4"><input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white"><div class="flex gap-2 w-1/3"><input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white"><button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white"><iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon></button></div></div><div class="flex gap-2"><input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div><button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button></div></div><div class="space-y-3">${state.shopCategories.map(c => `<div class="flex justify-between items-center bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><iconify-icon icon="${c.icon||'solar:tag-bold'}"></iconify-icon></div><div><span class="block text-white font-bold">${c.name}</span>${c.banner ? '<span class="text-[10px] text-green-500 uppercase font-bold">Com Banner</span>' : ''}</div></div><button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
-            }
-            if(tab === 'products' && state.role === 'shop') {
-                title.innerText = "Produtos"; const shopId = state.currentShop.id;
-                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Novo Produto</h4><div class="space-y-4 mb-6"><div class="grid grid-cols-2 gap-4"><input id="new-prod-name" placeholder="Nome" class="glass-input p-4 rounded-2xl text-white"><input id="new-prod-price" type="number" placeholder="Preço" class="glass-input p-4 rounded-2xl text-white"></div><p class="text-[10px] font-bold text-zinc-500 uppercase ml-2 tracking-widest">Galeria (Até 6 Fotos)</p><div class="grid grid-cols-3 md:grid-cols-6 gap-2">${[0,1,2,3,4,5].map(i => `<div class="flex flex-col gap-1"><input id="new-prod-img-${i}" placeholder="${i+1}" class="prod-img-input glass-input p-2 rounded-xl text-[10px] text-white text-center"><button onclick="uploadImg('new-prod-img-${i}')" class="bg-white/5 p-2 rounded-xl hover:bg-white/10"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>`).join('')}</div><textarea id="new-prod-desc" placeholder="Descrição completa..." class="w-full glass-input p-4 rounded-2xl text-white h-32"></textarea><select id="new-prod-cat" class="glass-input p-4 rounded-2xl text-white bg-black"><option value="all">Sem Categoria</option>${state.shopCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><button onclick="addProduct('${shopId}')" class="bg-success text-black font-black px-8 py-5 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform w-full">Publicar Produto</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4">${state.shopProducts.map(p => `<div class="bg-surface p-4 rounded-3xl border border-white/5 relative group hover:border-white/20 transition-all"><img src="${p.images?.[0]||''}" class="w-full aspect-square object-cover rounded-2xl mb-3 bg-black"><h5 class="text-white font-bold truncate uppercase text-sm">${p.name}</h5><p class="text-primary font-black text-xs">${formatBRL(p.price)}</p><button onclick="deleteProduct('${shopId}','${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
-            }
         };
 
         // --- 8. FUNÇÕES DE ADMINISTRAÇÃO ---
@@ -1588,13 +1775,12 @@
                 heroTitle: el('cfg-title').value, 
                 heroDesc: el('cfg-sub').value,
                 heroDefault: el('hub-hero-default').value,
-                tutorialVideoUrl: el('cfg-video').value, // Salva Vídeo
-                tutorialPdfUrl: el('cfg-pdf').value // Salva PDF
+                tutorialVideoUrl: el('cfg-video').value,
+                tutorialPdfUrl: el('cfg-pdf').value
             }, {merge:true}); 
             alert("Hub atualizado com sucesso! ✨"); 
         };
         
-        // Helper para extrair ID do YouTube
         function getYouTubeId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
@@ -1638,16 +1824,6 @@
                             <p class="text-sm text-white">${s.whatsapp}</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-zinc-500">Tipo de Entrega</label>
-                            <p class="text-sm text-white font-bold">${s.deliveryType === 'national' ? 'Todo Brasil 🌍' : 'Local 📍'}</p>
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-zinc-500">Localização</label>
-                            <p class="text-sm text-white">${s.city || '-'} / ${s.state || '-'}</p>
-                        </div>
-                    </div>
                     <div>
                         <label class="text-[10px] uppercase font-bold text-zinc-500">Descrição / Pitch</label>
                         <div class="bg-black/30 p-4 rounded-xl text-zinc-300 text-sm italic border border-white/5 max-h-40 overflow-y-auto">
@@ -1669,7 +1845,6 @@
         
         window.closeApprovalModal = () => hide('shop-approval-modal');
 
-        // Aprovar e Reprovar (Master)
         window.approveShop = async (id) => {
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', id), { status: 'active' });
             renderAdminContent('approvals');
@@ -1683,7 +1858,6 @@
             }
         };
 
-        // Excluir Loja (Ativa)
         window.deleteShop = async (id) => {
             if(confirm("ATENÇÃO: Isso excluirá a loja permanentemente e ela perderá o acesso. Continuar?")) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', id));
@@ -1691,13 +1865,32 @@
             }
         };
         
-        // Categorias e Produtos
         window.addCategory = async (sid) => {
             const n=el('new-cat-name').value, i=el('new-cat-icon').value, b=el('new-cat-banner').value;
             if(n) { await addDoc(collection(db,'artifacts',appId,'public','data','shops',sid,'categories'), {name:n, icon:i, banner:b, order:state.shopCategories.length}); renderAdminContent('categories'); }
         };
         window.deleteCategory = async (sid, cid) => { if(confirm("Tem certeza?")) { await deleteDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'categories',cid)); renderAdminContent('categories'); } };
-        window.saveShopConfig = async (id) => { await updateDoc(doc(db,'artifacts',appId,'public','data','shops',id),{name: el('edit-shop-name').value, logo: el('edit-shop-logo').value, banner: el('edit-shop-banner').value, pixKey: el('edit-shop-pixkey').value, pixName: el('edit-shop-pixname').value, pixCity: el('edit-shop-pixcity').value}); alert("Salvo! 💜");};
+        
+        // Salvar Configurações da Loja (Incluindo Frete)
+        window.saveShopConfig = async (id) => { 
+            const shippingRates = {};
+            ALL_UFS.forEach(uf => {
+                const val = el(`rate-${uf}`)?.value;
+                if(val) shippingRates[uf] = Number(val);
+            });
+
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',id),{
+                name: el('edit-shop-name').value, 
+                logo: el('edit-shop-logo').value, 
+                banner: el('edit-shop-banner').value, 
+                pixKey: el('edit-shop-pixkey').value, 
+                pixName: el('edit-shop-pixname').value, 
+                pixCity: el('edit-shop-pixcity').value,
+                shippingRates: shippingRates
+            }); 
+            alert("Dados e tabela de fretes salvos! 💜");
+        };
+
         window.addProduct = async (sid) => {
             const name=el('new-prod-name').value, price=Number(el('new-prod-price').value), cat=el('new-prod-cat').value, desc=el('new-prod-desc').value;
             const imgs = []; for(let i=0;i<6;i++) { const v = el(`new-prod-img-${i}`)?.value; if(v) imgs.push(v); }
@@ -1705,7 +1898,6 @@
         };
         window.deleteProduct = async (sid, pid) => { if(confirm("Remover?")) { await deleteDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'products',pid)); renderAdminContent('products'); } };
 
-        // Relatório Financeiro
         window.filterFinance = () => {
             const fid = el('fin-filter-shop').value;
             const res = state.orders.filter(o => fid==='all' || o.shopId===fid).sort((a,b)=>b.at-a.at);
@@ -1715,7 +1907,6 @@
         };
         window.exportReport = () => { const fid = el('fin-filter-shop').value; const shopName = fid==='all' ? 'Geral (Todas)' : state.shops.find(s=>s.id===fid)?.name; el('print-shop-name').innerText = shopName; el('print-date').innerText = new Date().toLocaleString(); const res = state.orders.filter(o => fid==='all' || o.shopId===fid).sort((a,b)=>b.at-a.at); let tSales=0, tComm=0; el('print-table-body').innerHTML = res.map(o => { tSales += o.total; tComm += o.total * 0.03; return `<tr><td class="py-2">${new Date(o.at).toLocaleString()}</td><td class="py-2">${o.shopName}</td><td class="py-2 text-right">R$ ${o.total.toFixed(2)}</td><td class="py-2 text-right">R$ ${(o.total*0.03).toFixed(2)}</td></tr>`; }).join(''); el('print-total-sales').innerText = `R$ ${tSales.toFixed(2)}`; el('print-total-comm').innerText = `R$ ${tComm.toFixed(2)}`; window.print(); };
 
-        // Helper de Upload
         window.uploadImg = (tid) => { state.uploadTarget=tid; el('global-file-input').click(); };
         el('global-file-input').onchange = async (e) => {
             if(e.target.files[0]) {
@@ -1730,27 +1921,21 @@
             state.hubData = s.exists() ? s.data() : {name:"HUB MÍSTICO"}; 
             if(!state.currentShop && el('nav-title')) { 
                 el('nav-title').innerText = state.hubData.name || "HUB MÍSTICO"; 
-                // Atualiza o H2 com o título novo se existir, ou mantém o padrão
                 const heroTitle = state.hubData.heroTitle || 'Curadoria Exclusiva';
                 const heroDesc = state.hubData.heroDesc || 'Para Você.';
                 
-                // Só atualiza o HTML do título se o elemento existir (estiver na home)
                 if(el('hub-main-title')) {
                     el('hub-main-title').innerHTML = `${heroTitle} <br><span class="text-gradient">${heroDesc}</span>`;
                 }
 
-                // Lógica de Renderização do Banner Principal (Hero)
                 const slider = el('hub-hero-slider'); 
                 if(slider) {
                     if(state.hubData.banners && state.hubData.banners.length > 0) {
-                        // Se houver banners na lista rotativa, usa o slider
                         slider.innerHTML = state.hubData.banners.map((b, i) => `<img src="${b}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i===0?'opacity-60':'opacity-0'}" data-idx="${i}">`).join(''); 
                         startBannerRotation();
                     } else if (state.hubData.heroDefault) {
-                        // Se não houver banners, mas houver uma imagem padrão configurada
                         slider.innerHTML = `<img src="${state.hubData.heroDefault}" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                     } else {
-                        // Fallback padrão se nada for configurado
                         slider.innerHTML = `<img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=2070" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                     }
                 }
@@ -1760,14 +1945,12 @@
         onSnapshot(collection(db,'artifacts',appId,'public','data','shops'), s => { 
             state.shops = s.docs.map(d=>({id:d.id,...d.data()})); 
             
-            // Se estiver na Home, atualiza a lista de lojas com os filtros atuais
             if(el('view-hub') && !el('view-hub').classList.contains('hidden')) {
                 filterHubShops();
             }
             
             if(state.currentShop) { const up = state.shops.find(x=>x.id===state.currentShop.id); if(up) state.currentShop=up; } 
             
-            // Re-render admin content if open to update lists
             if(state.user && !el('admin-panel').classList.contains('hidden')) {
                 renderAdminContent(state.activeAdminTab);
             }
