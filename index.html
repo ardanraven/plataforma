@@ -12,6 +12,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Iconify: Biblioteca de Ícones SVG -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <!-- Máscaras de Input (Novidade para o CEP) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     
     <!-- Google Fonts: Fonte Moderna 'Outfit' -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,6 +89,11 @@
             outline: none; 
             box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); 
         }
+        .glass-input:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+            color: #71717a;
+        }
 
         /* Barra de Rolagem Personalizada */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -99,6 +107,12 @@
             background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); 
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
+        }
+
+        /* Checkbox Customizado para Frete */
+        .shipping-radio:checked + div {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
         }
 
         /* Estilos de Impressão (Relatórios) */
@@ -177,7 +191,6 @@
          2. MODAL DE CADASTRO E CONTRATO
     =========================================== -->
     <div id="registration-modal" class="fixed inset-0 z-[110] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print">
-        <!-- MODAL FIX: Flex col e max-h-[90vh] para garantir rolagem em mobile -->
         <div class="w-full max-w-2xl bg-surface border border-white/10 rounded-[2rem] p-6 md:p-10 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
             
@@ -186,7 +199,6 @@
                 <button onclick="closeRegistrationModal()" class="text-zinc-500 hover:text-white transition-colors"><iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon></button>
             </div>
 
-            <!-- Scroll Area (FIX DE SCROLL APLICADO AQUI: min-h-0 e overscroll-contain) -->
             <div class="overflow-y-auto pr-2 space-y-6 flex-1 custom-scrollbar min-h-0 overscroll-contain">
                 <!-- Etapa 1: Dados -->
                 <div class="space-y-4">
@@ -457,7 +469,6 @@
     =========================================== -->
     <div id="product-modal" class="fixed inset-0 z-[80] hidden flex items-center justify-center p-4 no-print">
         <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="closeProductModal()"></div>
-        <!-- MODAL FIX: max-h-[90vh] e overflow handling -->
         <div class="relative w-full max-w-5xl bg-[#09090b] rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] animate-slide-up">
             
             <button onclick="closeProductModal()" class="absolute top-6 right-6 z-20 bg-black/50 text-white p-3 rounded-full hover:bg-white/10 transition-colors backdrop-blur-md border border-white/10">
@@ -523,44 +534,53 @@
     </div>
 
     <!-- ==========================================
-         7. MODAL DE CHECKOUT (ENDEREÇO + PIX)
+         7. MODAL DE CHECKOUT (ENDEREÇO VIA CEP + CORREIOS)
     =========================================== -->
     <div id="checkout-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center p-4 no-print">
         <div class="absolute inset-0 bg-black/85 backdrop-blur-xl" onclick="closeCheckout()"></div>
-        <!-- MODAL FIX: Container principal com altura máxima correta -->
         <div class="relative bg-surface w-full max-w-lg rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
             
-            <!-- ETAPA 1: ENDEREÇO (FIX SCROLL: flex-1 e min-h-0 para permitir rolagem interna) -->
+            <!-- ETAPA 1: ENDEREÇO (INTEGRAÇÃO CORREIOS) -->
             <div id="checkout-step-1" class="transition-all duration-300 flex flex-col flex-1 min-h-0">
                 <div class="p-8 border-b border-white/10 bg-surfaceLight text-center shrink-0">
                     <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Dados de Entrega</h3>
-                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Para onde enviamos?</p>
+                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Busca Automática Correios 📦</p>
                 </div>
-                <!-- Conteúdo Rola Aqui (overscroll-contain adicionado) -->
+                
                 <div class="p-6 md:p-8 space-y-4 flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
                     <input id="chk-name" placeholder="Nome Completo do Recebedor" class="w-full glass-input p-4 rounded-2xl text-white">
-                    <div class="flex gap-4">
-                         <input id="chk-cep" placeholder="CEP" class="w-1/3 glass-input p-4 rounded-2xl text-white">
-                         <input id="chk-street" placeholder="Rua / Avenida" class="w-2/3 glass-input p-4 rounded-2xl text-white">
-                    </div>
-                    <div class="flex gap-4">
-                         <input id="chk-num" placeholder="Número" class="w-1/3 glass-input p-4 rounded-2xl text-white">
-                         <input id="chk-comp" placeholder="Complemento" class="w-2/3 glass-input p-4 rounded-2xl text-white">
-                    </div>
-                    <input id="chk-bairro" placeholder="Bairro" class="w-full glass-input p-4 rounded-2xl text-white">
-                    <div class="flex gap-4">
-                         <input id="chk-city" placeholder="Cidade" class="w-2/3 glass-input p-4 rounded-2xl text-white">
-                         <select id="chk-uf" onchange="calculateShipping()" class="w-1/3 glass-input p-4 rounded-2xl text-white bg-surface">
-                            <option value="">UF</option>
-                            <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option><option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option><option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option><option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option><option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option><option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option><option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option><option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option><option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
-                         </select>
-                    </div>
                     
-                    <div class="bg-black/30 p-4 rounded-2xl border border-white/5 flex justify-between items-center mt-4">
-                        <span class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Frete Estimado:</span>
-                        <span id="chk-shipping-val" class="text-white font-black">Selecione UF</span>
+                    <!-- CAMPO CEP (TRIGGER BUSCA) -->
+                    <div class="relative">
+                        <input id="chk-cep" placeholder="CEP (00000-000)" class="w-full glass-input p-4 rounded-2xl text-white font-bold tracking-widest bg-black/40 border-primary/30" onblur="searchAddress(this.value)" maxlength="9">
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 text-primary" id="cep-loading" style="display:none;">
+                            <iconify-icon icon="svg-spinners:ring-resize" width="24"></iconify-icon>
+                        </div>
                     </div>
 
+                    <div class="flex gap-4">
+                         <input id="chk-street" placeholder="Rua / Avenida" class="w-2/3 glass-input p-4 rounded-2xl text-white bg-surfaceLight/50" readonly>
+                         <input id="chk-num" placeholder="Número" class="w-1/3 glass-input p-4 rounded-2xl text-white">
+                    </div>
+                    
+                    <div class="flex gap-4">
+                         <input id="chk-bairro" placeholder="Bairro" class="w-1/2 glass-input p-4 rounded-2xl text-white bg-surfaceLight/50" readonly>
+                         <input id="chk-comp" placeholder="Complemento" class="w-1/2 glass-input p-4 rounded-2xl text-white">
+                    </div>
+                    
+                    <div class="flex gap-4">
+                         <input id="chk-city" placeholder="Cidade" class="w-2/3 glass-input p-4 rounded-2xl text-white bg-surfaceLight/50" readonly>
+                         <input id="chk-uf" placeholder="UF" class="w-1/3 glass-input p-4 rounded-2xl text-white bg-surfaceLight/50 text-center font-bold" readonly>
+                    </div>
+                    
+                    <!-- OPÇÕES DE FRETE (Dinâmico) -->
+                    <div id="shipping-options-container" class="hidden space-y-2 mt-2">
+                        <p class="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1">Selecione o Frete:</p>
+                        <div id="shipping-options-list" class="space-y-2">
+                            <!-- Injetado via JS -->
+                        </div>
+                    </div>
+                    
                     <div class="pt-4 pb-2">
                          <button onclick="handleCheckoutNext()" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all uppercase tracking-widest text-sm shrink-0">
                             Continuar para Pagamento
@@ -569,7 +589,7 @@
                 </div>
             </div>
 
-            <!-- ETAPA 2: PAGAMENTO (FIX SCROLL: flex-1 e min-h-0) -->
+            <!-- ETAPA 2: PAGAMENTO -->
             <div id="checkout-step-2" class="hidden transition-all duration-300 flex flex-col flex-1 min-h-0">
                 <div class="p-8 border-b border-white/10 bg-surfaceLight text-center relative shrink-0">
                     <button onclick="backToAddress()" class="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><iconify-icon icon="solar:arrow-left-bold" width="24"></iconify-icon></button>
@@ -626,7 +646,6 @@
          8. MODAL DE APROVAÇÃO (MASTER)
     =========================================== -->
     <div id="shop-approval-modal" class="fixed inset-0 z-[120] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden no-print">
-        <!-- MODAL FIX: Flex col e max-h para mobile -->
         <div class="w-full max-w-lg bg-surface border border-white/10 rounded-[2rem] p-8 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-6 shrink-0">
                 <h3 class="text-xl font-black text-white italic uppercase tracking-tighter">Análise de Loja</h3>
@@ -756,34 +775,35 @@
         const auth = getAuth(app);
         
         // CONSTANTES GLOBAIS
-        const appId = "hub-mistico-v3-final"; // Banco de dados Preservado
+        const appId = "hub-mistico-v3-final"; 
         const IMGBB_API_KEY = "c3d86c0c95606522cb1f5faa1be29231";
         const MASTER_EMAIL = "admin@corvo.com";
         const ALL_UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
         // ESTADO DA APLICAÇÃO (STATE MANAGEMENT)
         let state = {
-            user: null,           // Objeto User do Firebase
-            role: null,           // 'master' ou 'shop'
-            hubData: {},          // Dados de Configuração do Hub
-            shops: [],            // Lista de Todas as Lojas (ativas e pendentes)
-            orders: [],           // Lista de Todas as Vendas (Para Financeiro)
-            currentShop: null,    // Loja sendo visitada (pelo cliente) ou gerenciada (pelo lojista)
-            shopProducts: [],     // Produtos da loja atual
-            shopCategories: [],   // Categorias da loja atual
-            cart: [],             // Carrinho de Compras
-            receiptUrl: null,     // URL do comprovante Pix
-            uploadTarget: null,   // Qual input receberá a URL da imagem upada
-            activeAdminTab: 'dashboard', // Aba ativa no painel
-            tempLoginData: null,  // Dados temporários para login híbrido
-            iconTargetInput: null, // Qual input receberá o ícone escolhido
-            activeHubTab: 'national', // Aba da Home: 'national' ou 'local'
-            searchQuery: '', // Filtro de busca por nome
-            initialLoadDone: false, // Flag para controle de Deep Linking
+            user: null,           
+            role: null,           
+            hubData: {},          
+            shops: [],            
+            orders: [],           
+            currentShop: null,    
+            shopProducts: [],     
+            shopCategories: [],   
+            cart: [],             
+            receiptUrl: null,     
+            uploadTarget: null,   
+            activeAdminTab: 'dashboard', 
+            tempLoginData: null,  
+            iconTargetInput: null, 
+            activeHubTab: 'national', 
+            searchQuery: '', 
+            initialLoadDone: false, 
             // Novos campos para Checkout com Endereço
             checkoutData: {
                 address: {},
-                shippingCost: 0
+                shippingCost: 0,
+                shippingMethod: '' // PAC ou SEDEX
             }
         };
 
@@ -796,17 +816,21 @@
         // Helper Slugify para criar links amigáveis
         const createSlug = (text) => {
             return text.toString().toLowerCase().trim()
-                .replace(/\s+/g, '-')           // Substitui espaços por hifens
-                .replace(/[^\w\-]+/g, '')       // Remove caracteres não-word (exceto hifens)
-                .replace(/\-\-+/g, '-');        // Substitui múltiplos hifens por um só
+                .replace(/\s+/g, '-')           
+                .replace(/[^\w\-]+/g, '')       
+                .replace(/\-\-+/g, '-');        
         };
+
+        // --- INICIALIZAÇÃO DE MÁSCARA (JQUERY) ---
+        $(document).ready(function(){
+            $('#chk-cep').mask('00000-000');
+            $('#edit-shop-cep').mask('00000-000');
+        });
 
         // --- 1. LÓGICA DE NAVEGAÇÃO E UI DO SITE ---
 
-        // Função para Compartilhar Link da Loja (MODIFICADO PARA USAR SLUG)
         window.shareShopLink = () => {
             if(state.currentShop) {
-                // Cria o link limpo com o SLUG (ex: seusite.com/?shop=nome-da-loja)
                 const slug = createSlug(state.currentShop.name);
                 const link = `${window.location.origin}${window.location.pathname}?shop=${slug}`;
                 
@@ -819,29 +843,18 @@
             }
         };
 
-        // Escuta o botão "Voltar" do navegador (Histórico) - MODIFICADO PARA RESOLVER SLUG
         window.onpopstate = (event) => {
             const urlParams = new URLSearchParams(window.location.search);
             const shopSlug = urlParams.get('shop');
 
             if (shopSlug) {
-                // Se tem SLUG na URL, precisamos encontrar a loja correspondente
                 if (state.shops.length > 0) {
-                     // Tenta encontrar por ID primeiro (retrocompatibilidade)
                      let foundShop = state.shops.find(s => s.id === shopSlug);
-                     
-                     // Se não achou por ID, tenta achar pelo Slug do nome
-                     if(!foundShop) {
-                        foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
-                     }
-
-                     if(foundShop) {
-                        enterShop(foundShop.id, false); // Abre a loja encontrada
-                     }
+                     if(!foundShop) foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
+                     if(foundShop) enterShop(foundShop.id, false);
                 }
             } else {
-                // Se não tem ID, vai pro Hub (sem mexer no histórico de novo)
-                goToHub(false); // false = não faz pushState
+                goToHub(false);
             }
         };
 
@@ -854,40 +867,31 @@
             el('nav-icon').classList.remove('hidden'); 
             el('nav-logo-img').classList.add('hidden');
             
-            // Limpa a URL se solicitado (clique no logo, botão voltar interno)
             if(updateHistory) {
                 const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                 window.history.pushState({path: cleanUrl}, '', cleanUrl);
             }
             
-            // Renderiza grid baseado na aba e busca
             filterHubShops();
 
-            // Lógica do Hero: Carrossel ou Imagem Única Padrão
             const slider = el('hub-hero-slider');
             if(slider) {
                 if(state.hubData.banners && state.hubData.banners.length > 0) {
-                    // Modo Carrossel
                     slider.innerHTML = state.hubData.banners.map((b, i) => 
                         `<img src="${b}" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${i===0?'opacity-60':'opacity-0'}" data-idx="${i}">`
                     ).join('');
                     startBannerRotation();
                 } else if(state.hubData.heroDefault) {
-                    // Modo Imagem Única Padrão
                     slider.innerHTML = `<img src="${state.hubData.heroDefault}" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                 } else {
-                    // Fallback (Imagem do Unsplash)
                     slider.innerHTML = `<img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=2070" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                 }
             }
             window.scrollTo(0,0);
         };
 
-        // Lógica de Abas da Home
         window.switchHubTab = (tab) => {
             state.activeHubTab = tab;
-            
-            // Visual dos botões
             const btnNat = el('tab-btn-national');
             const btnLoc = el('tab-btn-local');
             const filters = el('local-filters');
@@ -905,42 +909,31 @@
                 btnNat.classList.add('text-zinc-400');
                 filters.classList.remove('hidden');
             }
-            
             filterHubShops();
         };
 
-        // Lógica de Filtragem (Busca e Localização)
         window.filterHubShops = () => {
             const query = el('hub-search-input').value.toLowerCase();
             const grid = el('shops-grid');
             
-            let filtered = state.shops.filter(s => s.status !== 'pending'); // Apenas ativas
+            let filtered = state.shops.filter(s => s.status !== 'pending');
 
-            // 1. Filtro por Aba (Nacional vs Local)
             if(state.activeHubTab === 'national') {
                 filtered = filtered.filter(s => !s.deliveryType || s.deliveryType === 'national');
             } else {
                 filtered = filtered.filter(s => s.deliveryType === 'local');
-                
-                // Filtro de Cidade/Estado (Apenas na aba Local)
                 const uf = el('filter-uf').value;
                 const city = el('filter-city').value.toLowerCase();
-                
                 if(uf) filtered = filtered.filter(s => s.state === uf);
                 if(city) filtered = filtered.filter(s => s.city && s.city.toLowerCase().includes(city));
             }
 
-            // 2. Filtro por Nome (Global)
             if(query) {
                 filtered = filtered.filter(s => s.name.toLowerCase().includes(query));
             }
 
-            // Renderizar
             if(filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-zinc-500 font-bold uppercase tracking-widest flex flex-col items-center gap-4">
-                    <iconify-icon icon="solar:sad-square-bold-duotone" width="48"></iconify-icon>
-                    Nenhuma loja encontrada nesta categoria.
-                </div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-zinc-500 font-bold uppercase tracking-widest flex flex-col items-center gap-4"><iconify-icon icon="solar:sad-square-bold-duotone" width="48"></iconify-icon>Nenhuma loja encontrada nesta categoria.</div>`;
             } else {
                 grid.innerHTML = filtered.map(s => `
                 <div onclick="enterShop('${s.id}')" class="group relative overflow-hidden rounded-[2.5rem] bg-surfaceLight border border-white/5 cursor-pointer shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2">
@@ -993,7 +986,6 @@
             show('cart-trigger'); 
             window.scrollTo(0,0);
             
-            // Atualiza URL com o SLUG (nome da loja) em vez do ID
             if(updateHistory) {
                 const slug = createSlug(shop.name);
                 const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?shop=' + slug;
@@ -1006,11 +998,9 @@
             el('shop-banner-img').src = shop.banner || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070';
             el('nav-title').innerText = shop.name;
             
-            // Mostrar endereço se houver
             if(shop.city && shop.state) {
                 el('shop-location-tag').classList.remove('hidden');
                 el('shop-city-text').innerText = `${shop.city} - ${shop.state}`;
-                
                 el('shop-city-mobile').classList.remove('hidden');
                 el('shop-city-mobile').innerText = `${shop.city} - ${shop.state}`;
             } else {
@@ -1119,7 +1109,7 @@
         };
         window.closeProductModal = () => hide('product-modal');
 
-        // --- 3. SELETOR DE ÍCONES (ICON PICKER) ---
+        // --- 3. SELETOR DE ÍCONES ---
         window.openIconPicker = (targetInputId) => {
             state.iconTargetInput = targetInputId;
             show('icon-picker-modal');
@@ -1211,40 +1201,124 @@
             el('cart-total-price').innerText = formatBRL(total);
         }
 
-        // --- 5. CHECKOUT REFORMULADO (ENDEREÇO + PIX) ---
+        // --- 5. CHECKOUT INTEGRADO (VIA CEP + CORREIOS SIMULATION) ---
         window.initCheckout = () => {
             if(!state.cart.length) return alert("Sua sacola está vazia! Adicione produtos primeiro.");
             toggleCart(); 
             state.receiptUrl = null; 
-            state.checkoutData = { address: {}, shippingCost: 0 };
+            state.checkoutData = { address: {}, shippingCost: 0, shippingMethod: '' };
             
-            // Reseta visual
             show('checkout-step-1');
             hide('checkout-step-2');
+            
+            el('chk-cep').value = "";
+            el('chk-street').value = "";
+            el('chk-bairro').value = "";
+            el('chk-city').value = "";
             el('chk-uf').value = "";
-            el('chk-shipping-val').innerText = "Selecione UF";
+            
+            hide('shipping-options-container');
             
             show('checkout-modal');
         };
 
-        // Calcula frete com base na UF selecionada
-        window.calculateShipping = () => {
-            const uf = el('chk-uf').value;
-            if(!uf) {
-                state.checkoutData.shippingCost = 0;
-                el('chk-shipping-val').innerText = "Selecione UF";
-                return;
-            }
+        // --- INTEGRAÇÃO API VIACEP E LÓGICA DE FRETE ---
+        window.searchAddress = async (cepValue) => {
+            const cep = cepValue.replace(/\D/g, '');
+            if(cep.length !== 8) return;
 
-            // Pega o valor configurado pelo lojista (ou 0 se não existir)
-            const rates = state.currentShop.shippingRates || {};
-            const cost = Number(rates[uf]) || 0;
-            
-            state.checkoutData.shippingCost = cost;
-            el('chk-shipping-val').innerText = cost === 0 ? "Grátis" : formatBRL(cost);
+            show('cep-loading');
+
+            try {
+                // 1. Busca Endereço no ViaCEP
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+
+                if(data.erro) {
+                    alert("CEP não encontrado.");
+                    hide('cep-loading');
+                    return;
+                }
+
+                // Preenche Campos Automaticamente
+                el('chk-street').value = data.logradouro;
+                el('chk-bairro').value = data.bairro;
+                el('chk-city').value = data.localidade;
+                el('chk-uf').value = data.uf;
+
+                // 2. Calcula Frete (Simulação Correios)
+                calculateRealShipping(cep);
+            } catch(error) {
+                console.error(error);
+                alert("Erro ao buscar CEP. Verifique sua conexão.");
+            } finally {
+                hide('cep-loading');
+            }
         };
 
-        // Avança para o pagamento após validar endereço
+        // Função de Simulação Inteligente de Frete (Client-Side Logic)
+        function calculateRealShipping(destCep) {
+            const originCep = state.currentShop.originCep || '01001000'; // Default SP se não tiver
+            
+            // Lógica baseada na "Distância" dos CEPs (Primeiro dígito = Região)
+            const originRegion = originCep.substring(0, 1);
+            const destRegion = destCep.substring(0, 1);
+            
+            let pacPrice = 0;
+            let sedexPrice = 0;
+            
+            // Mesmo estado/região postal (Local)
+            if(originRegion === destRegion) {
+                pacPrice = 18.90;
+                sedexPrice = 24.90;
+            } 
+            // Regiões vizinhas (Simulação simples pela diferença numérica)
+            else if(Math.abs(parseInt(originRegion) - parseInt(destRegion)) <= 2) {
+                pacPrice = 28.50;
+                sedexPrice = 42.90;
+            } 
+            // Nacional (Longe)
+            else {
+                pacPrice = 35.90;
+                sedexPrice = 68.90;
+            }
+
+            // Renderiza Opções
+            const container = el('shipping-options-list');
+            container.innerHTML = `
+                <label class="flex items-center justify-between p-4 rounded-xl border border-white/10 cursor-pointer hover:border-primary/50 transition-colors bg-surfaceLight/30">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="shipping" class="shipping-radio w-5 h-5 text-primary bg-black border-zinc-600 focus:ring-primary" onchange="selectShipping('PAC', ${pacPrice})" checked>
+                        <div>
+                            <span class="block text-white font-bold text-sm">PAC (Normal)</span>
+                            <span class="block text-zinc-500 text-[10px]">5 a 12 dias úteis</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-black">${formatBRL(pacPrice)}</span>
+                </label>
+                
+                <label class="flex items-center justify-between p-4 rounded-xl border border-white/10 cursor-pointer hover:border-primary/50 transition-colors bg-surfaceLight/30">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="shipping" class="shipping-radio w-5 h-5 text-primary bg-black border-zinc-600 focus:ring-primary" onchange="selectShipping('SEDEX', ${sedexPrice})">
+                        <div>
+                            <span class="block text-white font-bold text-sm">SEDEX (Expresso)</span>
+                            <span class="block text-zinc-500 text-[10px]">1 a 3 dias úteis</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-black">${formatBRL(sedexPrice)}</span>
+                </label>
+            `;
+            
+            show('shipping-options-container');
+            // Seleciona PAC por padrão
+            selectShipping('PAC', pacPrice);
+        }
+
+        window.selectShipping = (method, price) => {
+            state.checkoutData.shippingMethod = method;
+            state.checkoutData.shippingCost = price;
+        };
+
         window.handleCheckoutNext = () => {
             const address = {
                 name: el('chk-name').value,
@@ -1257,13 +1331,15 @@
                 uf: el('chk-uf').value
             };
 
-            if(!address.name || !address.street || !address.num || !address.city || !address.uf) {
-                return alert("Por favor, preencha todos os campos obrigatórios do endereço.");
+            if(!address.name || !address.cep || !address.street || !address.num || !address.city || !address.uf) {
+                return alert("Por favor, preencha todos os campos obrigatórios.");
+            }
+            
+            if(!state.checkoutData.shippingMethod) {
+                return alert("Aguarde o cálculo do frete.");
             }
 
             state.checkoutData.address = address;
-            calculateShipping(); // Garante cálculo atualizado
-
             goToPayment();
         };
 
@@ -1359,22 +1435,25 @@
             const shop = state.currentShop;
             const subtotal = state.cart.reduce((a,b)=>a+Number(b.price),0);
             const shipping = state.checkoutData.shippingCost;
+            const method = state.checkoutData.shippingMethod;
             const total = subtotal + shipping;
             const addr = state.checkoutData.address;
 
             // --- FORMATO DE MENSAGEM DO WHATSAPP ATUALIZADO ---
-            let msg = `🤖 *NOVO PEDIDO - ${shop.name.toUpperCase()}* 🚀\n\n`; // Emoji de foguete/sacola
+            let msg = `🤖 *NOVO PEDIDO - ${shop.name.toUpperCase()}* 🚀\n\n`; 
             
             msg += `😎 *Cliente:* ${addr.name}\n`;
-            msg += `🗺️ *Entrega:* ${addr.street}, ${addr.num} ${addr.comp ? `(${addr.comp})` : ''} - ${addr.bairro}\n`;
-            msg += `🌆 *Cidade:* ${addr.city} / ${addr.uf}\n`;
-            msg += `📦 *CEP:* ${addr.cep}\n\n`;
+            msg += `📦 *CEP:* ${addr.cep}\n`;
+            msg += `🗺️ *Endereço:* ${addr.street}, ${addr.num}\n`;
+            msg += `${addr.comp ? `🏠 *Comp:* ${addr.comp}\n` : ''}`;
+            msg += `🏘️ *Bairro:* ${addr.bairro}\n`;
+            msg += `🌆 *Cidade:* ${addr.city} / ${addr.uf}\n\n`;
             
             msg += `👜 *ITENS:*\n`;
             state.cart.forEach(i => msg += `• ${i.name} - ${formatBRL(i.price)}\n`);
             
             msg += `\n 🏷️ *Subtotal:* ${formatBRL(subtotal)}`;
-            msg += `\n 🚚 *Frete (${addr.uf}):* ${formatBRL(shipping)}`;
+            msg += `\n 🚚 *Frete (${method}):* ${formatBRL(shipping)}`;
             msg += `\n 💰 *TOTAL FINAL: ${formatBRL(total)}*\n`;
             
             msg += `\n💳 *Pagamento:* A Combinar/Pendente`;
@@ -1387,6 +1466,7 @@
                 total, 
                 subtotal,
                 shipping,
+                shippingMethod: method,
                 address: addr,
                 receipt: state.receiptUrl, 
                 at: Date.now(), 
@@ -1401,7 +1481,6 @@
 
         // --- 6. AUTENTICAÇÃO E ADMINISTRAÇÃO ---
         
-        // Modal de Cadastro
         window.openRegistrationModal = () => {
             hide('auth-layer');
             show('registration-modal');
@@ -1411,7 +1490,6 @@
             show('auth-layer');
         };
 
-        // Enviar Cadastro
         window.submitRegistration = async () => {
             const name = el('reg-name').value;
             const email = el('reg-email').value;
@@ -1419,8 +1497,6 @@
             const wa = el('reg-wa').value;
             const desc = el('reg-desc').value;
             const agree = el('reg-agree').checked;
-            
-            // Novos campos
             const type = el('reg-type').value;
             const uf = el('reg-uf').value;
             const city = el('reg-city').value;
@@ -1429,7 +1505,6 @@
             if(!agree) return alert("Você precisa concordar com os termos para continuar.");
 
             try {
-                // Cria com status 'pending'
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops'), {
                     name, email, password: pass, whatsapp: wa, description: desc, 
                     at: Date.now(),
@@ -1467,7 +1542,6 @@
                     if(!snap.empty) { 
                         const shopData = snap.docs[0].data();
                         
-                        // VERIFICAÇÃO DE STATUS
                         if(shopData.status === 'pending') {
                             errDiv.innerText = "Conta em análise. Aguarde aprovação.";
                             errDiv.classList.remove('hidden');
@@ -1558,7 +1632,62 @@
                 </div>`;
             }
 
-            // --- ABA: APROVAÇÕES (MASTER) ---
+            // --- ABA: SHOP SETTINGS (ATUALIZADA COM CEP) ---
+            if(tab === 'shop-settings' && state.role === 'shop') {
+                title.innerText = "Minha Loja"; const s = state.currentShop;
+                
+                content.innerHTML = `
+                <div class="max-w-4xl bg-surfaceLight p-8 rounded-[2rem] border border-white/5 space-y-6">
+                    <h3 class="text-white font-bold border-b border-white/10 pb-2 uppercase text-sm">Dados Básicos</h3>
+                    <input id="edit-shop-name" value="${s.name}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="Nome da Loja">
+                    <div class="flex gap-4">
+                        <div class="flex-1 space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Logo</label>
+                            <div class="flex gap-2"><input id="edit-shop-logo" value="${s.logo||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-logo')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Banner Principal</label>
+                            <div class="flex gap-2"><input id="edit-shop-banner" value="${s.banner||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-8 border-t border-white/10">
+                        <h3 class="text-primary font-bold mb-6 uppercase text-sm flex items-center gap-2"><iconify-icon icon="logos:pix"></iconify-icon> Dados para Recebimento Pix</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input id="edit-shop-pixkey" value="${s.pixKey||''}" placeholder="Chave Pix (CPF/Email/Tel)" class="glass-input p-4 rounded-2xl text-white">
+                            <input id="edit-shop-pixname" value="${s.pixName||''}" placeholder="Nome do Beneficiário" class="glass-input p-4 rounded-2xl text-white">
+                            <input id="edit-shop-pixcity" value="${s.pixCity||''}" placeholder="Cidade" class="glass-input p-4 rounded-2xl text-white md:col-span-2">
+                        </div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/10">
+                        <h3 class="text-accent font-bold mb-6 uppercase text-sm flex items-center gap-2">
+                            <iconify-icon icon="solar:truck-bold"></iconify-icon> Configuração de Frete (Correios)
+                        </h3>
+                        <p class="text-xs text-zinc-500 mb-4">Insira o CEP de onde seus produtos saem. O sistema usará isso para calcular o frete automaticamente para o cliente.</p>
+                        
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">CEP de Origem (Estoque)</label>
+                            <input id="edit-shop-cep" value="${s.originCep||''}" placeholder="00000-000" class="w-full glass-input p-4 rounded-2xl text-white font-bold tracking-widest bg-black/40 border-primary/30" maxlength="9">
+                        </div>
+                    </div>
+
+                    <button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button>
+                </div>`;
+                
+                // Reaplica máscara
+                $('#edit-shop-cep').mask('00000-000');
+            }
+
+            // --- OUTRAS ABAS (Mantidas iguais) ---
+            if(tab === 'categories' && state.role === 'shop') {
+                title.innerText = "Categorias"; const shopId = state.currentShop.id;
+                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Nova Categoria</h4><div class="flex flex-col gap-4"><div class="flex gap-4"><input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white"><div class="flex gap-2 w-1/3"><input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white"><button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white"><iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon></button></div></div><div class="flex gap-2"><input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div><button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button></div></div><div class="space-y-3">${state.shopCategories.map(c => `<div class="flex justify-between items-center bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><iconify-icon icon="${c.icon||'solar:tag-bold'}"></iconify-icon></div><div><span class="block text-white font-bold">${c.name}</span>${c.banner ? '<span class="text-[10px] text-green-500 uppercase font-bold">Com Banner</span>' : ''}</div></div><button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
+            }
+            if(tab === 'products' && state.role === 'shop') {
+                title.innerText = "Produtos"; const shopId = state.currentShop.id;
+                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Novo Produto</h4><div class="space-y-4 mb-6"><div class="grid grid-cols-2 gap-4"><input id="new-prod-name" placeholder="Nome" class="glass-input p-4 rounded-2xl text-white"><input id="new-prod-price" type="number" placeholder="Preço" class="glass-input p-4 rounded-2xl text-white"></div><p class="text-[10px] font-bold text-zinc-500 uppercase ml-2 tracking-widest">Galeria (Até 6 Fotos)</p><div class="grid grid-cols-3 md:grid-cols-6 gap-2">${[0,1,2,3,4,5].map(i => `<div class="flex flex-col gap-1"><input id="new-prod-img-${i}" placeholder="${i+1}" class="prod-img-input glass-input p-2 rounded-xl text-[10px] text-white text-center"><button onclick="uploadImg('new-prod-img-${i}')" class="bg-white/5 p-2 rounded-xl hover:bg-white/10"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>`).join('')}</div><textarea id="new-prod-desc" placeholder="Descrição completa..." class="w-full glass-input p-4 rounded-2xl text-white h-32"></textarea><select id="new-prod-cat" class="glass-input p-4 rounded-2xl text-white bg-black"><option value="all">Sem Categoria</option>${state.shopCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><button onclick="addProduct('${shopId}')" class="bg-success text-black font-black px-8 py-5 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform w-full">Publicar Produto</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4">${state.shopProducts.map(p => `<div class="bg-surface p-4 rounded-3xl border border-white/5 relative group hover:border-white/20 transition-all"><img src="${p.images?.[0]||''}" class="w-full aspect-square object-cover rounded-2xl mb-3 bg-black"><h5 class="text-white font-bold truncate uppercase text-sm">${p.name}</h5><p class="text-primary font-black text-xs">${formatBRL(p.price)}</p><button onclick="deleteProduct('${shopId}','${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
+            }
             if(tab === 'approvals' && state.role === 'master') {
                 title.innerText = "Solicitações de Parceria";
                 const pending = state.shops.filter(s => s.status === 'pending');
@@ -1601,12 +1730,9 @@
                     </div>`;
                 }
             }
-
-            // --- ABA: LOJAS LIST (MASTER) ---
             if(tab === 'shops-list' && state.role === 'master') {
                 title.innerText = "Lojas Ativas";
                 const active = state.shops.filter(s => s.status !== 'pending');
-
                 content.innerHTML = `
                 <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8">
                     <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Criar Manualmente</h4>
@@ -1618,7 +1744,6 @@
                     </div>
                     <button onclick="createShop()" class="bg-primary text-white font-black px-8 py-4 rounded-2xl uppercase tracking-widest hover:scale-105 transition-transform text-xs">Criar Acesso Ativo</button>
                 </div>
-                
                 <h4 class="text-white font-bold mb-4 uppercase text-sm tracking-widest pl-2">Lojas Ativas (${active.length})</h4>
                 <div class="space-y-4">
                     ${active.map(s => `
@@ -1637,12 +1762,9 @@
                         </div>`).join('')}
                 </div>`;
             }
-
-            // --- ABA: HISTÓRICO DE PEDIDOS (SHOP) ---
             if(tab === 'orders' && state.role === 'shop') {
                 title.innerText = "Histórico de Pedidos";
                 const myOrders = state.orders.filter(o => o.shopId === state.currentShop.id).sort((a,b) => b.at - a.at);
-                
                 content.innerHTML = `
                 <div class="bg-surfaceLight p-6 rounded-[2rem] border border-white/5 mb-6 flex justify-between items-center">
                     <div>
@@ -1654,22 +1776,21 @@
                         <p class="text-3xl font-black text-white mt-1">${myOrders.length}</p>
                     </div>
                 </div>
-
                 <div class="overflow-hidden bg-surface rounded-[2rem] border border-white/5">
                     <table class="w-full text-left text-sm text-zinc-400">
                         <thead class="bg-black/30 text-white uppercase text-xs tracking-widest font-black">
-                            <tr><th class="p-6">Data</th><th class="p-6">Cliente</th><th class="p-6 text-right">Itens</th><th class="p-6 text-right">Total</th></tr>
+                            <tr><th class="p-6">Data</th><th class="p-6">Cliente</th><th class="p-6 text-right">Frete</th><th class="p-6 text-right">Total</th></tr>
                         </thead>
                         <tbody class="divide-y divide-white/5 font-mono">
                             ${myOrders.map(o => `
                                 <tr>
-                                    <td class="p-6 text-white">${new Date(o.at).toLocaleDateString()} <span class="text-zinc-600 text-[10px]">${new Date(o.at).toLocaleTimeString()}</span></td>
+                                    <td class="p-6 text-white">${new Date(o.at).toLocaleDateString()}</td>
                                     <td class="p-6">
                                         <div class="text-white font-bold text-xs">${o.address?.name || 'Cliente'}</div>
                                         <div class="text-zinc-600 text-[10px]">${o.address?.city || ''}/${o.address?.uf || ''}</div>
                                     </td>
                                     <td class="p-6 text-right text-xs">
-                                        ${o.items.join(', ')}
+                                        ${o.shippingMethod || 'Fixo'} - ${formatBRL(o.shipping || 0)}
                                     </td>
                                     <td class="p-6 text-right font-bold text-white">${formatBRL(o.total)}</td>
                                 </tr>
@@ -1679,113 +1800,18 @@
                     </table>
                 </div>`;
             }
-
-            // --- ABA: TUTORIAL E AJUDA (SHOP) ---
             if(tab === 'tutorial' && state.role === 'shop') {
                 title.innerText = "Tutorial & Ajuda";
                 const videoId = state.hubData.tutorialVideoUrl ? getYouTubeId(state.hubData.tutorialVideoUrl) : '';
-                
                 content.innerHTML = `
                 <div class="max-w-4xl mx-auto space-y-8">
                     <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
                         <h4 class="text-white font-bold uppercase text-sm tracking-widest mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:videocamera-record-bold" class="text-primary"></iconify-icon> Como usar a Plataforma
                         </h4>
-                        
-                        ${videoId ? `
-                        <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" title="Tutorial Lojista" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>` : 
-                        `<div class="aspect-video w-full rounded-2xl overflow-hidden bg-black/50 flex flex-col items-center justify-center text-zinc-500 gap-4 border border-white/5 border-dashed">
-                            <iconify-icon icon="solar:clapperboard-edit-bold-duotone" width="48"></iconify-icon>
-                            <p class="text-xs font-bold uppercase tracking-widest">Nenhum vídeo disponível no momento.</p>
-                        </div>`}
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-[2rem] border border-primary/20 flex flex-col items-start justify-between">
-                            <div>
-                                <h4 class="text-white font-bold text-xl mb-2">Manual de Banners</h4>
-                                <p class="text-zinc-400 text-sm mb-6">Baixe o guia oficial com todas as medidas e dicas para criar artes incríveis para sua loja.</p>
-                            </div>
-                            ${state.hubData.tutorialPdfUrl ? 
-                            `<a href="${state.hubData.tutorialPdfUrl}" target="_blank" class="bg-white text-black font-black px-6 py-3 rounded-xl uppercase text-xs tracking-widest hover:scale-105 transition-transform flex items-center gap-2 shadow-lg">
-                                <iconify-icon icon="solar:file-download-bold"></iconify-icon> Baixar PDF
-                            </a>` : 
-                            `<button disabled class="bg-white/10 text-white/50 font-bold px-6 py-3 rounded-xl uppercase text-xs tracking-widest cursor-not-allowed">Indisponível</button>`}
-                        </div>
-
-                        <div class="bg-surface p-8 rounded-[2rem] border border-white/5 flex flex-col justify-center gap-4">
-                            <h4 class="text-white font-bold uppercase text-xs tracking-widest mb-2">Precisa de mais ajuda?</h4>
-                            <a href="https://wa.me/5541999999999" target="_blank" class="flex items-center gap-4 p-4 rounded-xl bg-surfaceLight hover:bg-white/5 transition-colors group border border-white/5">
-                                <div class="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <iconify-icon icon="logos:whatsapp-icon"></iconify-icon>
-                                </div>
-                                <div>
-                                    <span class="block font-bold text-white">Suporte Master</span>
-                                    <span class="block text-zinc-500 text-xs">Fale com o Administrador</span>
-                                </div>
-                            </a>
-                        </div>
+                        ${videoId ? `<div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" title="Tutorial Lojista" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>` : `<div class="aspect-video w-full rounded-2xl overflow-hidden bg-black/50 flex flex-col items-center justify-center text-zinc-500 gap-4 border border-white/5 border-dashed"><iconify-icon icon="solar:clapperboard-edit-bold-duotone" width="48"></iconify-icon><p class="text-xs font-bold uppercase tracking-widest">Nenhum vídeo disponível no momento.</p></div>`}
                     </div>
                 </div>`;
-            }
-
-            // --- ABA: SHOP SETTINGS (Atualizado com Frete) ---
-            if(tab === 'shop-settings' && state.role === 'shop') {
-                title.innerText = "Minha Loja"; const s = state.currentShop;
-                const rates = s.shippingRates || {};
-                
-                content.innerHTML = `
-                <div class="max-w-4xl bg-surfaceLight p-8 rounded-[2rem] border border-white/5 space-y-6">
-                    <h3 class="text-white font-bold border-b border-white/10 pb-2 uppercase text-sm">Dados Básicos</h3>
-                    <input id="edit-shop-name" value="${s.name}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="Nome da Loja">
-                    <div class="flex gap-4">
-                        <div class="flex-1 space-y-1">
-                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Logo</label>
-                            <div class="flex gap-2"><input id="edit-shop-logo" value="${s.logo||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-logo')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
-                        </div>
-                        <div class="flex-1 space-y-1">
-                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Banner Principal</label>
-                            <div class="flex gap-2"><input id="edit-shop-banner" value="${s.banner||''}" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('edit-shop-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-8 border-t border-white/10">
-                        <h3 class="text-primary font-bold mb-6 uppercase text-sm flex items-center gap-2"><iconify-icon icon="logos:pix"></iconify-icon> Dados para Recebimento Pix</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input id="edit-shop-pixkey" value="${s.pixKey||''}" placeholder="Chave Pix (CPF/Email/Tel)" class="glass-input p-4 rounded-2xl text-white">
-                            <input id="edit-shop-pixname" value="${s.pixName||''}" placeholder="Nome do Beneficiário" class="glass-input p-4 rounded-2xl text-white">
-                            <input id="edit-shop-pixcity" value="${s.pixCity||''}" placeholder="Cidade" class="glass-input p-4 rounded-2xl text-white md:col-span-2">
-                        </div>
-                    </div>
-
-                    <div class="pt-8 border-t border-white/10">
-                        <h3 class="text-accent font-bold mb-6 uppercase text-sm flex items-center gap-2">
-                            <iconify-icon icon="solar:truck-bold"></iconify-icon> Tabela de Fretes (Por Estado)
-                        </h3>
-                        <p class="text-xs text-zinc-500 mb-4">Defina o valor fixo do frete para cada UF. Deixe 0 para Grátis.</p>
-                        <div class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-3">
-                            ${ALL_UFS.map(uf => `
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black text-zinc-500 text-center block">${uf}</label>
-                                    <input type="number" id="rate-${uf}" value="${rates[uf] || 0}" class="w-full glass-input p-2 rounded-xl text-white text-center text-xs font-bold" min="0" step="0.01">
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button>
-                </div>`;
-            }
-
-            if(tab === 'categories' && state.role === 'shop') {
-                title.innerText = "Categorias"; const shopId = state.currentShop.id;
-                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Nova Categoria</h4><div class="flex flex-col gap-4"><div class="flex gap-4"><input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white"><div class="flex gap-2 w-1/3"><input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white"><button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white"><iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon></button></div></div><div class="flex gap-2"><input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div><button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button></div></div><div class="space-y-3">${state.shopCategories.map(c => `<div class="flex justify-between items-center bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><iconify-icon icon="${c.icon||'solar:tag-bold'}"></iconify-icon></div><div><span class="block text-white font-bold">${c.name}</span>${c.banner ? '<span class="text-[10px] text-green-500 uppercase font-bold">Com Banner</span>' : ''}</div></div><button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
-            }
-            if(tab === 'products' && state.role === 'shop') {
-                title.innerText = "Produtos"; const shopId = state.currentShop.id;
-                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Novo Produto</h4><div class="space-y-4 mb-6"><div class="grid grid-cols-2 gap-4"><input id="new-prod-name" placeholder="Nome" class="glass-input p-4 rounded-2xl text-white"><input id="new-prod-price" type="number" placeholder="Preço" class="glass-input p-4 rounded-2xl text-white"></div><p class="text-[10px] font-bold text-zinc-500 uppercase ml-2 tracking-widest">Galeria (Até 6 Fotos)</p><div class="grid grid-cols-3 md:grid-cols-6 gap-2">${[0,1,2,3,4,5].map(i => `<div class="flex flex-col gap-1"><input id="new-prod-img-${i}" placeholder="${i+1}" class="prod-img-input glass-input p-2 rounded-xl text-[10px] text-white text-center"><button onclick="uploadImg('new-prod-img-${i}')" class="bg-white/5 p-2 rounded-xl hover:bg-white/10"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div>`).join('')}</div><textarea id="new-prod-desc" placeholder="Descrição completa..." class="w-full glass-input p-4 rounded-2xl text-white h-32"></textarea><select id="new-prod-cat" class="glass-input p-4 rounded-2xl text-white bg-black"><option value="all">Sem Categoria</option>${state.shopCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div><button onclick="addProduct('${shopId}')" class="bg-success text-black font-black px-8 py-5 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform w-full">Publicar Produto</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4">${state.shopProducts.map(p => `<div class="bg-surface p-4 rounded-3xl border border-white/5 relative group hover:border-white/20 transition-all"><img src="${p.images?.[0]||''}" class="w-full aspect-square object-cover rounded-2xl mb-3 bg-black"><h5 class="text-white font-bold truncate uppercase text-sm">${p.name}</h5><p class="text-primary font-black text-xs">${formatBRL(p.price)}</p><button onclick="deleteProduct('${shopId}','${p.id}')" class="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
             }
             if(tab === 'hub-config' && state.role === 'master') {
                 title.innerText = "Configuração Hub";
@@ -1861,7 +1887,6 @@
         window.addHubBanner = async () => { const u = el('hub-new-banner').value; if(u) { await setDoc(doc(db,'artifacts',appId,'public','data','config','hub'), {banners: [...(state.hubData.banners||[]), u]}, {merge:true}); renderAdminContent('hub-config'); } };
         window.removeHubBanner = async (i) => { const b = state.hubData.banners||[]; b.splice(i,1); await setDoc(doc(db,'artifacts',appId,'public','data','config','hub'), {banners:b}, {merge:true}); renderAdminContent('hub-config'); };
         
-        // Criar Loja Manualmente (Ativa)
         window.createShop = async () => { 
             const n=el('new-shop-name').value, e=el('new-shop-email').value, p=el('new-shop-pass').value, w=el('new-shop-wa').value; 
             if(n&&e) { 
@@ -1873,44 +1898,17 @@
             } 
         };
 
-        // -- LOGICA DO MODAL DE APROVAÇÃO --
         window.openApprovalModal = (id) => {
             const s = state.shops.find(x => x.id === id);
             if(!s) return;
-            
             const modalContent = el('approval-modal-content');
             modalContent.innerHTML = `
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] uppercase font-bold text-zinc-500">Nome da Loja</label>
-                        <p class="text-xl font-bold text-white">${s.name}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-zinc-500">Email</label>
-                            <p class="text-sm text-white">${s.email}</p>
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-zinc-500">WhatsApp</label>
-                            <p class="text-sm text-white">${s.whatsapp}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-[10px] uppercase font-bold text-zinc-500">Descrição / Pitch</label>
-                        <div class="bg-black/30 p-4 rounded-xl text-zinc-300 text-sm italic border border-white/5 max-h-40 overflow-y-auto">
-                            "${s.description || 'Nenhuma descrição fornecida.'}"
-                        </div>
-                    </div>
-                    <div class="pt-6 flex gap-4">
-                        <button onclick="approveShop('${s.id}'); closeApprovalModal()" class="flex-1 bg-success hover:bg-emerald-400 text-black font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:scale-105 transition-transform">
-                            Aprovar e Ativar
-                        </button>
-                        <button onclick="rejectShop('${s.id}'); closeApprovalModal()" class="flex-1 bg-danger/20 hover:bg-danger text-danger hover:text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest border border-danger/20 transition-all">
-                            Recusar
-                        </button>
-                    </div>
-                </div>
-            `;
+                    <div><label class="text-[10px] uppercase font-bold text-zinc-500">Nome da Loja</label><p class="text-xl font-bold text-white">${s.name}</p></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] uppercase font-bold text-zinc-500">Email</label><p class="text-sm text-white">${s.email}</p></div><div><label class="text-[10px] uppercase font-bold text-zinc-500">WhatsApp</label><p class="text-sm text-white">${s.whatsapp}</p></div></div>
+                    <div><label class="text-[10px] uppercase font-bold text-zinc-500">Descrição</label><div class="bg-black/30 p-4 rounded-xl text-zinc-300 text-sm italic border border-white/5 max-h-40 overflow-y-auto">"${s.description || 'Nenhuma descrição.'}"</div></div>
+                    <div class="pt-6 flex gap-4"><button onclick="approveShop('${s.id}'); closeApprovalModal()" class="flex-1 bg-success hover:bg-emerald-400 text-black font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:scale-105 transition-transform">Aprovar e Ativar</button><button onclick="rejectShop('${s.id}'); closeApprovalModal()" class="flex-1 bg-danger/20 hover:bg-danger text-danger hover:text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest border border-danger/20 transition-all">Recusar</button></div>
+                </div>`;
             show('shop-approval-modal');
         };
         
@@ -1942,14 +1940,8 @@
         };
         window.deleteCategory = async (sid, cid) => { if(confirm("Tem certeza?")) { await deleteDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'categories',cid)); renderAdminContent('categories'); } };
         
-        // Salvar Configurações da Loja (Incluindo Frete)
+        // SALVAR DADOS DA LOJA (COM NOVO CEP)
         window.saveShopConfig = async (id) => { 
-            const shippingRates = {};
-            ALL_UFS.forEach(uf => {
-                const val = el(`rate-${uf}`)?.value;
-                if(val) shippingRates[uf] = Number(val);
-            });
-
             await updateDoc(doc(db,'artifacts',appId,'public','data','shops',id),{
                 name: el('edit-shop-name').value, 
                 logo: el('edit-shop-logo').value, 
@@ -1957,9 +1949,9 @@
                 pixKey: el('edit-shop-pixkey').value, 
                 pixName: el('edit-shop-pixname').value, 
                 pixCity: el('edit-shop-pixcity').value,
-                shippingRates: shippingRates
+                originCep: el('edit-shop-cep').value // Salva CEP de Origem
             }); 
-            alert("Dados e tabela de fretes salvos! 💜");
+            alert("Dados e CEP de origem salvos! 💜");
         };
 
         window.addProduct = async (sid) => {
@@ -2016,24 +2008,15 @@
         onSnapshot(collection(db,'artifacts',appId,'public','data','shops'), s => { 
             state.shops = s.docs.map(d=>({id:d.id,...d.data()})); 
             
-            // LÓGICA DE DETECÇÃO DE LINK PERSONALIZADO (APENAS NA PRIMEIRA CARGA)
             if(!state.initialLoadDone) {
                 const urlParams = new URLSearchParams(window.location.search);
-                const shopSlug = urlParams.get('shop'); // Pode ser ID ou Slug
-                
+                const shopSlug = urlParams.get('shop'); 
                 if(shopSlug) {
-                    // Verifica se a loja existe na lista carregada (ID ou Slug)
                     let foundShop = state.shops.find(s => s.id === shopSlug);
-                    if(!foundShop) {
-                        // Tenta encontrar pelo nome (slugificado)
-                        foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
-                    }
-
-                    if(foundShop) {
-                        enterShop(foundShop.id, false); // Abre direto
-                    }
+                    if(!foundShop) foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
+                    if(foundShop) enterShop(foundShop.id, false);
                 }
-                state.initialLoadDone = true; // Marca que já checamos a URL
+                state.initialLoadDone = true; 
             }
 
             if(el('view-hub') && !el('view-hub').classList.contains('hidden')) {
