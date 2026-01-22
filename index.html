@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Plataforma Hub Premium</title>
+    
+    <!-- Scripts de Estilo e Ícones -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <script>
+        window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 400: '#fcd34d', 500: '#fbbf24', 600: '#d97706' },
+                        ui: { 700: '#1a1a1a', 800: '#141414', 900: '#0a0a0a' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0a0a0a; color: #ffffff; scroll-behavior: smooth; overflow-x: hidden; }
+        .glass-header { background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .banner-main-img { width: 100%; aspect-ratio: 1920 / 340; object-fit: cover; display: block; border-radius: 1.5rem; }
+        .banner-grid-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 1.5rem; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #d97706; border-radius: 10px; }
+        .product-card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5); }
+        .animate-marquee { display: inline-block; animation: marquee 40s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .admin-tab-btn.active { color: #fbbf24; border-bottom: 2px solid #fbbf24; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #fbbf24; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .modal-blur { backdrop-filter: blur(12px); background: rgba(0,0,0,0.85); }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { border: 1px solid #eee !important; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="selection:bg-brand-500 selection:text-black">
+
+    <!-- Auth Layer (Login) -->
+    <div id="auth-overlay" class="fixed inset-0 z-[500] bg-black hidden flex items-center justify-center p-4 no-print">
+        <div class="w-full max-w-md bg-ui-800 p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-8">
+            <div class="text-center space-y-2">
+                <iconify-icon icon="solar:shield-keyhole-bold-duotone" width="80" class="text-brand-500 mb-2"></iconify-icon>
+                <h2 id="auth-title" class="text-3xl font-black italic text-white uppercase tracking-widest">Painel de Acesso</h2>
+                <p id="auth-desc" class="text-white/40 text-[10px] uppercase font-bold tracking-widest px-4">Área de Gestão (Master ou Lojista)</p>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[9px] font-black text-white/40 uppercase ml-2">E-mail Cadastrado</label>
+                    <input type="email" id="auth-email" placeholder="admin@corvo.com" class="w-full bg-ui-900 border border-white/5 p-4 rounded-2xl outline-none focus:border-brand-500 text-white">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] font-black text-white/40 uppercase ml-2">Senha</label>
+                    <input type="password" id="auth-pass" placeholder="••••••••" class="w-full bg-ui-900 border border-white/5 p-4 rounded-2xl outline-none focus:border-brand-500 text-white">
+                </div>
+            </div>
+            <button id="auth-btn" class="w-full bg-brand-500 text-black py-5 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-transform shadow-xl">Entrar no Painel</button>
+            <p id="auth-error" class="text-red-500 text-[10px] text-center font-bold uppercase hidden"></p>
+            <div class="text-center"><button onclick="window.hideAuthOverlay()" class="text-white/20 hover:text-white text-[10px] uppercase font-black">Voltar para Lojas</button></div>
+        </div>
+    </div>
+
+    <!-- Interface Site -->
+    <div class="no-print">
+        <div class="bg-brand-500 text-black py-2 overflow-hidden whitespace-nowrap font-extrabold text-[10px] md:text-xs uppercase tracking-[0.2em] z-[60] relative">
+            <div id="ticker-content" class="animate-marquee whitespace-nowrap uppercase">BEM-VINDO AO HUB MÍSTICO • QUALIDADE E LUXO • </div>
+        </div>
+
+        <nav class="glass-header sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 h-16 md:h-24 flex items-center justify-between">
+                <div class="flex items-center gap-4 cursor-pointer" onclick="window.goToHub()">
+                    <img id="hub-main-logo" src="" class="h-8 md:h-12 w-auto hidden object-contain">
+                    <iconify-icon id="hub-default-icon" icon="solar:crown-minimalistic-bold-duotone" class="text-brand-500" width="32"></iconify-icon>
+                    <h1 id="hub-display-name" class="text-xl md:text-3xl font-black italic tracking-tighter text-brand-500 uppercase">HUB MÍSTICO</h1>
+                </div>
+                <div class="flex items-center gap-6">
+                    <button onclick="window.handleAdminTrigger()" class="text-white/40 hover:text-brand-500 transition-colors" title="Painel de Gestão"><iconify-icon icon="solar:settings-bold-duotone" width="24"></iconify-icon></button>
+                    <div id="cart-btn" class="relative cursor-pointer hidden" onclick="window.toggleCart()">
+                        <iconify-icon icon="solar:bag-heart-bold-duotone" width="28" class="text-brand-500"></iconify-icon>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-black">0</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Home Hub (Lista de Lojas) -->
+        <main id="hub-view" class="max-w-7xl mx-auto px-4 py-12 md:py-20 space-y-16">
+            <!-- Banners do Hub -->
+            <div id="hub-banners-container" class="space-y-12 hidden">
+                <div id="hub-carousel" class="relative overflow-hidden bg-ui-800 rounded-[2.5rem]">
+                    <div id="hub-banners-top" class="flex transition-transform duration-700 ease-in-out"></div>
+                </div>
+                <div id="hub-banners-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div class="text-center space-y-4">
+                <h2 id="hub-hero-title" class="text-3xl md:text-6xl font-black italic uppercase text-white tracking-tighter">Escolha sua Loja</h2>
+                <p id="hub-hero-desc" class="text-white/40 text-xs md:text-base uppercase font-bold tracking-[0.4em]">Curadoria exclusiva Mística</p>
+            </div>
+            <div id="shops-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </main>
+
+        <!-- Página da Loja -->
+        <main id="shop-view" class="hidden">
+            <header id="hero-carousel-shop" class="relative overflow-hidden bg-ui-800 max-w-7xl mx-auto px-4 mt-8 rounded-[2.5rem]">
+                <div id="banners-top-container" class="flex transition-transform duration-700 ease-in-out"></div>
+                <div id="banner-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2"></div>
+            </header>
+            <section class="max-w-7xl mx-auto px-4 py-8">
+                <div id="banners-grid-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </section>
+            <div class="sticky top-16 md:top-24 z-40 bg-ui-900/90 backdrop-blur-md border-y border-white/5">
+                <div id="category-filters" class="max-w-7xl mx-auto px-4 py-4 flex gap-3 overflow-x-auto no-scrollbar"></div>
+            </div>
+            <div id="main-sections-container" class="max-w-7xl mx-auto px-4 py-6 min-h-[400px]"></div>
+        </main>
+
+        <footer class="bg-ui-800 border-t border-white/5 py-16 mt-20">
+            <div class="max-w-7xl mx-auto px-4 text-center space-y-4">
+                <h3 id="footer-hub-name" class="text-brand-500 font-black text-xl italic uppercase tracking-widest text-brand-500">HUB MÍSTICO</h3>
+                <p id="footer-hub-desc" class="text-white/20 text-[10px] font-bold uppercase tracking-[0.3em]">© <span id="copyright-year"></span> HUB MÍSTICO. GESTÃO PROFISSIONAL.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PAINEL ADMINISTRATIVO -->
+    <div id="admin-panel" class="fixed inset-0 z-[400] hidden no-print">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-md" onclick="window.closeAdmin()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-2xl bg-ui-900 border-l border-white/10 flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-ui-800">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-black italic text-brand-500 uppercase tracking-tighter" id="panel-title">Gestão Master</h2>
+                    <button onclick="window.logoutAdmin()" class="bg-red-500/10 text-red-500 text-[9px] font-black px-3 py-1 rounded-full uppercase hover:bg-red-500 hover:text-white transition-colors">Sair</button>
+                </div>
+                <button onclick="window.closeAdmin()"><iconify-icon icon="ph:x-bold" width="24"></iconify-icon></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+                <nav id="admin-nav" class="flex gap-4 border-b border-white/5 pb-4 overflow-x-auto no-scrollbar">
+                    <div id="nav-master-only" class="hidden flex gap-4">
+                        <button onclick="window.switchAdminTab('hub-config')" class="admin-tab-btn active px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Config Hub</button>
+                        <button onclick="window.switchAdminTab('hub-shops')" class="admin-tab-btn px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Lojas Hub</button>
+                        <button onclick="window.switchAdminTab('finance')" class="admin-tab-btn px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Comissões (3%)</button>
+                    </div>
+                    <button id="tab-btn-shop" onclick="window.switchAdminTab('shop-mgmt')" class="admin-tab-btn px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Gestão de Itens</button>
+                    <button id="tab-btn-banners" onclick="window.switchAdminTab('banners-mgmt')" class="admin-tab-btn px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Gestão de Banners</button>
+                    <button onclick="window.switchAdminTab('security')" class="admin-tab-btn px-4 py-2 text-[10px] font-black uppercase whitespace-nowrap">Segurança</button>
+                </nav>
+
+                <!-- Aba Hub Config (Master) -->
+                <div id="tab-hub-config" class="admin-tab-content space-y-6">
+                    <div class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-4">
+                        <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Identidade do Shopping</h4>
+                        <input type="text" id="hub-name-input" placeholder="Nome do Hub" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm w-full text-white outline-none focus:border-brand-500">
+                        <div class="flex gap-2">
+                            <input type="text" id="hub-logo-input" placeholder="URL da Logo do Hub" class="flex-1 bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                            <button onclick="window.triggerUpload('hub-logo-input')" class="bg-white/10 px-6 rounded-2xl"><iconify-icon icon="ph:camera-bold"></iconify-icon></button>
+                        </div>
+                        <input type="text" id="hub-hero-title-input" placeholder="Título Grande da Home" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm w-full text-white outline-none">
+                        <input type="text" id="hub-hero-desc-input" placeholder="Subtítulo da Home" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm w-full text-white outline-none">
+                        <textarea id="hub-ticker-input" placeholder="Letreiro Topo (Ex: NOVIDADES • PROMOÇÕES)" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm h-20 w-full text-white outline-none"></textarea>
+                        
+                        <h4 class="text-[10px] font-black text-brand-500 uppercase italic pt-4">Banners do Hub (Página Inicial)</h4>
+                        <div class="bg-ui-900 p-4 rounded-2xl border border-white/5 space-y-3">
+                            <div class="flex gap-2">
+                                <input type="text" id="hub-banner-url-input" placeholder="URL da Foto do Banner Hub" class="flex-1 bg-ui-800 p-3 rounded-xl text-sm text-white outline-none">
+                                <button onclick="window.triggerUpload('hub-banner-url-input')" class="bg-white/5 px-4 rounded-xl"><iconify-icon icon="ph:upload-simple-bold"></iconify-icon></button>
+                            </div>
+                            <select id="hub-banner-target-input" class="w-full bg-ui-800 p-3 rounded-xl text-sm text-white/60 outline-none">
+                                <option value="top">Carrossel Topo (1920x340)</option>
+                                <option value="promo-grid">Grade Hub (Quadrado)</option>
+                            </select>
+                            <button onclick="window.addHubBanner()" class="w-full bg-brand-500/10 text-brand-500 text-[10px] font-black py-2 rounded-xl uppercase">Adicionar Banner ao Hub</button>
+                        </div>
+                        <div id="admin-hub-banners-list" class="space-y-2"></div>
+                        
+                        <button onclick="window.saveHubConfig()" class="w-full bg-brand-500 text-black py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl mt-4">Salvar Configurações Master</button>
+                    </div>
+                </div>
+
+                <!-- Aba Lojas Hub (Master) -->
+                <div id="tab-hub-shops" class="admin-tab-content hidden space-y-6">
+                    <div class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-4">
+                        <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Cadastrar Lojista</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="shop-name-input" placeholder="Nome da Marca" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                            <input type="text" id="shop-wa-input" placeholder="WhatsApp (5511...)" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="shop-logo-input" placeholder="Link da Logo da Loja" class="flex-1 bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                            <button onclick="window.triggerUpload('shop-logo-input')" class="bg-white/10 px-6 rounded-2xl"><iconify-icon icon="ph:camera-bold"></iconify-icon></button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="email" id="shop-email-input" placeholder="E-mail de Login do Lojista" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                            <input type="text" id="shop-pass-input" placeholder="Senha do Lojista" class="bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                        </div>
+                        <button onclick="window.addShop()" class="w-full bg-brand-500 text-black py-4 rounded-2xl font-black uppercase tracking-widest">Criar Loja e Login</button>
+                    </div>
+                    <div id="admin-shops-list" class="space-y-3"></div>
+                </div>
+
+                <!-- Aba Gestão (AMBOS) -->
+                <div id="tab-shop-mgmt" class="admin-tab-content hidden space-y-8">
+                    <div id="master-shop-selector" class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-2 hidden">
+                        <h4 class="text-[10px] font-black text-white/40 uppercase">Selecione para Editar:</h4>
+                        <select id="mgmt-shop-select" onchange="window.updateMgmtShop(this.value)" class="w-full bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white/60 outline-none">
+                            <option value="">Escolha uma loja para gerenciar...</option>
+                        </select>
+                    </div>
+
+                    <div id="mgmt-controls" class="hidden space-y-10">
+                        <!-- Categorias -->
+                        <div class="space-y-4">
+                            <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Categorias da Loja</h4>
+                            <div class="flex gap-2">
+                                <input type="text" id="cat-name-input" placeholder="Ex: Tênis, Relógios..." class="flex-1 bg-ui-800 border border-white/5 p-4 rounded-xl text-sm text-white outline-none">
+                                <button onclick="window.openIconPicker('cat-icon-input')" class="bg-ui-800 border border-white/5 px-4 rounded-xl text-brand-500 font-black text-[10px] uppercase">ÍCONE</button>
+                                <input type="hidden" id="cat-icon-input">
+                            </div>
+                            <button onclick="window.addCategory()" class="w-full bg-brand-500 text-black py-3 rounded-xl font-bold uppercase text-xs">Salvar Categoria</button>
+                            <div id="admin-categories-list" class="space-y-2"></div>
+                        </div>
+
+                        <!-- Produtos -->
+                        <div class="space-y-4">
+                            <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Produtos (Até 6 fotos)</h4>
+                            <input type="text" id="prod-name-input" placeholder="Título do Produto" class="w-full bg-ui-800 border border-white/5 p-4 rounded-xl text-sm text-white outline-none">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="prod-price-input" placeholder="Preço R$" class="bg-ui-800 border border-white/5 p-4 rounded-xl text-sm text-white outline-none">
+                                <select id="prod-cat-select" class="bg-ui-800 border border-white/5 p-4 rounded-xl text-sm text-white/60 outline-none"></select>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="space-y-1"><input type="text" id="prod-img-0" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 1"><button onclick="window.triggerUpload('prod-img-0')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                                <div class="space-y-1"><input type="text" id="prod-img-1" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 2"><button onclick="window.triggerUpload('prod-img-1')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                                <div class="space-y-1"><input type="text" id="prod-img-2" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 3"><button onclick="window.triggerUpload('prod-img-2')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                                <div class="space-y-1"><input type="text" id="prod-img-3" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 4"><button onclick="window.triggerUpload('prod-img-3')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                                <div class="space-y-1"><input type="text" id="prod-img-4" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 5"><button onclick="window.triggerUpload('prod-img-4')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                                <div class="space-y-1"><input type="text" id="prod-img-5" class="prod-img w-full bg-ui-900 p-2 rounded text-[7px] text-white outline-none" placeholder="Foto 6"><button onclick="window.triggerUpload('prod-img-5')" class="w-full bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Upload</button></div>
+                            </div>
+                            <textarea id="prod-desc-input" placeholder="Descrição completa..." class="w-full bg-ui-800 border border-white/5 p-4 rounded-xl text-sm h-32 text-white outline-none focus:border-brand-500"></textarea>
+                            <button onclick="window.addProduct()" class="w-full bg-brand-500 text-black py-4 rounded-xl font-black uppercase text-xs shadow-xl">Publicar Produto</button>
+                            <div id="admin-products-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aba Banners Loja -->
+                <div id="tab-banners-mgmt" class="admin-tab-content hidden space-y-6">
+                    <div id="banners-controls" class="hidden space-y-6">
+                        <div class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-3">
+                            <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Meus Banners Promocionais</h4>
+                            <div class="flex gap-2">
+                                <input type="text" id="banner-url-input" placeholder="URL Foto 1920x340" class="flex-1 bg-ui-900 p-4 rounded-xl text-sm text-white outline-none">
+                                <button onclick="window.triggerUpload('banner-url-input')" class="bg-white/10 px-4 rounded-xl text-brand-500"><iconify-icon icon="ph:upload-simple-bold" width="20"></iconify-icon></button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="banner-target-select" class="bg-ui-900 p-4 rounded-xl text-sm text-white/60 outline-none focus:border-brand-500"></select>
+                                <select id="banner-schedule-select" class="bg-ui-900 p-4 rounded-xl text-sm text-white/60 outline-none focus:border-brand-500">
+                                    <option value="always">Sempre Ativo</option>
+                                    <option value="1">Segunda-feira</option><option value="2">Terça-feira</option><option value="3">Quarta-feira</option>
+                                    <option value="4">Quinta-feira</option><option value="5">Sexta-feira</option><option value="6">Sábado</option><option value="0">Domingo</option>
+                                </select>
+                            </div>
+                            <button onclick="window.addBanner()" class="w-full bg-brand-500 text-black py-4 rounded-xl font-bold uppercase text-xs shadow-lg">Ativar Banner</button>
+                        </div>
+                        <div id="admin-banners-list" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- Aba Relatórios Hub (Master) -->
+                <div id="tab-finance" class="admin-tab-content hidden space-y-6">
+                    <div class="bg-brand-500/10 p-6 rounded-3xl border border-white/5 space-y-4 text-center">
+                        <p id="finance-label" class="text-[10px] text-brand-500 font-bold uppercase mb-2">Comissões Acumuladas (3%)</p>
+                        <h3 id="total-commissions" class="text-4xl font-black italic text-white tracking-tighter">R$ 0,00</h3>
+                    </div>
+                    <div class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-4">
+                        <h4 class="text-[10px] font-black text-white/40 uppercase">Relatórios de Prestação de Contas:</h4>
+                        <div class="flex gap-2">
+                            <select id="report-shop-select" class="flex-1 bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white/60 outline-none">
+                                <option value="all">Faturamento Total Hub</option>
+                            </select>
+                            <button onclick="window.downloadCSV()" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="ph:file-csv-bold" width="24"></iconify-icon></button>
+                            <button onclick="window.printReport()" class="bg-brand-500 p-4 rounded-2xl text-black hover:scale-105 transition-all"><iconify-icon icon="ph:printer-bold" width="24"></iconify-icon></button>
+                        </div>
+                    </div>
+                    <div id="admin-orders-list" class="space-y-3"></div>
+                </div>
+
+                <!-- Aba Segurança -->
+                <div id="tab-security" class="admin-tab-content hidden space-y-6">
+                    <div class="bg-ui-800 p-6 rounded-3xl border border-white/5 space-y-4">
+                        <h4 class="text-[10px] font-black text-brand-500 uppercase italic">Dados de Acesso</h4>
+                        <input type="email" id="update-auth-email" placeholder="Novo E-mail" class="w-full bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                        <input type="password" id="update-auth-pass" placeholder="Nova Senha" class="w-full bg-ui-900 border border-white/5 p-4 rounded-2xl text-sm text-white outline-none">
+                        <button onclick="window.updateAdminCredentials()" class="w-full bg-brand-500 text-black py-4 rounded-2xl font-black uppercase shadow-lg">Atualizar Dados</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais Genéricos -->
+    <div id="icon-picker" class="fixed inset-0 z-[600] hidden flex items-center justify-center p-4 no-print">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-lg" onclick="window.closeIconPicker()"></div>
+        <div class="relative bg-ui-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-8 space-y-6 shadow-2xl">
+            <h3 class="font-black italic text-brand-500 uppercase text-sm italic">Biblioteca de Ícones</h3>
+            <input type="text" id="icon-search-input" oninput="window.searchIcons(this.value)" placeholder="Pesquise (Ex: clothes, bag, diamond...)" class="w-full bg-ui-800 border border-white/10 p-5 rounded-2xl text-white outline-none focus:border-brand-500">
+            <div id="icon-results" class="grid grid-cols-4 sm:grid-cols-6 gap-4 max-h-72 overflow-y-auto pr-2 no-scrollbar"></div>
+        </div>
+    </div>
+
+    <div id="product-detail-modal" class="fixed inset-0 z-[450] hidden no-print">
+        <div class="absolute inset-0 modal-blur" onclick="window.closeProductDetail()"></div>
+        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-5xl h-[90vh] overflow-hidden bg-ui-900 rounded-[3rem] border border-white/10 flex flex-col md:flex-row shadow-2xl">
+            <button onclick="window.closeProductDetail()" class="absolute top-6 right-6 z-10 text-white/40 bg-black/50 p-3 rounded-full hover:text-white transition-colors"><iconify-icon icon="ph:x-bold" width="24"></iconify-icon></button>
+            <div class="w-full md:w-1/2 bg-ui-800 flex flex-col h-1/2 md:h-full overflow-hidden">
+                <div id="product-modal-main-img" class="flex-1 relative overflow-hidden"><img src="" class="w-full h-full object-cover"></div>
+                <div id="product-modal-thumbs" class="h-24 bg-black/40 flex gap-2 p-3 overflow-x-auto no-scrollbar"></div>
+            </div>
+            <div class="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-ui-900">
+                <span id="product-modal-cat" class="text-brand-500 font-black uppercase text-[10px] tracking-widest mb-4 block italic">CATEGORIA</span>
+                <h2 id="product-modal-name" class="text-3xl md:text-5xl font-black text-white mb-6 italic uppercase leading-tight tracking-tighter">NOME</h2>
+                <div id="product-modal-price" class="text-4xl font-black text-white mb-8 tracking-tighter">R$ 0,00</div>
+                <div class="h-px bg-white/5 w-full mb-8"></div>
+                <p id="product-modal-desc" class="text-white/40 text-sm md:text-base mb-10 leading-relaxed overflow-y-auto max-h-40 no-scrollbar"></p>
+                <button id="product-modal-add" class="bg-brand-500 text-black py-6 rounded-2xl font-black uppercase tracking-widest text-lg hover:scale-105 transition-transform shadow-xl shadow-brand-500/20">Adicionar à Sacola</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-sidebar" class="fixed inset-0 z-[460] hidden no-print">
+        <div class="absolute inset-0 bg-black/80" onclick="window.toggleCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-ui-900 flex flex-col shadow-2xl border-l border-white/5">
+            <div class="p-8 border-b border-white/10 flex justify-between items-center bg-ui-800"><h2 class="text-2xl font-black italic text-brand-500 uppercase tracking-tighter">Minha Sacola</h2><button onclick="window.toggleCart()"><iconify-icon icon="ph:x-bold" width="24"></iconify-icon></button></div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar"></div>
+            <div class="p-8 border-t border-white/10 bg-ui-800 space-y-6">
+                <div class="flex justify-between items-center"><span class="text-white/40 uppercase text-xs font-black">Total Estimado</span><span id="cart-total" class="text-2xl font-black text-brand-500">R$ 0,00</span></div>
+                <button onclick="window.checkoutWhatsApp()" class="w-full bg-brand-500 text-black py-6 rounded-2xl font-black uppercase tracking-widest shadow-xl">Fechar no WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Impressão (PDF) -->
+    <div id="print-area" class="hidden print-only p-10 font-sans text-black bg-white min-h-screen">
+        <div class="border-b-4 border-black pb-8 mb-8 flex justify-between items-end">
+            <div><h1 class="text-4xl font-black italic uppercase" id="print-hub-name">HUB MÍSTICO</h1><p class="text-xs font-bold text-gray-400 uppercase">Relatório de Prestação de Contas</p></div>
+            <div class="text-right"><p id="print-date" class="text-xs font-bold"></p><p id="print-shop-name" class="text-sm font-black uppercase"></p></div>
+        </div>
+        <table class="w-full text-left border-collapse mb-10 text-[10px]">
+            <thead><tr class="border-b-2 border-black uppercase font-black"><th class="py-2">Data/Hora</th><th class="py-2">Estabelecimento</th><th class="py-2">Venda (R$)</th><th class="py-2 text-right">Royalties (3%)</th></tr></thead>
+            <tbody id="print-table-body"></tbody>
+        </table>
+        <div class="flex justify-end mb-20"><div class="bg-gray-100 p-6 rounded-xl text-right"><p class="text-[10px] font-black uppercase text-gray-400">Total Devido ao Hub</p><h2 id="print-total-comm" class="text-3xl font-black"></h2></div></div>
+        <div class="text-center pt-20 border-t border-gray-100 mt-20"><div class="inline-block border-t border-black px-12 pt-2"><p class="text-xs font-black uppercase italic">Assinatura Digital HUB MÍSTICO</p></div></div>
+    </div>
+
+    <input type="file" id="imgbb-file-input" class="hidden" accept="image/*">
+
+    <!-- LÓGICA CORE HUB MASTER -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDI2KpH9QFlEyd6cLtybWx1MBhsI8K204o",
+            authDomain: "loja2-c1305.firebaseapp.com",
+            projectId: "loja2-c1305",
+            storageBucket: "loja2-c1305.firebasestorage.app",
+            messagingSenderId: "916190908547",
+            appId: "1:916190908547:web:4c882c1439aea9180bcbb6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "hub-mistico-v12-final-oficial"; 
+        const IMGBB_API_KEY = "c3d86c0c95606522cb1f5faa1be29231";
+        const MASTER_EMAIL = "admin@corvo.com";
+
+        let state = { hubConfig: {}, hubBanners: [], shops: [], orders: [], currentShopId: null, currentShopData: { categories: [], products: [], banners: [] }, cart: [], currentCategory: 'all', user: null, userRole: null, mgmtShopId: null, isSetup: false, iconTarget: null, uploadTargetId: null };
+
+        // --- REGISTRO DE FUNÇÕES GLOBAIS NO INÍCIO (BLINDAGEM CONTRA ERROS DE 'NOT DEFINED') ---
+        
+        window.hideAuthOverlay = () => { document.getElementById('auth-overlay').classList.add('hidden'); };
+        window.handleAdminTrigger = () => { if(state.user && state.userRole) window.openAdmin(); else document.getElementById('auth-overlay').classList.remove('hidden'); };
+        window.openAdmin = () => { document.getElementById('admin-panel').classList.remove('hidden'); };
+        window.closeAdmin = () => { document.getElementById('admin-panel').classList.add('hidden'); };
+        window.logoutAdmin = () => signOut(auth).then(() => location.reload());
+        window.toggleCart = () => { document.getElementById('cart-sidebar').classList.toggle('hidden'); if(!document.getElementById('cart-sidebar').classList.contains('hidden')) window.renderCart(); };
+        window.closeProductDetail = () => document.getElementById('product-detail-modal').classList.add('hidden');
+        window.closeIconPicker = () => document.getElementById('icon-picker').classList.add('hidden');
+        
+        window.switchAdminTab = (tab) => {
+            document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.add('hidden'));
+            const target = document.getElementById(`tab-${tab}`);
+            if(target) target.classList.remove('hidden');
+            document.querySelectorAll('.admin-tab-btn').forEach(b => { b.classList.remove('active'); if(b.innerText.toLowerCase().includes(tab.substring(0,3))) b.classList.add('active'); });
+        };
+
+        window.goToHub = () => {
+            state.currentShopId = null;
+            document.getElementById('hub-view').classList.remove('hidden');
+            document.getElementById('shop-view').classList.add('hidden');
+            document.getElementById('cart-btn').classList.add('hidden');
+            window.applyHubConfig();
+        };
+
+        window.enterShop = (id) => {
+            state.currentShopId = id;
+            document.getElementById('hub-view').classList.add('hidden');
+            document.getElementById('shop-view').classList.remove('hidden');
+            document.getElementById('cart-btn').classList.remove('hidden');
+            initShopSync(id);
+        };
+
+        // --- RENDERIZADORES ---
+
+        window.applyHubConfig = () => {
+            const h = state.hubConfig;
+            const el = (id) => document.getElementById(id);
+            const setIn = (id, val) => { const e = el(id); if(e) e.value = val || ""; };
+            const setText = (id, val) => { const e = el(id); if(e) e.innerText = val; };
+
+            setText('hub-display-name', h.name || "HUB MÍSTICO");
+            setText('hub-hero-title', h.heroTitle || "Escolha sua Loja");
+            setText('hub-hero-desc', h.heroDesc || "Curadoria Premium");
+            setText('ticker-content', (h.ticker || "BEM-VINDO AO HUB MÍSTICO • ") + " • ".repeat(4));
+            setText('footer-hub-name', h.name || "HUB MÍSTICO");
+            setText('print-hub-name', h.name || "HUB MÍSTICO");
+            
+            if(h.logo && el('hub-main-logo')) {
+                el('hub-main-logo').src = h.logo; el('hub-main-logo').classList.remove('hidden');
+                if(el('hub-default-icon')) el('hub-default-icon').classList.add('hidden');
+                if(el('hub-display-name')) el('hub-display-name').classList.add('hidden');
+            }
+
+            // Preenche inputs do painel se existirem
+            setIn('hub-name-input', h.name);
+            setIn('hub-logo-input', h.logo);
+            setIn('hub-hero-title-input', h.heroTitle);
+            setIn('hub-hero-desc-input', h.heroDesc);
+            setIn('hub-ticker-input', h.ticker);
+            
+            window.renderHubBanners();
+        };
+
+        window.renderHubBanners = () => {
+            const topCont = document.getElementById('hub-banners-top');
+            const gridCont = document.getElementById('hub-banners-grid');
+            const wrap = document.getElementById('hub-banners-container');
+            if(!topCont || !gridCont) return;
+
+            const tops = state.hubBanners.filter(b => b.target === 'top');
+            const grids = state.hubBanners.filter(b => b.target === 'promo-grid');
+
+            if(tops.length || grids.length) wrap.classList.remove('hidden'); else wrap.classList.add('hidden');
+
+            topCont.innerHTML = tops.map(b => `<div class="min-w-full"><img src="${b.url}" class="banner-main-img shadow-2xl"></div>`).join('');
+            gridCont.innerHTML = grids.slice(0,3).map(b => `<div class="group overflow-hidden rounded-3xl shadow-xl"><img src="${b.url}" class="banner-grid-img group-hover:scale-105 transition-all"></div>`).join('');
+
+            const admList = document.getElementById('admin-hub-banners-list');
+            if(admList) admList.innerHTML = state.hubBanners.map(b => `<div class="bg-ui-900 p-2 rounded-xl flex items-center gap-3 border border-white/5"><img src="${b.url}" class="h-8 w-12 object-cover rounded"><span class="flex-1 text-[8px] uppercase font-black text-brand-500">${b.target}</span><button onclick="window.deleteDocById('hub-banners', '${b.id}')" class="text-red-500 font-bold">X</button></div>`).join('');
+        };
+
+        window.renderShopsHub = () => {
+            const grid = document.getElementById('shops-grid');
+            if(!grid) return;
+            grid.innerHTML = state.shops.map(s => `
+                <div onclick="window.enterShop('${s.id}')" class="bg-ui-800 p-10 rounded-[3rem] border border-white/5 group hover:border-brand-500/30 transition-all cursor-pointer text-center space-y-6 shadow-xl">
+                    <img src="${s.logo || ''}" class="h-32 w-32 mx-auto object-contain rounded-full bg-ui-900 p-4 border border-white/5 group-hover:scale-110 transition-transform shadow-xl" onerror="this.src='https://via.placeholder.com/150?text=LOGO'">
+                    <h3 class="text-3xl font-black italic uppercase text-white tracking-tighter">${s.name}</h3>
+                    <div class="inline-block bg-brand-500 text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Visitar Loja</div>
+                </div>
+            `).join('');
+        };
+
+        window.renderShopUI = () => {
+            const container = document.getElementById('main-sections-container');
+            const filters = document.getElementById('category-filters');
+            if(!container || !filters) return;
+            const day = new Date().getDay().toString();
+            
+            const activeBanners = state.currentShopData.banners.filter(b => b.active !== false && (b.schedule === 'always' || b.schedule === day));
+            document.getElementById('banners-top-container').innerHTML = activeBanners.filter(b => b.target === 'top').map(b => `<div class="min-w-full"><img src="${b.url}" class="banner-main-img shadow-2xl"></div>`).join('') || `<div class="w-full bg-ui-800 h-64 flex items-center justify-center italic text-white/5 uppercase">Coleção Mística</div>`;
+            document.getElementById('banners-grid-container').innerHTML = activeBanners.filter(b => b.target === 'promo-grid').slice(0, 3).map(b => `<div class="group overflow-hidden rounded-3xl shadow-xl"><img src="${b.url}" class="banner-grid-img group-hover:scale-105 transition-all duration-700"></div>`).join('');
+
+            filters.innerHTML = `<button onclick="window.filterProducts('all')" class="px-10 py-4 rounded-full text-[10px] font-black uppercase border border-white/5 ${state.currentCategory==='all'?'bg-brand-500 text-black shadow-xl':'bg-ui-800 text-white/40'}">Tudo</button>` + 
+            state.currentShopData.categories.map(c => `<button onclick="window.filterProducts('${c.name}')" class="px-10 py-4 rounded-full text-[10px] font-black uppercase border border-white/5 ${state.currentCategory===c.name?'bg-brand-500 text-black shadow-xl':'bg-ui-800 text-white/40'} flex items-center gap-2"><span>${c.name}</span></button>`).join('');
+
+            container.innerHTML = state.currentShopData.categories.map(cat => {
+                if(state.currentCategory !== 'all' && state.currentCategory !== cat.name) return '';
+                const prods = state.currentShopData.products.filter(p => p.category === cat.name);
+                const banner = state.currentShopData.banners.find(b => b.target === cat.name && b.active !== false && (b.schedule === 'always' || b.schedule === day));
+                if(!prods.length && !banner) return '';
+                return `
+                    <section class="mt-16 md:mt-24">
+                        ${banner ? `<img src="${banner.url}" class="banner-main-img mb-12 shadow-2xl rounded-[2rem]">` : ''}
+                        <div class="flex items-center gap-4 mb-10 border-b border-white/5 pb-6">
+                            <h2 class="text-2xl md:text-5xl font-black uppercase italic text-brand-500 tracking-tighter">${cat.name}</h2>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                            ${prods.map(p => `<div class="product-card-hover group bg-ui-800 rounded-[2.5rem] overflow-hidden border border-white/5 transition-all duration-500 shadow-xl"><div class="aspect-[4/5] overflow-hidden cursor-pointer" onclick="window.openProductDetail('${p.id}')"><img src="${p.images?.[0]||''}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"></div><div class="p-6"><h3 class="text-xs font-bold text-white mb-2 uppercase truncate italic">${p.name}</h3><div class="flex items-center justify-between"><span class="text-sm md:text-xl font-black text-brand-500">R$ ${p.price}</span><button onclick="window.addToCart('${p.id}')" class="bg-brand-500 text-black p-3 rounded-full shadow-lg"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon></button></div></div></div>`).join('')}
+                        </div>
+                    </section>
+                `;
+            }).join('');
+        };
+
+        window.renderFinance = () => {
+            const list = document.getElementById('admin-orders-list');
+            const totalEl = document.getElementById('total-commissions');
+            if(!list || !totalEl) return;
+            const shopId = (state.userRole === 'shop') ? state.mgmtShopId : 'all';
+            const filtered = (shopId === 'all') ? state.orders : state.orders.filter(o => o.shopId === shopId);
+            let total = 0;
+            list.innerHTML = filtered.map(o => {
+                const com = o.total * 0.03; total += com;
+                return `<div class="bg-ui-800 p-5 rounded-2xl border border-white/5 flex justify-between items-center group"><div><p class="text-[9px] font-black uppercase text-brand-500">${o.shopName}</p><p class="text-xs font-bold text-white">R$ ${o.total.toFixed(2)}</p><p class="text-[8px] text-white/20 uppercase font-bold tracking-tighter">${new Date(o.at).toLocaleString()}</p></div><div class="text-right"><p class="text-brand-500 font-black">+ R$ ${com.toFixed(2)}</p></div></div>`;
+            }).join('') || `<p class="text-center py-10 text-white/10 italic text-xs uppercase font-black tracking-widest">Sem vendas registradas</p>`;
+            totalEl.innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        };
+
+        // --- AUTH & LOGIN ---
+
+        onAuthStateChanged(auth, async (user) => {
+            state.user = user;
+            const adminDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'));
+            state.isSetup = !adminDoc.exists();
+            
+            if(user) {
+                if(user.email === MASTER_EMAIL) {
+                    state.userRole = 'master';
+                    document.getElementById('nav-master-only').classList.remove('hidden');
+                    document.getElementById('master-shop-selector').classList.remove('hidden');
+                    document.getElementById('panel-title').innerText = "Gestão Master Hub";
+                } else {
+                    const shop = state.shops.find(s => s.email === user.email);
+                    if(shop) {
+                        state.userRole = 'shop';
+                        state.mgmtShopId = shop.id;
+                        document.getElementById('nav-master-only').classList.add('hidden');
+                        document.getElementById('master-shop-selector').classList.add('hidden');
+                        document.getElementById('panel-title').innerText = "Painel: " + shop.name;
+                        window.updateMgmtShop(shop.id);
+                    }
+                }
+                window.hideAuthOverlay();
+            }
+            initHubSync();
+        });
+
+        document.getElementById('auth-btn').onclick = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const pass = document.getElementById('auth-pass').value;
+            const errorEl = document.getElementById('auth-error');
+            try {
+                // Tentativa direta de login
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (e) {
+                // Lógica de "Login Mágico": Se for Master e a conta não existir, cria no Setup
+                if (state.isSetup && email === MASTER_EMAIL && pass === "mundo1802@") {
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, pass);
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'), { master: email, created: true, uid: auth.currentUser.uid });
+                        alert("Hub Místico Ativado! Bem-vindo, Corvo. ✨");
+                    } catch (err) { if(errorEl) errorEl.innerText = "Erro ao criar admin."; }
+                } else {
+                    // Se for um Lojista cadastrado no Firestore mas não no Auth, tenta criar o acesso dele
+                    const shopEntry = state.shops.find(s => s.email === email && s.password === pass);
+                    if(shopEntry) {
+                        try {
+                            await createUserWithEmailAndPassword(auth, email, pass);
+                            alert("Seu acesso foi configurado com sucesso! Entrando...");
+                        } catch (err) {
+                             if(errorEl) { errorEl.innerText = "E-mail ou senha incorretos."; errorEl.classList.remove('hidden'); }
+                        }
+                    } else {
+                        if(errorEl) { errorEl.innerText = "Credenciais inválidas."; errorEl.classList.remove('hidden'); }
+                    }
+                }
+            }
+        };
+
+        // --- SINCRONIZAÇÃO FIREBASE ---
+
+        function initHubSync() {
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'hub'), (s) => {
+                state.hubConfig = s.exists() ? s.data() : { name: "HUB MÍSTICO" };
+                window.applyHubConfig();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'hub-banners'), (s) => {
+                state.hubBanners = s.docs.map(d => ({id: d.id, ...d.data()}));
+                window.renderHubBanners();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops'), (s) => {
+                state.shops = s.docs.map(d => ({id: d.id, ...d.data()}));
+                window.renderShopsHub();
+                updateMgmtSelect();
+                updateReportSelect();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), (s) => {
+                state.orders = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.at - a.at);
+                window.renderFinance();
+            });
+        }
+
+        function initShopSync(shopId) {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'categories'), (s) => {
+                state.currentShopData.categories = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order || 0) - (b.order || 0));
+                window.renderShopUI();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'products'), (s) => {
+                state.currentShopData.products = s.docs.map(d => ({id: d.id, ...d.data()}));
+                window.renderShopUI();
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'banners'), (s) => {
+                state.currentShopData.banners = s.docs.map(d => ({id: d.id, ...d.data()}));
+                window.renderShopUI();
+            });
+        }
+
+        // --- ADMIN ACTIONS (HUB & SHOPS) ---
+
+        window.saveHubConfig = async () => {
+            const hName = document.getElementById('hub-name-input')?.value;
+            const hTitle = document.getElementById('hub-hero-title-input')?.value;
+            const hDesc = document.getElementById('hub-hero-desc-input')?.value;
+            const hTicker = document.getElementById('hub-ticker-input')?.value;
+            const hLogo = document.getElementById('hub-logo-input')?.value;
+
+            const data = { 
+                name: hName || state.hubConfig.name || "HUB MÍSTICO",
+                heroTitle: hTitle || state.hubConfig.heroTitle || "Escolha sua Loja",
+                heroDesc: hDesc || state.hubConfig.heroDesc || "Curadoria Premium",
+                ticker: hTicker || state.hubConfig.ticker || "",
+                logo: hLogo || state.hubConfig.logo || ""
+            };
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'hub'), data);
+            alert("Hub Atualizado! ✨");
+        };
+
+        window.addHubBanner = async () => {
+            const u = document.getElementById('hub-banner-url-input')?.value, t = document.getElementById('hub-banner-target-input')?.value;
+            if(!u) return alert("Insira o URL!");
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'hub-banners'), { url: u, target: t, at: Date.now() });
+            document.getElementById('hub-banner-url-input').value = "";
+        };
+
+        window.addShop = async () => {
+            const n = document.getElementById('shop-name-input')?.value, w = document.getElementById('shop-wa-input')?.value, l = document.getElementById('shop-logo-input')?.value, e = document.getElementById('shop-email-input')?.value, p = document.getElementById('shop-pass-input')?.value;
+            if(!n || !w || !e || !p) return alert("Preencha todos os dados!");
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops'), { name: n, whatsapp: w, logo: l, email: e, password: p, active: true, at: Date.now() });
+            alert("Sucesso! Loja criada.");
+        };
+
+        window.updateMgmtShop = (id) => {
+            if(!id) { document.getElementById('mgmt-controls').classList.add('hidden'); document.getElementById('banners-controls').classList.add('hidden'); return; }
+            state.mgmtShopId = id; document.getElementById('mgmt-controls').classList.remove('hidden'); document.getElementById('banners-controls').classList.remove('hidden');
+            
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', id, 'categories'), (s) => {
+                const cats = s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order || 0) - (b.order || 0));
+                state.mgmtCats = cats;
+                document.getElementById('admin-categories-list').innerHTML = cats.map(c => `<div class="bg-ui-800 p-4 rounded-xl border border-white/5 flex items-center justify-between"><span class="font-bold text-xs uppercase">${c.name}</span><button onclick="window.deleteDocById('shops/${state.mgmtShopId}/categories', '${c.id}')" class="text-red-500 font-bold">EXCLUIR</button></div>`).join('');
+                document.getElementById('prod-cat-select').innerHTML = cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                document.getElementById('banner-target-select').innerHTML = `<option value="top">Topo</option><option value="promo-grid">Grade Promo</option>` + cats.map(c => `<option value="${c.name}">Cat: ${c.name}</option>`).join('');
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', id, 'products'), (s) => {
+                document.getElementById('admin-products-list').innerHTML = s.docs.map(p => `<div class="bg-ui-800 p-3 rounded-xl border border-white/5 flex items-center justify-between"><span class="text-[10px] uppercase font-bold truncate">${p.data().name}</span><button onclick="window.deleteDocById('shops/${state.mgmtShopId}/products', '${p.id}')" class="text-red-500 font-bold">X</button></div>`).join('');
+            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', id, 'banners'), (s) => {
+                document.getElementById('admin-banners-list').innerHTML = s.docs.map(b => `<div class="flex items-center gap-3 bg-ui-800 p-3 rounded-xl border border-white/5"><img src="${b.data().url}" class="h-8 w-12 object-cover rounded shadow-lg"><div class="flex-1 text-[9px] uppercase font-bold text-brand-500">${b.data().target}</div><button onclick="window.deleteDocById('shops/${state.mgmtShopId}/banners', '${b.id}')" class="text-red-500 font-bold">X</button></div>`).join('');
+            });
+        };
+
+        window.addCategory = async () => {
+            const n = document.getElementById('cat-name-input')?.value, i = document.getElementById('cat-icon-input')?.value;
+            if(!n) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.mgmtShopId, 'categories'), { name: n, icon: i, order: (state.mgmtCats||[]).length });
+            document.getElementById('cat-name-input').value = "";
+        };
+
+        window.addProduct = async () => {
+            const n = document.getElementById('prod-name-input')?.value, p = document.getElementById('prod-price-input')?.value, c = document.getElementById('prod-cat-select')?.value, d = document.getElementById('prod-desc-input')?.value;
+            const imgs = Array.from(document.querySelectorAll('.prod-img')).map(el => el.value).filter(v => v);
+            if(!n || !p || !c) return alert("Preencha nome e preço!");
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.mgmtShopId, 'products'), { name: n, price: Number(p), category: c, desc: d, images: imgs, at: Date.now() });
+            document.getElementById('prod-name-input').value = ""; document.getElementById('prod-price-input').value = "";
+        };
+
+        window.addBanner = async () => {
+            const u = document.getElementById('banner-url-input')?.value, t = document.getElementById('banner-target-select')?.value, s = document.getElementById('banner-schedule-select')?.value;
+            if(!u) return;
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.mgmtShopId, 'banners'), { url: u, target: t, schedule: s, active: true, at: Date.now() });
+            document.getElementById('banner-url-input').value = "";
+        };
+
+        window.updateAdminCredentials = async () => {
+            const newEmail = document.getElementById('update-auth-email')?.value.trim(), newPass = document.getElementById('update-auth-pass')?.value;
+            if(!newEmail || !newPass || newPass.length < 6) return alert("Dados inválidos.");
+            try {
+                await updateEmail(auth.currentUser, newEmail);
+                await updatePassword(auth.currentUser, newPass);
+                if(state.userRole === 'master') await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'), { master: newEmail, created: true, uid: auth.currentUser.uid });
+                else await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', state.mgmtShopId), { email: newEmail, password: newPass });
+                alert("Atualizado! Faça login novamente."); location.reload();
+            } catch (e) { alert("Erro de segurança. Faça login novamente antes de mudar."); }
+        };
+
+        // --- RELATÓRIOS ---
+
+        window.printReport = () => {
+            const shopId = document.getElementById('report-shop-select').value;
+            const filtered = shopId === 'all' ? state.orders : state.orders.filter(o => o.shopId === shopId);
+            const shopName = shopId === 'all' ? "Geral do Hub" : state.shops.find(s => s.id === shopId).name;
+            const pDate = document.getElementById('print-date'), pShop = document.getElementById('print-shop-name'), pBody = document.getElementById('print-table-body'), pTotal = document.getElementById('print-total-comm');
+            if(pDate) pDate.innerText = new Date().toLocaleString();
+            if(pShop) pShop.innerText = shopName;
+            let html = '', total = 0;
+            filtered.forEach(o => { const c = o.total * 0.03; total += c; html += `<tr class="border-b border-gray-100"><td class="py-2">${new Date(o.at).toLocaleString()}</td><td class="py-2">${o.shopName}</td><td class="py-2">R$ ${o.total.toFixed(2)}</td><td class="py-2 text-right">R$ ${c.toFixed(2)}</td></tr>`; });
+            if(pBody) pBody.innerHTML = html;
+            if(pTotal) pTotal.innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            window.print();
+        };
+
+        window.downloadCSV = () => {
+            const shopId = document.getElementById('report-shop-select').value;
+            const filtered = shopId === 'all' ? state.orders : state.orders.filter(o => o.shopId === shopId);
+            let csv = "Data;Loja;Venda;Comissao\n";
+            filtered.forEach(o => { csv += `${new Date(o.at).toLocaleString()};${o.shopName};${o.total.toFixed(2)};${(o.total * 0.03).toFixed(2)}\n`; });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `comissoes_hub.csv`; link.click();
+        };
+
+        // --- HELPERS (Icon, Upload, Cart, Modal) ---
+
+        window.openIconPicker = (id) => { state.iconTarget = id; document.getElementById('icon-picker').classList.remove('hidden'); window.searchIcons(""); };
+        window.searchIcons = async (q) => { 
+            const cont = document.getElementById('icon-results');
+            if(!cont) return;
+            cont.innerHTML = `<iconify-icon icon="line-md:loading-loop" width="30"></iconify-icon>`;
+            const resp = await fetch(`https://api.iconify.design/search?query=${q || 'star'}`);
+            const data = await resp.json();
+            cont.innerHTML = (data.icons || []).slice(0, 36).map(i => `<button onclick="window.selectIcon('${i}')" class="bg-ui-800 p-2 rounded-xl hover:bg-brand-500 hover:text-black transition-all shadow-xl"><iconify-icon icon="${i}" width="24"></iconify-icon></button>`).join('');
+        };
+        window.selectIcon = (i) => { document.getElementById(state.iconTarget).value = i; window.closeIconPicker(); };
+        
+        window.triggerUpload = (id) => { window.uploadTargetId = id; document.getElementById('imgbb-file-input').click(); };
+        window.triggerUploadIdx = (idx) => { window.uploadTargetId = `prod-img-${idx}`; document.getElementById('imgbb-file-input').click(); };
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const inp = document.getElementById('imgbb-file-input');
+            if(inp) inp.onchange = async (e) => {
+                const fd = new FormData(); fd.append('image', e.target.files[0]);
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+                const data = await res.json();
+                if(data.success && window.uploadTargetId) {
+                    const target = document.getElementById(window.uploadTargetId);
+                    if(target) target.value = data.data.url;
+                }
+                window.uploadTargetId = null;
+            };
+        });
+
+        window.addToCart = (id) => { const p = state.currentShopData.products.find(p => p.id === id); if(p) { if(!state.cart) state.cart = []; state.cart.push(p); document.getElementById('cart-count').innerText = state.cart.length; window.renderCart(); } };
+        window.removeFromCart = (i) => { state.cart.splice(i, 1); document.getElementById('cart-count').innerText = state.cart.length; window.renderCart(); };
+        window.renderCart = () => {
+            const cont = document.getElementById('cart-items');
+            if(!state.cart || !state.cart.length) { cont.innerHTML = `<div class="text-center py-20 text-white/10 uppercase italic text-xs font-black tracking-widest">Sua sacola está vazia</div>`; document.getElementById('cart-total').innerText = 'R$ 0,00'; return; }
+            let t = 0; cont.innerHTML = state.cart.map((item, i) => { t += Number(item.price); return `<div class="flex gap-4 bg-ui-800 p-4 rounded-xl border border-white/5"><img src="${item.images?.[0]||''}" class="w-12 h-12 object-cover rounded-lg shadow-lg"><div class="flex-1 font-bold text-[10px] uppercase truncate italic">${item.name}</div><button onclick="window.removeFromCart(${i})" class="text-red-500 font-bold">X</button></div>`; }).join('');
+            document.getElementById('cart-total').innerText = `R$ ${t.toLocaleString('pt-BR')}`;
+        };
+
+        window.openProductDetail = (id) => {
+            const p = state.currentShopData.products.find(p => p.id === id); if(!p) return;
+            const mainImg = document.getElementById('product-modal-main-img')?.querySelector('img');
+            if(mainImg) mainImg.src = p.images?.[0] || '';
+            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            safeSet('product-modal-name', p.name); safeSet('product-modal-price', `R$ ${Number(p.price).toLocaleString('pt-BR')}`); safeSet('product-modal-desc', p.desc || "Curadoria mística selecionada.");
+            const thumbs = document.getElementById('product-modal-thumbs');
+            if(thumbs) thumbs.innerHTML = (p.images||[]).map(img => `<img src="${img}" onclick="document.getElementById('product-modal-main-img').querySelector('img').src='${img}'" class="h-full aspect-square object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-brand-500">`).join('');
+            const addBtn = document.getElementById('product-modal-add');
+            if(addBtn) addBtn.onclick = () => { window.addToCart(p.id); window.closeProductDetail(); };
+            document.getElementById('product-detail-modal').classList.remove('hidden');
+        };
+
+        window.checkoutWhatsApp = async () => {
+            const shop = state.shops.find(s => s.id === state.currentShopId);
+            let t = 0, items = ""; state.cart.forEach(i => { t += Number(i.price); items += `- ${i.name} (R$ ${i.price})\n`; });
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { shopId: shop.id, shopName: shop.name, total: t, at: Date.now() });
+            window.open(`https://wa.me/${shop.whatsapp}?text=${encodeURIComponent("*Novo Pedido*\n\n" + items + "\n*Total: R$ " + t.toFixed(2) + "*")}`);
+            state.cart = []; document.getElementById('cart-count').innerText = 0; window.toggleCart();
+        };
+
+        function updateMgmtSelect() { const s = document.getElementById('mgmt-shop-select'); if(s) s.innerHTML = `<option value="">Escolha uma loja...</option>` + state.shops.map(s => `<option value="${s.id}">${s.name}</option>`).join(''); }
+        function updateReportSelect() { const s = document.getElementById('report-shop-select'); if(s) s.innerHTML = `<option value="all">Todas as Lojas</option>` + state.shops.map(s => `<option value="${s.id}">${s.name}</option>`).join(''); }
+        window.deleteDocById = async (path, id) => { if(confirm("Apagar permanentemente?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', path, id)); };
+        window.filterProducts = (cat) => { state.currentCategory = cat; window.renderShopUI(); };
+
+    </script>
+</body>
+</html>
