@@ -1800,16 +1800,49 @@
                     </table>
                 </div>`;
             }
+            // --- NOVO: TUTORIAL E MANUAIS PDF ---
             if(tab === 'tutorial' && state.role === 'shop') {
                 title.innerText = "Tutorial & Ajuda";
                 const videoId = state.hubData.tutorialVideoUrl ? getYouTubeId(state.hubData.tutorialVideoUrl) : '';
+                const manuals = state.hubData.manuals || [];
+
                 content.innerHTML = `
                 <div class="max-w-4xl mx-auto space-y-8">
+                    <!-- Video Section -->
                     <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
                         <h4 class="text-white font-bold uppercase text-sm tracking-widest mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:videocamera-record-bold" class="text-primary"></iconify-icon> Como usar a Plataforma
                         </h4>
                         ${videoId ? `<div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoId}" title="Tutorial Lojista" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>` : `<div class="aspect-video w-full rounded-2xl overflow-hidden bg-black/50 flex flex-col items-center justify-center text-zinc-500 gap-4 border border-white/5 border-dashed"><iconify-icon icon="solar:clapperboard-edit-bold-duotone" width="48"></iconify-icon><p class="text-xs font-bold uppercase tracking-widest">Nenhum vídeo disponível no momento.</p></div>`}
+                    </div>
+
+                    <!-- Manuals Section (NOVO SISTEMA DE LINKS) -->
+                    <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                        <h4 class="text-white font-bold uppercase text-sm tracking-widest mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:file-download-bold" class="text-accent"></iconify-icon> Manuais e Downloads
+                        </h4>
+                        
+                        ${manuals.length > 0 ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${manuals.map(m => `
+                                    <a href="${m.url}" target="_blank" class="flex items-center gap-4 bg-surface p-4 rounded-2xl border border-white/5 hover:border-accent/50 hover:bg-white/5 transition-all group">
+                                        <div class="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+                                            <iconify-icon icon="solar:document-text-bold-duotone" width="24"></iconify-icon>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-white font-bold text-sm truncate group-hover:text-accent transition-colors">${m.name}</p>
+                                            <p class="text-zinc-500 text-[10px] uppercase tracking-widest mt-0.5">Clique para baixar</p>
+                                        </div>
+                                        <iconify-icon icon="solar:arrow-right-up-linear" class="text-zinc-500 group-hover:text-white"></iconify-icon>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <div class="text-center py-8 text-zinc-500 flex flex-col items-center gap-2">
+                                 <iconify-icon icon="solar:folder-open-bold-duotone" width="32" class="opacity-50"></iconify-icon>
+                                 <p class="text-xs font-bold uppercase tracking-widest">Nenhum manual disponível.</p>
+                            </div>
+                        `}
                     </div>
                 </div>`;
             }
@@ -1850,9 +1883,33 @@
                             <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2">Link Vídeo Tutorial (YouTube)</label>
                             <input id="cfg-video" value="${state.hubData.tutorialVideoUrl||''}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="https://youtube.com/watch?v=...">
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2">Link Manual PDF</label>
-                            <input id="cfg-pdf" value="${state.hubData.tutorialPdfUrl||''}" class="w-full glass-input p-4 rounded-2xl text-white" placeholder="https://drive.google.com/...">
+                        
+                        <!-- NOVA SEÇÃO: BIBLIOTECA DE MANUAIS -->
+                        <div class="pt-4 border-t border-white/5">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-2">Biblioteca de Manuais PDF</label>
+                            <div class="flex flex-col md:flex-row gap-2 mb-4">
+                                <input id="new-manual-name" class="flex-1 glass-input p-4 rounded-2xl text-white" placeholder="Nome do Manual (ex: Guia de Vendas)">
+                                <input id="new-manual-url" class="flex-1 glass-input p-4 rounded-2xl text-white" placeholder="Link do PDF (Google Drive)">
+                                <button onclick="addHubManual()" class="bg-success px-6 py-4 rounded-2xl text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform shrink-0">Adicionar</button>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                ${(state.hubData.manuals || []).map((m, i) => `
+                                    <div class="flex justify-between items-center bg-black/30 p-3 rounded-xl border border-white/5">
+                                        <div class="flex items-center gap-3 overflow-hidden">
+                                            <iconify-icon icon="solar:document-text-bold" class="text-primary shrink-0"></iconify-icon>
+                                            <div class="min-w-0">
+                                                <p class="text-white text-sm font-bold truncate">${m.name}</p>
+                                                <p class="text-zinc-500 text-[10px] truncate">${m.url}</p>
+                                            </div>
+                                        </div>
+                                        <button onclick="removeHubManual(${i})" class="text-zinc-500 hover:text-danger p-2 transition-colors">
+                                            <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                                ${(!state.hubData.manuals || state.hubData.manuals.length === 0) ? '<p class="text-zinc-600 text-xs italic p-2">Nenhum manual cadastrado.</p>' : ''}
+                            </div>
                         </div>
                     </div>
 
@@ -1873,9 +1930,36 @@
                 heroDesc: el('cfg-sub').value,
                 heroDefault: el('hub-hero-default').value,
                 tutorialVideoUrl: el('cfg-video').value,
-                tutorialPdfUrl: el('cfg-pdf').value
+                // Mantendo o campo antigo por segurança, mas o novo sistema usa 'manuals'
+                // tutorialPdfUrl: el('cfg-pdf')?.value 
             }, {merge:true}); 
             alert("Hub atualizado com sucesso! ✨"); 
+        };
+        
+        // --- FUNÇÕES PARA GERENCIAR MANUAIS (NOVO) ---
+        window.addHubManual = async () => {
+            const name = el('new-manual-name').value;
+            const url = el('new-manual-url').value;
+            if(name && url) {
+                const currentManuals = state.hubData.manuals || [];
+                await setDoc(doc(db,'artifacts',appId,'public','data','config','hub'), {
+                    manuals: [...currentManuals, {name, url}]
+                }, {merge:true});
+                renderAdminContent('hub-config');
+            } else {
+                alert("Preencha o nome e o link do manual!");
+            }
+        };
+
+        window.removeHubManual = async (idx) => {
+            if(confirm("Remover este manual?")) {
+                const manuals = [...(state.hubData.manuals || [])];
+                manuals.splice(idx, 1);
+                await setDoc(doc(db,'artifacts',appId,'public','data','config','hub'), {
+                    manuals
+                }, {merge:true});
+                renderAdminContent('hub-config');
+            }
         };
         
         function getYouTubeId(url) {
