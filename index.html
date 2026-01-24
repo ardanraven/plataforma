@@ -115,6 +115,41 @@
             background: rgba(139, 92, 246, 0.1);
         }
 
+        /* ==========================================
+           ESTILOS PARA REORDENAÇÃO DE CATEGORIAS
+        =========================================== */
+        .category-item {
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+        .category-item:active {
+            cursor: grabbing;
+        }
+        .category-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.98);
+        }
+        .category-item.drag-over {
+            border-color: #8b5cf6 !important;
+            background: rgba(139, 92, 246, 0.1) !important;
+            transform: translateY(-4px);
+        }
+        .category-handle {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a1a1aa;
+            transition: color 0.2s ease;
+        }
+        .category-handle:hover {
+            color: #8b5cf6;
+        }
+        .category-item:active .category-handle {
+            cursor: grabbing;
+            color: #8b5cf6;
+        }
+
         /* Estilos de Impressão (Relatórios) */
         @media print {
             body * { visibility: hidden; }
@@ -242,9 +277,9 @@
 
                         <p class="mb-2"><strong>1. DO OBJETO:</strong> O presente contrato tem por objeto a disponibilização de espaço virtual na plataforma "Hub Místico Premium" para que o LOJISTA anuncie e comercialize seus produtos digitais ou físicos.</p>
 
-                        <p class="mb-2"><strong>2. DA COMISSÃO E PAGAMENTO:</strong></p>
-                        <p class="mb-2 pl-4">2.1. O LOJISTA concorda em pagar à PLATAFORMA uma comissão de <strong>3% (três por cento)</strong> sobre o valor total bruto de cada venda realizada ou intermediada através do sistema.</p>
-                        <p class="mb-2 pl-4">2.2. A PLATAFORMA se reserva o direito de gerar relatórios financeiros para conferência dos valores devidos.</p>
+                        <p class="mb-2"><strong>2. DA MENSALIDADE E PAGAMENTO:</strong></p>
+                        <p class="mb-2 pl-4">2.1. O LOJISTA concorda em pagar à PLATAFORMA uma mensalidade fixa de <strong>R$ 50,00 (cinquenta reais)</strong> por mês para manter sua loja ativa e funcional no sistema.</p>
+                        <p class="mb-2 pl-4">2.2. A PLATAFORMA se reserva o direito de gerar relatórios financeiros para conferência dos pagamentos realizados.</p>
 
                         <p class="mb-2"><strong>3. DAS OBRIGAÇÕES DO LOJISTA:</strong></p>
                         <p class="mb-2 pl-4">3.1. O LOJISTA é o único responsável pela entrega dos produtos, qualidade, garantias e suporte ao cliente final.</p>
@@ -1799,7 +1834,7 @@
             
             if(state.role==='master') { 
                 mHtml += btn('hub-config','solar:settings-minimalistic-bold-duotone','Config Hub'); 
-                mHtml += btn('finance','solar:wad-of-money-bold-duotone','Financeiro (3%)'); 
+                mHtml += btn('finance','solar:wad-of-money-bold-duotone','Mensalidades (R$50)'); 
                 mHtml += btn('shops-list','solar:shop-bold-duotone','Gerenciar Lojas');
                 const pendingCount = state.shops.filter(s => s.status === 'pending').length;
                 mHtml += btn('approvals','solar:bell-bold-duotone',`Solicitações (${pendingCount})`); 
@@ -1979,10 +2014,106 @@
                 window.isDropshippingEstoque = isDropshipping;
             }
 
-            // --- OUTRAS ABAS (Mantidas iguais) ---
+            // --- ABA: CATEGORIAS (ATUALIZADA COM REORDENAÇÃO) ---
             if(tab === 'categories' && state.role === 'shop') {
                 title.innerText = "Categorias"; const shopId = state.currentShop.id;
-                content.innerHTML = `<div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5 mb-8"><h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">Nova Categoria</h4><div class="flex flex-col gap-4"><div class="flex gap-4"><input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white"><div class="flex gap-2 w-1/3"><input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white"><button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white"><iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon></button></div></div><div class="flex gap-2"><input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white"><button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20"><iconify-icon icon="solar:camera-bold"></iconify-icon></button></div><button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button></div></div><div class="space-y-3">${state.shopCategories.map(c => `<div class="flex justify-between items-center bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-colors"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary"><iconify-icon icon="${c.icon||'solar:tag-bold'}"></iconify-icon></div><div><span class="block text-white font-bold">${c.name}</span>${c.banner ? '<span class="text-[10px] text-green-500 uppercase font-bold">Com Banner</span>' : ''}</div></div><button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl"><iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon></button></div>`).join('')}</div>`;
+                content.innerHTML = `
+                <div class="space-y-8">
+                    <!-- SEÇÃO: CRIAR NOVA CATEGORIA -->
+                    <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">➕ Nova Categoria</h4>
+                        <div class="flex flex-col gap-4">
+                            <div class="flex gap-4">
+                                <input id="new-cat-name" placeholder="Nome da Categoria" class="flex-1 glass-input p-4 rounded-2xl text-white">
+                                <div class="flex gap-2 w-1/3">
+                                    <input id="new-cat-icon" placeholder="Ícone" class="w-full glass-input p-4 rounded-2xl text-white">
+                                    <button onclick="openIconPicker('new-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white hover:bg-white/20">
+                                        <iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2 block mb-1">Cor de Destaque</label>
+                                    <div class="flex gap-2">
+                                        <input id="new-cat-color" type="color" value="#8b5cf6" class="w-16 h-12 rounded-xl cursor-pointer border border-white/10">
+                                        <input id="new-cat-color-text" placeholder="#8b5cf6" class="flex-1 glass-input p-3 rounded-xl text-white text-sm" maxlength="7">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2 block mb-1">Visibilidade</label>
+                                    <select id="new-cat-visible" class="w-full glass-input p-3 rounded-xl text-white bg-black text-sm">
+                                        <option value="true">Visível na Loja</option>
+                                        <option value="false">Oculta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <input id="new-cat-banner" placeholder="Banner da Categoria (URL Opcional)" class="flex-1 glass-input p-4 rounded-2xl text-white">
+                                <button onclick="uploadImg('new-cat-banner')" class="bg-white/10 p-4 rounded-2xl text-white hover:bg-white/20">
+                                    <iconify-icon icon="solar:camera-bold"></iconify-icon>
+                                </button>
+                            </div>
+                            <textarea id="new-cat-desc" placeholder="Descrição da categoria (opcional)" class="w-full glass-input p-4 rounded-2xl text-white h-20 resize-none"></textarea>
+                            <button onclick="addCategory('${shopId}')" class="bg-accent text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform">Adicionar Categoria</button>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: GERENCIAR CATEGORIAS COM REORDENAÇÃO -->
+                    <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="solar:sort-bold" class="text-accent"></iconify-icon> 
+                            Reordenar & Customizar (Arraste para reorganizar)
+                        </h4>
+                        <div id="categories-sortable" class="space-y-3 mb-6">
+                            ${state.shopCategories
+                                .sort((a, b) => (a.order || 0) - (b.order || 0))
+                                .map((c, idx) => `
+                                <div class="category-item bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all flex items-center gap-4" 
+                                    draggable="true" 
+                                    data-cat-id="${c.id}" 
+                                    data-cat-order="${idx}">
+                                    
+                                    <!-- Handle de Reordenação -->
+                                    <div class="category-handle">
+                                        <iconify-icon icon="solar:hamburger-menu-bold" width="20"></iconify-icon>
+                                    </div>
+                                    
+                                    <!-- Ícone da Categoria -->
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: ${c.color || '#8b5cf6'}20; color: ${c.color || '#8b5cf6'};">
+                                        <iconify-icon icon="${c.icon || 'solar:tag-bold'}"></iconify-icon>
+                                    </div>
+                                    
+                                    <!-- Informações Básicas -->
+                                    <div class="flex-1 min-w-0">
+                                        <h5 class="text-white font-bold text-sm">${c.name}</h5>
+                                        <p class="text-zinc-500 text-xs truncate">${c.desc || 'Sem descrição'}</p>
+                                    </div>
+                                    
+                                    <!-- Status -->
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        ${c.visible === false ? '<span class="text-[10px] bg-zinc-700/50 text-zinc-300 px-2 py-1 rounded uppercase font-bold">Oculta</span>' : '<span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded uppercase font-bold">Visível</span>'}
+                                        ${c.banner ? '<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded uppercase font-bold">Banner</span>' : ''}
+                                    </div>
+                                    
+                                    <!-- Botão de Editar -->
+                                    <button onclick="editCategory('${shopId}', '${c.id}')" class="text-primary hover:text-primaryDark transition-colors p-2">
+                                        <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
+                                    </button>
+                                    
+                                    <!-- Botão de Deletar -->
+                                    <button onclick="deleteCategory('${shopId}','${c.id}')" class="text-danger p-2 hover:bg-danger/10 rounded-xl">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                                    </button>
+                                </div>
+                            `).join('') || '<p class="text-zinc-500 text-sm italic py-8">Nenhuma categoria criada ainda.</p>'}
+                        </div>
+                        <button onclick="saveCategoriesOrder('${shopId}')" class="w-full bg-success text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform mt-4">💾 Salvar Reordenação</button>
+                    </div>
+                </div>`;
+                
+                // Inicializa drag-and-drop
+                initCategoryDragAndDrop('${shopId}');
             }
             if(tab === 'products' && state.role === 'shop') {
                 title.innerText = "Produtos"; const shopId = state.currentShop.id;
@@ -2274,8 +2405,97 @@
                 </div>`;
             }
             if(tab === 'finance' && state.role === 'master') {
-                title.innerText = "Financeiro";
-                content.innerHTML = `<div class="bg-surfaceLight p-6 rounded-[2rem] border border-white/5 mb-8"><div class="flex flex-col md:flex-row gap-4 items-end"><div class="flex-1 w-full"><label class="text-xs font-bold text-zinc-500 uppercase ml-2 mb-2 block">Filtrar Relatório</label><select id="fin-filter-shop" onchange="filterFinance()" class="w-full glass-input p-4 rounded-2xl text-white bg-surface appearance-none font-bold"><option value="all">Visão Geral (Todas as Lojas)</option>${state.shops.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div><button onclick="exportReport()" class="bg-primary px-8 py-4 rounded-2xl text-white font-black uppercase text-xs tracking-widest hover:bg-primaryDark w-full md:w-auto flex items-center justify-center gap-2"><iconify-icon icon="solar:printer-bold" width="20"></iconify-icon> Imprimir / PDF</button></div></div><div class="overflow-hidden bg-surface rounded-[2rem] border border-white/5"><table class="w-full text-left text-sm text-zinc-400"><thead class="bg-black/30 text-white uppercase text-xs tracking-widest font-black"><tr><th class="p-6">Data</th><th class="p-6">Loja</th><th class="p-6 text-right">Venda</th><th class="p-6 text-right text-accent">Royalty (3%)</th></tr></thead><tbody id="finance-table-body" class="divide-y divide-white/5 font-mono"></tbody></table></div><div class="text-right mt-6 pr-4"><p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">Total Comissões a Receber</p><p class="text-4xl font-black text-accent mt-2"><span id="finance-total">R$ 0,00</span></p></div>`; setTimeout(filterFinance,100);
+                title.innerText = "Mensalidades (R$50/Loja)";
+                const active = state.shops.filter(s => s.status !== 'pending');
+                
+                content.innerHTML = `
+                <div class="space-y-8">
+                    <!-- SEÇÃO: CONTROLE DE MENSALIDADES -->
+                    <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="solar:wallet-money-bold" class="text-accent"></iconify-icon>
+                            Controle de Mensalidades
+                        </h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <div class="bg-surface p-6 rounded-2xl border border-white/5">
+                                <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Total Lojas Ativas</p>
+                                <p class="text-4xl font-black text-white mt-2">${active.length}</p>
+                            </div>
+                            <div class="bg-surface p-6 rounded-2xl border border-white/5">
+                                <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Faturamento Mensal (50/loja)</p>
+                                <p class="text-4xl font-black text-accent mt-2">R$ ${(active.length * 50).toLocaleString('pt-BR')}</p>
+                            </div>
+                            <div class="bg-surface p-6 rounded-2xl border border-white/5">
+                                <p class="text-zinc-400 text-xs font-bold uppercase tracking-widest">Próximo Vencimento</p>
+                                <p class="text-3xl font-black text-primary mt-2">${new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('pt-BR')}</p>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-zinc-500 mb-4 uppercase font-bold tracking-widest">Clique em "Pago ✓" ou "Não Pago ✗" para marcar o status</p>
+
+                        <div class="space-y-3 max-h-96 overflow-y-auto">
+                            ${active.map(shop => {
+                                const isPaid = shop.monthlyPaid === true;
+                                return `
+                                <div class="flex items-center justify-between bg-surface p-4 rounded-2xl border ${isPaid ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'} hover:border-white/20 transition-all">
+                                    <div class="flex-1">
+                                        <h5 class="text-white font-bold">${shop.name}</h5>
+                                        <p class="text-zinc-500 text-xs">${shop.email}</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <p class="text-white font-bold">R$ 50,00</p>
+                                            <p class="text-[10px] text-zinc-500 uppercase font-bold">${isPaid ? '✓ PAGO' : '✗ NÃO PAGO'}</p>
+                                        </div>
+                                        <button onclick="toggleMonthlyPaid('${shop.id}', ${!isPaid})" class="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${isPaid ? 'bg-red-500/20 text-red-400 hover:bg-red-500/40' : 'bg-green-500/20 text-green-400 hover:bg-green-500/40'}">
+                                            ${isPaid ? 'Marcar Não Pago' : 'Marcar Pago'}
+                                        </button>
+                                    </div>
+                                </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO: ÚLTIMAS VENDAS -->
+                    <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="solar:bag-check-bold" class="text-primary"></iconify-icon>
+                            Últimas Vendas por Loja
+                        </h4>
+
+                        <div class="overflow-hidden bg-surface rounded-2xl border border-white/5">
+                            <table class="w-full text-left text-sm text-zinc-400">
+                                <thead class="bg-black/30 text-white uppercase text-xs tracking-widest font-black border-b border-white/5">
+                                    <tr>
+                                        <th class="p-4">Data</th>
+                                        <th class="p-4">Loja</th>
+                                        <th class="p-4 text-right">Cliente</th>
+                                        <th class="p-4 text-right">Valor Venda</th>
+                                        <th class="p-4 text-right">Frete</th>
+                                        <th class="p-4 text-right text-primary">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white/5 font-mono text-xs">
+                                    ${state.orders.sort((a,b) => b.at - a.at).slice(0, 15).map(o => {
+                                        const shop = state.shops.find(s => s.id === o.shopId);
+                                        return `
+                                        <tr class="hover:bg-white/5 transition-colors">
+                                            <td class="p-4 text-white">${new Date(o.at).toLocaleDateString('pt-BR')}</td>
+                                            <td class="p-4 text-white font-bold">${shop?.name || 'Desconhecida'}</td>
+                                            <td class="p-4 text-right">${o.address?.name || '-'}</td>
+                                            <td class="p-4 text-right text-white">${formatBRL(o.total - (o.shipping || 0))}</td>
+                                            <td class="p-4 text-right text-white">${formatBRL(o.shipping || 0)}</td>
+                                            <td class="p-4 text-right text-primary font-bold">${formatBRL(o.total)}</td>
+                                        </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
             }
         };
 
@@ -2404,9 +2624,206 @@
         
         window.addCategory = async (sid) => {
             const n=el('new-cat-name').value, i=el('new-cat-icon').value, b=el('new-cat-banner').value;
-            if(n) { await addDoc(collection(db,'artifacts',appId,'public','data','shops',sid,'categories'), {name:n, icon:i, banner:b, order:state.shopCategories.length}); renderAdminContent('categories'); }
+            const color = el('new-cat-color').value || '#8b5cf6';
+            const visible = el('new-cat-visible').value === 'true';
+            const desc = el('new-cat-desc').value || '';
+            
+            if(n) { 
+                await addDoc(collection(db,'artifacts',appId,'public','data','shops',sid,'categories'), {
+                    name:n, 
+                    icon:i, 
+                    banner:b, 
+                    color:color,
+                    visible:visible,
+                    desc:desc,
+                    order:state.shopCategories.length,
+                    at: Date.now()
+                }); 
+                renderAdminContent('categories'); 
+            }
         };
-        window.deleteCategory = async (sid, cid) => { if(confirm("Tem certeza?")) { await deleteDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'categories',cid)); renderAdminContent('categories'); } };
+        
+        window.editCategory = async (sid, cid) => {
+            const cat = state.shopCategories.find(c => c.id === cid);
+            if(!cat) return;
+            
+            const modalHtml = `
+            <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+                <div class="bg-surface border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-white font-black text-2xl mb-6 uppercase tracking-widest">Editar Categoria</h3>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Nome</label>
+                            <input id="modal-cat-name" value="${cat.name}" class="w-full glass-input p-4 rounded-2xl text-white">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Ícone</label>
+                                <div class="flex gap-2">
+                                    <input id="modal-cat-icon" value="${cat.icon||''}" class="flex-1 glass-input p-4 rounded-2xl text-white">
+                                    <button onclick="openIconPicker('modal-cat-icon')" class="bg-white/10 px-4 rounded-2xl text-white hover:bg-white/20">
+                                        <iconify-icon icon="solar:magnifer-bold" width="24"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Cor de Destaque</label>
+                                <div class="flex gap-2">
+                                    <input id="modal-cat-color" type="color" value="${cat.color||'#8b5cf6'}" class="w-16 h-12 rounded-xl cursor-pointer border border-white/10">
+                                    <input id="modal-cat-color-text" value="${cat.color||'#8b5cf6'}" placeholder="#8b5cf6" class="flex-1 glass-input p-3 rounded-xl text-white text-sm" maxlength="7">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Descrição</label>
+                            <textarea id="modal-cat-desc" placeholder="Descrição da categoria" class="w-full glass-input p-4 rounded-2xl text-white h-20 resize-none">${cat.desc||''}</textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Visibilidade</label>
+                                <select id="modal-cat-visible" class="w-full glass-input p-3 rounded-xl text-white bg-black">
+                                    <option value="true" ${cat.visible !== false ? 'selected' : ''}>Visível na Loja</option>
+                                    <option value="false" ${cat.visible === false ? 'selected' : ''}>Oculta</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Banner (URL)</label>
+                                <div class="flex gap-2">
+                                    <input id="modal-cat-banner" value="${cat.banner||''}" placeholder="https://..." class="flex-1 glass-input p-3 rounded-xl text-white text-sm">
+                                    <button onclick="uploadImg('modal-cat-banner')" class="bg-white/10 p-3 rounded-xl text-white hover:bg-white/20">
+                                        <iconify-icon icon="solar:camera-bold"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-6 border-t border-white/10">
+                        <button onclick="saveCategoryEdit('${sid}', '${cid}')" class="flex-1 bg-primary hover:bg-primaryDark text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest shadow-lg hover:scale-105 transition-transform">
+                            Salvar Alterações
+                        </button>
+                        <button onclick="closeCategoryEditModal()" class="flex-1 bg-white/10 hover:bg-white/20 text-white font-black py-4 rounded-xl uppercase text-xs tracking-widest transition-all">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Sincroniza cor
+            el('modal-cat-color').addEventListener('input', (e) => {
+                el('modal-cat-color-text').value = e.target.value;
+            });
+            el('modal-cat-color-text').addEventListener('input', (e) => {
+                if(/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    el('modal-cat-color').value = e.target.value;
+                }
+            });
+        };
+        
+        window.closeCategoryEditModal = () => {
+            const modal = document.querySelector('.fixed.inset-0.bg-black\\/80');
+            if(modal) modal.remove();
+        };
+        
+        window.saveCategoryEdit = async (sid, cid) => {
+            const name = el('modal-cat-name').value;
+            const icon = el('modal-cat-icon').value;
+            const color = el('modal-cat-color').value || '#8b5cf6';
+            const desc = el('modal-cat-desc').value;
+            const visible = el('modal-cat-visible').value === 'true';
+            const banner = el('modal-cat-banner').value;
+            
+            if(name) {
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'categories',cid), {
+                    name, icon, color, desc, visible, banner
+                });
+                closeCategoryEditModal();
+                renderAdminContent('categories');
+            }
+        };
+        
+        window.deleteCategory = async (sid, cid) => { 
+            if(confirm("Tem certeza que deseja deletar esta categoria?")) { 
+                await deleteDoc(doc(db,'artifacts',appId,'public','data','shops',sid,'categories',cid)); 
+                renderAdminContent('categories'); 
+            } 
+        };
+        
+        window.initCategoryDragAndDrop = (shopId) => {
+            const sortable = el('categories-sortable');
+            if(!sortable) return;
+            
+            let draggedElement = null;
+            
+            sortable.addEventListener('dragstart', (e) => {
+                if(e.target.closest('.category-item')) {
+                    draggedElement = e.target.closest('.category-item');
+                    draggedElement.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+            
+            sortable.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if(!draggedElement) return;
+                
+                const items = sortable.querySelectorAll('.category-item');
+                items.forEach(item => {
+                    if(item !== draggedElement) {
+                        if(e.clientY < item.offsetTop + item.offsetHeight / 2) {
+                            item.classList.add('drag-over');
+                            sortable.insertBefore(draggedElement, item);
+                        } else {
+                            item.classList.remove('drag-over');
+                        }
+                    }
+                });
+            });
+            
+            sortable.addEventListener('dragend', (e) => {
+                if(draggedElement) {
+                    draggedElement.classList.remove('dragging');
+                    sortable.querySelectorAll('.category-item').forEach(item => {
+                        item.classList.remove('drag-over');
+                    });
+                }
+                draggedElement = null;
+            });
+        };
+        
+        window.saveCategoriesOrder = async (shopId) => {
+            try {
+                const items = document.querySelectorAll('.category-item');
+                const updates = {};
+                
+                items.forEach((item, idx) => {
+                    const catId = item.dataset.catId;
+                    if(catId) {
+                        updates[catId] = idx;
+                    }
+                });
+                
+                // Atualiza cada categoria com sua nova ordem
+                for(const [catId, newOrder] of Object.entries(updates)) {
+                    await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',catId), {
+                        order: newOrder
+                    });
+                }
+                
+                alert('✅ Reordenação salva com sucesso!');
+                renderAdminContent('categories');
+            } catch(err) {
+                alert('❌ Erro ao salvar reordenação: ' + err.message);
+            }
+        };
         
         // SALVAR DADOS DA LOJA (COM NOVO CEP)
         window.saveShopConfig = async (id) => { 
@@ -2460,6 +2877,19 @@
             });
             
             renderAdminContent('shop-settings');
+        };
+
+        // --- FUNÇÕES DE MENSALIDADE ---
+        window.toggleMonthlyPaid = async (shopId, isPaid) => {
+            try {
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId), {
+                    monthlyPaid: isPaid,
+                    monthlyPaidDate: isPaid ? Date.now() : null
+                });
+                renderAdminContent('finance');
+            } catch(err) {
+                alert('Erro ao atualizar mensalidade: ' + err.message);
+            }
         };
 
         window.addProduct = async (sid) => {
