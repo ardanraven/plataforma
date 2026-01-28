@@ -3089,6 +3089,14 @@
                             </div>
                         </div>
 
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Categoria</label>
+                            <select id="edit-prod-cat" class="w-full glass-input p-4 rounded-2xl text-white bg-black">
+                                <option value="all" ${!prod.category || prod.category === 'all' ? 'selected' : ''}>Sem Categoria</option>
+                                ${state.shopCategories.map(c => `<option value="${c.id}" ${prod.category === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                            </select>
+                        </div>
+
                         <!-- GALERIA DE IMAGENS EDITÁVEL -->
                         <div class="border-t border-white/10 pt-4">
                             <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-3 flex items-center gap-2">
@@ -3180,6 +3188,7 @@
                 const name = el('edit-prod-name')?.value?.trim();
                 const price = parseFloat(el('edit-prod-price')?.value || 0);
                 const type = el('edit-prod-type')?.value;
+                const category = el('edit-prod-cat')?.value || 'all';
                 const desc = el('edit-prod-desc')?.value || '';
                 
                 const weight = el('edit-prod-weight')?.value ? parseFloat(el('edit-prod-weight').value) : null;
@@ -3191,7 +3200,7 @@
                 if(!name) { alert("Nome obrigatório"); return; }
                 if(isNaN(price) || price <= 0) { alert("Preço válido obrigatório"); return; }
                 
-                const updateData = { name, price, type, desc };
+                const updateData = { name, price, type, category, desc };
                 if(!window.isDropshippingEstoque) {
                     updateData.weight = weight;
                     updateData.height = height;
