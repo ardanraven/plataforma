@@ -411,6 +411,11 @@
                             <p class="text-xs uppercase font-bold tracking-widest">Carregando Lojas...</p>
                         </div>
                     </div>
+
+                    <!-- RODAPÉ COM ASSINATURA -->
+                    <div class="border-t border-white/10 mt-16 pt-12 text-center pb-8">
+                        <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest">© 2026 <span class="text-white">Trioditis</span></p>
+                    </div>
                 </div>
             </div>
 
@@ -589,6 +594,12 @@
                 </div>
                 
                 <div class="p-6 md:p-8 space-y-4 flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
+                    <!-- CAMPOS DE EMAIL E TELEFONE (Apenas para não logados) -->
+                    <div id="guest-contact-fields" class="space-y-4 pb-4 border-b border-white/10">
+                        <input id="chk-email" placeholder="Seu Email" type="email" class="w-full glass-input p-4 rounded-2xl text-white" style="display:none;">
+                        <input id="chk-phone" placeholder="Seu Telefone (11 99999-9999)" type="tel" class="w-full glass-input p-4 rounded-2xl text-white" style="display:none;">
+                    </div>
+
                     <input id="chk-name" placeholder="Nome Completo do Recebedor" class="w-full glass-input p-4 rounded-2xl text-white">
                     
                     <!-- CAMPO CEP (TRIGGER BUSCA) -->
@@ -701,7 +712,7 @@
     <!-- ==========================================
          9. PAINEL ADMINISTRATIVO (COMPLETO)
     =========================================== -->
-    <div id="admin-panel" class="fixed inset-0 z-[100] hidden bg-[#09090b] flex overflow-hidden no-print">
+    <div id="admin-panel" class="fixed inset-0 z-[100] hidden bg-[#09090b] flex overflow-auto no-print">
         <!-- Sidebar -->
         <aside class="w-20 md:w-72 bg-surface border-r border-white/5 flex flex-col justify-between">
             <div>
@@ -1314,6 +1325,15 @@
             el('chk-city').value = "";
             el('chk-uf').value = "";
             
+            // Mostra campos de email e telefone se não estiver logado
+            if(!state.user) {
+                document.querySelectorAll('#guest-contact-fields input').forEach(inp => inp.style.display = '');
+                el('chk-email').value = '';
+                el('chk-phone').value = '';
+            } else {
+                document.querySelectorAll('#guest-contact-fields input').forEach(inp => inp.style.display = 'none');
+            }
+            
             hide('shipping-options-container');
             
             show('checkout-modal');
@@ -1409,23 +1429,23 @@
             }
             
             // === CÁLCULO DE FRETE COM PESO, DIMENSÃO E EMBALAGEM ===
+            // Métricas oficiais dos Correios: Largura + Altura + Comprimento
             
-            // Coleta dados de peso e dimensão de TODOS os produtos na sacola
-            let totalWeight = 0;  // em kg
-            let totalDimension = 0; // em cm (será convertido em volume)
-            let totalPackaging = 0; // custo de embalagem
+            let totalWeight = 0;      // em kg
+            let sumDimensions = 0;    // Largura + Altura + Comprimento (em cm)
+            let totalPackaging = 0;   // custo de embalagem (R$)
             
             state.cart.forEach(product => {
-                const weight = parseFloat(product.weight) || 0.5; // padrão 500g se não informado
-                const height = parseFloat(product.height) || 10; // cm
-                const width = parseFloat(product.width) || 10; // cm
-                const depth = parseFloat(product.depth) || 5; // cm
-                const packaging = parseFloat(product.packaging) || 1.00; // padrão R$ 1,00
+                const weight = parseFloat(product.weight) || 0.5;        // padrão 500g
+                const height = parseFloat(product.height) || 10;         // cm
+                const width = parseFloat(product.width) || 10;           // cm
+                const depth = parseFloat(product.depth) || 5;            // cm (comprimento)
+                const packaging = parseFloat(product.packaging) || 1.00;  // R$
                 
                 totalWeight += weight;
                 
-                // Dimensão: comprimento + altura + profundidade (método dos Correios)
-                totalDimension += (width + height + depth);
+                // Dimensão oficial Correios: Comprimento + Altura + Largura
+                sumDimensions += (depth + height + width);
                 
                 // Soma custo de embalagem
                 totalPackaging += packaging;
@@ -1434,38 +1454,42 @@
             // Garante peso mínimo de 0.3kg para cálculo
             if(totalWeight < 0.3) totalWeight = 0.3;
             
-            const originCep = shop.originCep || '01001000'; // Default SP
+            // Garante dimensão mínima (2cm + 2cm + 2cm)
+            if(sumDimensions < 6) sumDimensions = 6;
+            
+            const originCep = shop.originCep || '01001000';
             const originRegion = originCep.substring(0, 1);
             const destRegion = destCep.substring(0, 1);
             
-            // === FÓRMULA DE PREÇO DOS CORREIOS ===
+            // === FÓRMULA DE PREÇO DOS CORREIOS (CORRIGIDA) ===
             let basePacPrice = 0;
             let baseSedexPrice = 0;
-            let pricePerKg = 3.50; // valor por kg adicional
-            let pricePerDimension = 0.15; // valor por cm de dimensão
+            let pricePerKg = 3.50;
+            let pricePerCm = 0.10;  // Reduzido - o dimensionamento é menos importante que peso
             
-            // Mesmo estado/região postal (Local)
+            // Determinando região de entrega
             if(originRegion === destRegion) {
+                // Mesmo estado/região postal (Local)
                 basePacPrice = 12.00;
                 baseSedexPrice = 18.00;
                 pricePerKg = 2.50;
             } 
-            // Regiões vizinhas
             else if(Math.abs(parseInt(originRegion) - parseInt(destRegion)) <= 2) {
+                // Regiões vizinhas
                 basePacPrice = 20.00;
                 baseSedexPrice = 35.00;
                 pricePerKg = 3.50;
             } 
-            // Nacional (Longe)
             else {
+                // Nacional (Distante)
                 basePacPrice = 28.00;
                 baseSedexPrice = 58.00;
                 pricePerKg = 4.50;
             }
             
             // Calcula valor final de frete
-            const pacPrice = basePacPrice + (totalWeight * pricePerKg) + (totalDimension * pricePerDimension) + totalPackaging;
-            const sedexPrice = baseSedexPrice + (totalWeight * pricePerKg * 1.8) + (totalDimension * pricePerDimension) + totalPackaging;
+            const pacPrice = basePacPrice + (totalWeight * pricePerKg) + (sumDimensions * pricePerCm) + totalPackaging;
+            const sedexPrice = baseSedexPrice + (totalWeight * pricePerKg * 1.8) + (sumDimensions * pricePerCm) + totalPackaging;
             
             // Renderiza Opções
             const container = el('shipping-options-list');
@@ -1476,7 +1500,7 @@
                         <div>
                             <span class="block text-white font-bold text-sm">PAC (Normal)</span>
                             <span class="block text-zinc-500 text-[10px]">5 a 12 dias úteis</span>
-                            <span class="block text-zinc-600 text-[9px] mt-1">Peso: ${totalWeight.toFixed(2)}kg | Dimensão: ${totalDimension.toFixed(0)}cm</span>
+                            <span class="block text-zinc-600 text-[9px] mt-1">Peso: ${totalWeight.toFixed(2)}kg | Dimensões: ${sumDimensions.toFixed(0)}cm (L+A+C)</span>
                         </div>
                     </div>
                     <span class="text-white font-black">${formatBRL(pacPrice)}</span>
@@ -1519,6 +1543,20 @@
 
             if(!address.name || !address.cep || !address.street || !address.num || !address.city || !address.uf) {
                 return alert("Por favor, preencha todos os campos obrigatórios.");
+            }
+
+            // Valida email e telefone se não estiver logado
+            if(!state.user) {
+                const email = el('chk-email')?.value?.trim();
+                const phone = el('chk-phone')?.value?.trim();
+                
+                if(!email) return alert("Por favor, informe seu email para continuar.");
+                if(!phone) return alert("Por favor, informe seu telefone para continuar.");
+                
+                // Validação básica de email
+                if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    return alert("Por favor, informe um email válido.");
+                }
             }
             
             if(!state.checkoutData.shippingMethod) {
@@ -1625,6 +1663,10 @@
             const total = subtotal + shipping;
             const addr = state.checkoutData.address;
 
+            // Captura email e telefone do cliente não logado
+            const clientEmail = state.user ? state.user.email : (el('chk-email')?.value || '');
+            const clientPhone = state.user ? '' : (el('chk-phone')?.value || '');
+
             // --- FORMATO DE MENSAGEM DO WHATSAPP ATUALIZADO ---
             let msg = `🤖 *NOVO PEDIDO - ${shop.name.toUpperCase()}* 🚀\n\n`; 
             
@@ -1633,7 +1675,10 @@
             msg += `🗺️ *Endereço:* ${addr.street}, ${addr.num}\n`;
             msg += `${addr.comp ? `🏠 *Comp:* ${addr.comp}\n` : ''}`;
             msg += `🏘️ *Bairro:* ${addr.bairro}\n`;
-            msg += `🌆 *Cidade:* ${addr.city} / ${addr.uf}\n\n`;
+            msg += `🌆 *Cidade:* ${addr.city} / ${addr.uf}\n`;
+            if(clientEmail) msg += `📧 *Email:* ${clientEmail}\n`;
+            if(clientPhone) msg += `📱 *Telefone:* ${clientPhone}\n`;
+            msg += `\n`;
             
             msg += `👜 *ITENS:*\n`;
             state.cart.forEach(i => msg += `• ${i.name} - ${formatBRL(i.price)}\n`);
@@ -1646,6 +1691,7 @@
             
             if(state.receiptUrl) msg += `\n🧾 *Comprovante:* ${state.receiptUrl}`;
             
+            // Salva o pedido no Firebase
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
                 shopId: shop.id, 
                 shopName: shop.name, 
@@ -1654,10 +1700,26 @@
                 shipping,
                 shippingMethod: method,
                 address: addr,
+                clientEmail: clientEmail,
+                clientPhone: clientPhone,
                 receipt: state.receiptUrl, 
                 at: Date.now(), 
                 items: state.cart.map(i=>i.name) 
             });
+
+            // Se o cliente não está logado, salva como lead
+            if(!state.user && (clientEmail || clientPhone)) {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leads'), {
+                    name: addr.name,
+                    email: clientEmail,
+                    phone: clientPhone,
+                    shopId: shop.id,
+                    shopName: shop.name,
+                    totalSpent: total,
+                    createdAt: Date.now()
+                });
+            }
+
             window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
             closeCheckout(); 
             state.cart = []; 
@@ -2059,25 +2121,17 @@
                         </div>
                     </div>
 
-                    <!-- SEÇÃO: GERENCIAR CATEGORIAS COM REORDENAÇÃO -->
+                    <!-- SEÇÃO: GERENCIAR CATEGORIAS COM BOTÕES CIMA/BAIXO -->
                     <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
                         <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest flex items-center gap-2">
                             <iconify-icon icon="solar:sort-bold" class="text-accent"></iconify-icon> 
-                            Reordenar & Customizar (Arraste para reorganizar)
+                            Reordenar Categorias
                         </h4>
                         <div id="categories-sortable" class="space-y-3 mb-6">
                             ${state.shopCategories
                                 .sort((a, b) => (a.order || 0) - (b.order || 0))
                                 .map((c, idx) => `
-                                <div class="category-item bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all flex items-center gap-4" 
-                                    draggable="true" 
-                                    data-cat-id="${c.id}" 
-                                    data-cat-order="${idx}">
-                                    
-                                    <!-- Handle de Reordenação -->
-                                    <div class="category-handle">
-                                        <iconify-icon icon="solar:hamburger-menu-bold" width="20"></iconify-icon>
-                                    </div>
+                                <div class="bg-surface p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all flex items-center gap-4" data-cat-id="${c.id}" data-cat-order="${idx}">
                                     
                                     <!-- Ícone da Categoria -->
                                     <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: ${c.color || '#8b5cf6'}20; color: ${c.color || '#8b5cf6'};">
@@ -2095,6 +2149,16 @@
                                         ${c.visible === false ? '<span class="text-[10px] bg-zinc-700/50 text-zinc-300 px-2 py-1 rounded uppercase font-bold">Oculta</span>' : '<span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded uppercase font-bold">Visível</span>'}
                                         ${c.banner ? '<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded uppercase font-bold">Banner</span>' : ''}
                                     </div>
+
+                                    <!-- Botões de Navegação (Cima/Baixo) -->
+                                    <div class="flex gap-2 shrink-0">
+                                        <button onclick="moveCategoryUp('${shopId}', '${c.id}', ${idx})" class="text-zinc-500 hover:text-primary p-2 transition-colors ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}" ${idx === 0 ? 'disabled' : ''}>
+                                            <iconify-icon icon="solar:alt-arrow-up-bold" width="20"></iconify-icon>
+                                        </button>
+                                        <button onclick="moveCategoryDown('${shopId}', '${c.id}', ${idx})" class="text-zinc-500 hover:text-primary p-2 transition-colors ${idx === state.shopCategories.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}" ${idx === state.shopCategories.length - 1 ? 'disabled' : ''}>
+                                            <iconify-icon icon="solar:alt-arrow-down-bold" width="20"></iconify-icon>
+                                        </button>
+                                    </div>
                                     
                                     <!-- Botão de Editar -->
                                     <button onclick="editCategory('${shopId}', '${c.id}')" class="text-primary hover:text-primaryDark transition-colors p-2">
@@ -2108,12 +2172,11 @@
                                 </div>
                             `).join('') || '<p class="text-zinc-500 text-sm italic py-8">Nenhuma categoria criada ainda.</p>'}
                         </div>
-                        <button onclick="saveCategoriesOrder('${shopId}')" class="w-full bg-success text-black font-black p-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform mt-4">💾 Salvar Reordenação</button>
+                        <div class="pt-4 border-t border-white/10 text-center">
+                            <p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Use os botões ⬆️⬇️ para reorganizar a ordem das categorias</p>
+                        </div>
                     </div>
                 </div>`;
-                
-                // Inicializa drag-and-drop
-                initCategoryDragAndDrop('${shopId}');
             }
             if(tab === 'products' && state.role === 'shop') {
                 title.innerText = "Produtos"; const shopId = state.currentShop.id;
@@ -2129,17 +2192,17 @@
                             <input id="new-prod-weight" type="number" step="0.1" placeholder="0.5" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Altura (cm)</label>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
                             <input id="new-prod-height" type="number" step="0.1" placeholder="10" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Largura (cm)</label>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Altura (cm)</label>
                             <input id="new-prod-width" type="number" step="0.1" placeholder="15" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Largura (cm)</label>
                             <input id="new-prod-depth" type="number" step="0.1" placeholder="8" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                         <div>
@@ -2756,73 +2819,45 @@
         };
         
         window.initCategoryDragAndDrop = (shopId) => {
-            const sortable = el('categories-sortable');
-            if(!sortable) return;
+            // Função removida - agora usa botões cima/baixo
+        };
+        
+        window.moveCategoryUp = async (shopId, catId, currentIdx) => {
+            if(currentIdx === 0) return;
             
-            let draggedElement = null;
+            const sorted = state.shopCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+            const current = sorted[currentIdx];
+            const previous = sorted[currentIdx - 1];
             
-            sortable.addEventListener('dragstart', (e) => {
-                if(e.target.closest('.category-item')) {
-                    draggedElement = e.target.closest('.category-item');
-                    draggedElement.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                }
-            });
+            if(!current || !previous) return;
             
-            sortable.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                
-                if(!draggedElement) return;
-                
-                const items = sortable.querySelectorAll('.category-item');
-                items.forEach(item => {
-                    if(item !== draggedElement) {
-                        if(e.clientY < item.offsetTop + item.offsetHeight / 2) {
-                            item.classList.add('drag-over');
-                            sortable.insertBefore(draggedElement, item);
-                        } else {
-                            item.classList.remove('drag-over');
-                        }
-                    }
-                });
-            });
+            // Inverte as posições
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: (previous.order || 0) });
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',previous.id), { order: (current.order || 0) });
             
-            sortable.addEventListener('dragend', (e) => {
-                if(draggedElement) {
-                    draggedElement.classList.remove('dragging');
-                    sortable.querySelectorAll('.category-item').forEach(item => {
-                        item.classList.remove('drag-over');
-                    });
-                }
-                draggedElement = null;
-            });
+            // A recarregar será automático via listener do Firestore
+        };
+        
+        window.moveCategoryDown = async (shopId, catId, currentIdx) => {
+            const sorted = state.shopCategories.sort((a, b) => (a.order || 0) - (b.order || 0));
+            if(currentIdx === sorted.length - 1) return;
+            
+            const current = sorted[currentIdx];
+            const next = sorted[currentIdx + 1];
+            
+            if(!current || !next) return;
+            
+            // Inverte as posições
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: (next.order || 0) });
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',next.id), { order: (current.order || 0) });
+            
+            // A recarregar será automático via listener do Firestore
         };
         
         window.saveCategoriesOrder = async (shopId) => {
-            try {
-                const items = document.querySelectorAll('.category-item');
-                const updates = {};
-                
-                items.forEach((item, idx) => {
-                    const catId = item.dataset.catId;
-                    if(catId) {
-                        updates[catId] = idx;
-                    }
-                });
-                
-                // Atualiza cada categoria com sua nova ordem
-                for(const [catId, newOrder] of Object.entries(updates)) {
-                    await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',catId), {
-                        order: newOrder
-                    });
-                }
-                
-                alert('✅ Reordenação salva com sucesso!');
-                renderAdminContent('categories');
-            } catch(err) {
-                alert('❌ Erro ao salvar reordenação: ' + err.message);
-            }
+            // Função removida - as mudanças agora são salvas instantaneamente ao clicar nos botões
+            alert('✅ Ordem salva automaticamente!');
+            renderAdminContent('categories');
         };
         
         // SALVAR DADOS DA LOJA (COM NOVO CEP)
@@ -2940,13 +2975,98 @@
             el('estoque-total').innerText = visible;
         };
 
+        // EDITAR IMAGEM DO PRODUTO
+        window.editProdImage = (idx, prodId) => {
+            const tempEditImageData = { prodId, imageIdx: idx };
+            const fileInput = el('global-file-input');
+            
+            // Salva dados temporários
+            state.uploadTarget = `_prod_img_edit_${idx}`;
+            
+            fileInput.onchange = async (e) => {
+                if(!e.target.files[0]) return;
+                
+                const fd = new FormData();
+                fd.append('image', e.target.files[0]);
+                
+                const btn = document.querySelector('[onclick*="editProdImage"]');
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+                    const data = await res.json();
+                    
+                    if(data.success) {
+                        const prod = window.estoqueProducts.find(p => p.id === prodId);
+                        if(prod) {
+                            if(!prod.images) prod.images = [];
+                            prod.images[tempEditImageData.imageIdx] = data.data.url;
+                            
+                            // Atualiza no Firebase
+                            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', window.shopIdEstoque, 'products', prodId), {
+                                images: prod.images
+                            });
+                            
+                            // Recarrega o modal
+                            closeEstoqueEdit();
+                            openEstoqueEdit(prodId);
+                            alert('✅ Imagem atualizada com sucesso!');
+                        }
+                    }
+                } catch(err) {
+                    alert('Erro ao fazer upload da imagem');
+                    console.error(err);
+                }
+            };
+            
+            fileInput.click();
+        };
+
+        // ADICIONAR NOVA IMAGEM AO PRODUTO
+        window.addProdImage = (prodId) => {
+            const fileInput = el('global-file-input');
+            
+            fileInput.onchange = async (e) => {
+                if(!e.target.files[0]) return;
+                
+                const fd = new FormData();
+                fd.append('image', e.target.files[0]);
+                
+                try {
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: fd });
+                    const data = await res.json();
+                    
+                    if(data.success) {
+                        const prod = window.estoqueProducts.find(p => p.id === prodId);
+                        if(prod) {
+                            if(!prod.images) prod.images = [];
+                            prod.images.push(data.data.url);
+                            
+                            // Atualiza no Firebase
+                            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', window.shopIdEstoque, 'products', prodId), {
+                                images: prod.images
+                            });
+                            
+                            // Recarrega o modal
+                            closeEstoqueEdit();
+                            openEstoqueEdit(prodId);
+                            alert('✅ Nova imagem adicionada!');
+                        }
+                    }
+                } catch(err) {
+                    alert('Erro ao fazer upload da imagem');
+                    console.error(err);
+                }
+            };
+            
+            fileInput.click();
+        };
+
         window.openEstoqueEdit = (pid) => {
             const prod = window.estoqueProducts.find(p => p.id === pid);
             if(!prod) return;
             
             const html = `
             <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
-                <div class="bg-surface border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="bg-surface border border-white/10 rounded-3xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
                     <h3 class="text-white font-black text-2xl mb-6 uppercase tracking-widest">Editar Produto</h3>
                     
                     <div class="space-y-4 mb-8">
@@ -2969,6 +3089,31 @@
                             </div>
                         </div>
 
+                        <!-- GALERIA DE IMAGENS EDITÁVEL -->
+                        <div class="border-t border-white/10 pt-4">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-3 flex items-center gap-2">
+                                <iconify-icon icon="solar:gallery-bold" class="text-accent"></iconify-icon> Galeria de Imagens
+                            </label>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                ${(prod.images || []).map((img, idx) => `
+                                    <div class="relative group rounded-2xl overflow-hidden border-2 border-white/10 hover:border-primary/50 transition-all h-32 bg-black/50 flex items-center justify-center cursor-pointer" onclick="editProdImage(${idx}, '${prod.id}')">
+                                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                            <iconify-icon icon="solar:pen-bold" class="text-white" width="24"></iconify-icon>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${(prod.images || []).length < 6 ? `
+                                    <div class="border-2 border-dashed border-white/20 rounded-2xl h-32 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors" onclick="addProdImage('${prod.id}')">
+                                        <div class="text-center">
+                                            <iconify-icon icon="solar:camera-minimalistic-bold" class="text-zinc-500 mx-auto mb-1" width="20"></iconify-icon>
+                                            <p class="text-[10px] text-zinc-500 font-bold">Adicionar</p>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
                         ${!window.isDropshippingEstoque ? `
                             <div class="border-t border-white/10 pt-4 space-y-4">
                                 <h4 class="text-white font-bold text-sm uppercase flex items-center gap-2">
@@ -2981,18 +3126,18 @@
                                         <input id="edit-prod-weight" type="number" step="0.1" value="${prod.weight || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Altura (cm)</label>
+                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
                                         <input id="edit-prod-height" type="number" step="0.1" value="${prod.height || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                 </div>
                                 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Largura (cm)</label>
+                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Altura (cm)</label>
                                         <input id="edit-prod-width" type="number" step="0.1" value="${prod.width || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
+                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Largura (cm)</label>
                                         <input id="edit-prod-depth" type="number" step="0.1" value="${prod.depth || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                 </div>
@@ -3071,6 +3216,160 @@
                 alert("Erro ao salvar: " + err.message);
                 // Tenta fechar o modal mesmo com erro
                 closeEstoqueEdit();
+            }
+        };
+
+        // --- FUNÇÕES DE EDIÇÃO DE IMAGENS DO ESTOQUE ---
+        window.editProdImage = (idx, prodId) => {
+            const prod = window.estoqueProducts.find(p => p.id === prodId);
+            if (!prod) return;
+            
+            const currentImg = (prod.images || [])[idx];
+            
+            const html = `
+            <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+                <div class="bg-surface border border-white/10 rounded-3xl p-8 max-w-md w-full">
+                    <h3 class="text-white font-black text-xl mb-6 uppercase tracking-widest">Editar Imagem</h3>
+                    
+                    <div class="space-y-4 mb-6">
+                        ${currentImg ? `
+                            <div class="rounded-2xl overflow-hidden border border-white/10 mb-4">
+                                <img src="${currentImg}" class="w-full h-48 object-cover">
+                            </div>
+                        ` : ''}
+                        
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-2">URL da Imagem</label>
+                            <input id="edit-img-url" value="${currentImg || ''}" class="w-full glass-input p-4 rounded-2xl text-white mb-2" placeholder="https://...">
+                            <button onclick="uploadImgEstoque('${prodId}', ${idx})" class="w-full bg-white/10 text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:camera-bold"></iconify-icon> Fazer Upload
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeImgEdit()" class="flex-1 bg-white/10 text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-white/20">
+                            Cancelar
+                        </button>
+                        <button onclick="saveImgEstoque('${prodId}', ${idx})" class="flex-1 bg-primary text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-primaryDark">
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        };
+
+        window.addProdImage = (prodId) => {
+            const prod = window.estoqueProducts.find(p => p.id === prodId);
+            if (!prod) return;
+            if ((prod.images || []).length >= 6) {
+                alert("Máximo de 6 imagens atingido!");
+                return;
+            }
+            
+            const html = `
+            <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+                <div class="bg-surface border border-white/10 rounded-3xl p-8 max-w-md w-full">
+                    <h3 class="text-white font-black text-xl mb-6 uppercase tracking-widest">Adicionar Imagem</h3>
+                    
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-2">URL da Imagem</label>
+                            <input id="new-img-url" class="w-full glass-input p-4 rounded-2xl text-white mb-2" placeholder="https://...">
+                            <button onclick="uploadImgEstoqueNew('${prodId}')" class="w-full bg-white/10 text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:camera-bold"></iconify-icon> Fazer Upload
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeImgEdit()" class="flex-1 bg-white/10 text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-white/20">
+                            Cancelar
+                        </button>
+                        <button onclick="saveNewImgEstoque('${prodId}')" class="flex-1 bg-primary text-white font-bold p-3 rounded-2xl uppercase tracking-widest text-xs hover:bg-primaryDark">
+                            Adicionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        };
+
+        window.closeImgEdit = () => {
+            const modal = document.querySelector('.fixed.inset-0.bg-black\\/80');
+            if (modal) modal.remove();
+        };
+
+        window.uploadImgEstoque = (prodId, idx) => {
+            state.uploadTarget = `edit-img-url-${prodId}-${idx}`;
+            // Criar input temporário se não existir
+            const input = el('edit-img-url');
+            if (input) {
+                state.uploadTarget = 'edit-img-url';
+            }
+            el('global-file-input').click();
+        };
+
+        window.uploadImgEstoqueNew = (prodId) => {
+            state.uploadTarget = 'new-img-url';
+            el('global-file-input').click();
+        };
+
+        window.saveImgEstoque = async (prodId, idx) => {
+            const imgUrl = el('edit-img-url')?.value?.trim();
+            if (!imgUrl) {
+                alert("URL da imagem obrigatória!");
+                return;
+            }
+            
+            try {
+                const prod = window.estoqueProducts.find(p => p.id === prodId);
+                if (!prod) return;
+                
+                const images = prod.images || [];
+                images[idx] = imgUrl;
+                
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', window.shopIdEstoque, 'products', prodId), { images });
+                closeImgEdit();
+                alert("Imagem atualizada!");
+                renderAdminContent('estoque');
+            } catch (err) {
+                alert("Erro ao salvar: " + err.message);
+                closeImgEdit();
+            }
+        };
+
+        window.saveNewImgEstoque = async (prodId) => {
+            const imgUrl = el('new-img-url')?.value?.trim();
+            if (!imgUrl) {
+                alert("URL da imagem obrigatória!");
+                return;
+            }
+            
+            try {
+                const prod = window.estoqueProducts.find(p => p.id === prodId);
+                if (!prod) return;
+                
+                const images = prod.images || [];
+                if (images.length >= 6) {
+                    alert("Máximo de 6 imagens atingido!");
+                    return;
+                }
+                
+                images.push(imgUrl);
+                
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', window.shopIdEstoque, 'products', prodId), { images });
+                closeImgEdit();
+                alert("Imagem adicionada!");
+                renderAdminContent('estoque');
+            } catch (err) {
+                alert("Erro ao salvar: " + err.message);
+                closeImgEdit();
             }
         };
 
