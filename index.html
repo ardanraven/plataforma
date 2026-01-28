@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hub Místico | Dropshipping Premium</title>
+    <title>Trioditis | Hub Esotérico</title>
     
     <!-- ==========================================
          BIBLIOTECAS EXTERNAS (CDN)
@@ -249,7 +249,7 @@
                         <select id="reg-type" class="glass-input p-4 rounded-2xl text-white bg-surface">
                             <option value="national">Entregamos em Todo Brasil</option>
                             <option value="local">Entrega Somente Local</option>
-                            <option value="dropshipping">Dropshipping Manual (Frete Próprio)</option>
+                            <option value="dropshipping">Loja de produtos Digitais (Frete Próprio)</option>
                         </select>
                         <div class="flex gap-2">
                             <select id="reg-uf" class="glass-input p-4 rounded-2xl text-white bg-surface w-1/3">
@@ -1461,30 +1461,30 @@
             const originRegion = originCep.substring(0, 1);
             const destRegion = destCep.substring(0, 1);
             
-            // === FÓRMULA DE PREÇO DOS CORREIOS (CORRIGIDA) ===
+            // === FÓRMULA DE PREÇO DOS CORREIOS (OTIMIZADA) ===
             let basePacPrice = 0;
             let baseSedexPrice = 0;
             let pricePerKg = 3.50;
-            let pricePerCm = 0.10;  // Reduzido - o dimensionamento é menos importante que peso
+            let pricePerCm = 0.02;  // Reduzido significativamente - dimensões têm menor impacto
             
             // Determinando região de entrega
             if(originRegion === destRegion) {
                 // Mesmo estado/região postal (Local)
+                basePacPrice = 8.00;
+                baseSedexPrice = 12.00;
+                pricePerKg = 1.50;
+            } 
+            else if(Math.abs(parseInt(originRegion) - parseInt(destRegion)) <= 2) {
+                // Regiões vizinhas
                 basePacPrice = 12.00;
                 baseSedexPrice = 18.00;
                 pricePerKg = 2.50;
             } 
-            else if(Math.abs(parseInt(originRegion) - parseInt(destRegion)) <= 2) {
-                // Regiões vizinhas
-                basePacPrice = 20.00;
-                baseSedexPrice = 35.00;
-                pricePerKg = 3.50;
-            } 
             else {
                 // Nacional (Distante)
-                basePacPrice = 28.00;
-                baseSedexPrice = 58.00;
-                pricePerKg = 4.50;
+                basePacPrice = 16.00;
+                baseSedexPrice = 28.00;
+                pricePerKg = 3.50;
             }
             
             // Calcula valor final de frete
