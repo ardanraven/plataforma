@@ -115,6 +115,51 @@
             background: rgba(139, 92, 246, 0.1);
         }
 
+        /* === ESTILOS PARA SELETOR DE CATEGORIAS === */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
+        }
+
+        /* Animação suave para scroll suave */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Estilos para Category Tabs */
+        .category-tab {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .category-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .category-tab:hover::before {
+            left: 100%;
+        }
+        /* Estado ativo (destacado) */
+        .category-tab.active {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            border-color: #a78bfa;
+            color: white;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+            transform: scale(1.05);
+        }
+        .category-tab.active:hover {
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6);
+        }
+
         /* ==========================================
            ESTILOS PARA REORDENAÇÃO DE CATEGORIAS
         =========================================== */
@@ -169,6 +214,12 @@
                 z-index: 9999;
             }
             .no-print { display: none !important; }
+        }
+
+        /* Animação de spinning para loader */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -463,9 +514,11 @@
                 </div>
 
                 <!-- Filtros de Categoria (Sticky) -->
-                <div class="sticky top-20 z-30 py-6 bg-[#050505]/90 backdrop-blur-xl -mx-4 px-4 border-b border-white/5 flex gap-4 overflow-x-auto no-scrollbar items-center">
-                    <span class="text-zinc-500 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Filtrar por:</span>
-                    <div id="categories-scroll" class="flex gap-3"></div>
+                <div class="sticky top-20 z-30 py-4 bg-[#050505]/95 backdrop-blur-xl -mx-4 px-4 border-b border-white/5 flex justify-center">
+                    <button onclick="openCategoryModal()" class="bg-gradient-to-r from-primary to-accent text-white font-black text-sm uppercase px-6 py-3 rounded-2xl shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 tracking-widest">
+                        <iconify-icon icon="solar:magnifer-bold" width="18"></iconify-icon>
+                        Procurando algo específico? Clique aqui
+                    </button>
                 </div>
 
                 <!-- Grid de Produtos -->
@@ -650,6 +703,16 @@
                 </div>
                 
                 <div class="p-6 md:p-8 space-y-6 text-center flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
+                    <!-- CUPOM DE DESCONTO -->
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-accent uppercase tracking-widest">Cupom de Desconto (Opcional)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="chk-coupon-code" placeholder="Digite o código do cupom" class="flex-1 bg-black/30 border border-white/10 p-3 rounded-xl text-sm text-white placeholder-zinc-600 uppercase font-bold tracking-widest">
+                            <button onclick="applyCoupon()" class="bg-accent/20 text-accent hover:bg-accent/40 px-4 rounded-xl font-bold transition-colors border border-accent/30 uppercase text-xs">✓</button>
+                        </div>
+                        <div id="coupon-message" class="text-xs text-zinc-400 h-4"></div>
+                    </div>
+
                     <div class="flex justify-between items-center bg-black/30 p-4 rounded-2xl border border-white/5">
                          <span class="text-zinc-400 text-xs font-bold uppercase">Total com Frete</span>
                          <span id="chk-final-total" class="text-2xl font-black text-success">R$ 0,00</span>
@@ -710,7 +773,29 @@
     </div>
 
     <!-- ==========================================
+         8B. MODAL DE SELETOR DE CATEGORIAS
+    =========================================== -->
+    <div id="category-modal" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl hidden flex items-center justify-center p-4 no-print">
+        <div class="w-full max-w-2xl bg-surface border border-white/10 rounded-[2.5rem] p-8 relative overflow-hidden shadow-2xl animate-slide-up flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-6 shrink-0 border-b border-white/10 pb-4">
+                <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter flex items-center gap-3">
+                    <iconify-icon icon="solar-list-bold-duotone" width="32" class="text-accent"></iconify-icon>
+                    Categorias
+                </h3>
+                <button onclick="closeCategoryModal()" class="text-zinc-500 hover:text-white transition-colors">
+                    <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
+                </button>
+            </div>
+            
+            <div id="category-modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto pr-2 flex-1 custom-scrollbar">
+                <!-- Categorias injetadas via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
          9. PAINEL ADMINISTRATIVO (COMPLETO)
+
     =========================================== -->
     <div id="admin-panel" class="fixed inset-0 z-[100] hidden bg-[#09090b] flex overflow-auto no-print">
         <!-- Sidebar -->
@@ -842,6 +927,7 @@
             currentShop: null,    
             shopProducts: [],     
             shopCategories: [],   
+            shopCoupons: [],
             cart: [],             
             receiptUrl: null,     
             uploadTarget: null,   
@@ -850,7 +936,8 @@
             iconTargetInput: null, 
             activeHubTab: 'national', 
             searchQuery: '', 
-            initialLoadDone: false, 
+            initialLoadDone: false,
+            appliedCoupon: null,
             // Novos campos para Checkout com Endereço
             checkoutData: {
                 address: {},
@@ -859,11 +946,136 @@
             }
         };
 
+        // --- VARIÁVEIS PARA LISTENERS (Cleanup) ---
+        let couponsUnsubscribe = null;
+
         // --- HELPERS (Funções Auxiliares) ---
         const el = (id) => document.getElementById(id);
         const formatBRL = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const show = (id) => el(id)?.classList.remove('hidden');
         const hide = (id) => el(id)?.classList.add('hidden');
+        
+        // === OTIMIZAÇÕES DE IMAGEM (SEM PERDER DADOS) ===
+        // Função para otimizar URLs do ImgBB com redimensionamento e qualidade
+        const optimizeImageUrl = (url, width = 400, quality = 75) => {
+            if (!url) return url;
+            if (!url.includes('imgbb')) return url; // Mantém outras URLs intactas
+            
+            // ImgBB aceita parâmetros: ?w=width&q=quality&auto=webp
+            const separator = url.includes('?') ? '&' : '?';
+            return `${url}${separator}w=${width}&q=${quality}&auto=webp`;
+        };
+        
+        // Versão para thumbnails menores
+        const optimizeThumbUrl = (url, width = 200, quality = 70) => {
+            return optimizeImageUrl(url, width, quality);
+        };
+        
+        // Função para precarga de imagens
+        const preloadImage = (url) => {
+            const img = new Image();
+            img.src = optimizeImageUrl(url, 600);
+        };
+        
+        // Ativa lazy loading em todas as imagens
+        const enableLazyLoading = () => {
+            const images = document.querySelectorAll('[data-lazy-src]');
+            
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.lazySrc;
+                            img.classList.add('loaded');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                }, {
+                    rootMargin: '50px'
+                });
+                
+                images.forEach(img => imageObserver.observe(img));
+            } else {
+                // Fallback para navegadores antigos
+                images.forEach(img => {
+                    img.src = img.dataset.lazySrc;
+                    img.classList.add('loaded');
+                });
+            }
+        };
+        
+        // CSS para smooth loading
+        const style = document.createElement('style');
+        style.textContent = `
+            [data-lazy-src] {
+                background-color: rgba(255,255,255,0.05);
+                transition: opacity 0.3s ease-in;
+                opacity: 0.8;
+            }
+            [data-lazy-src].loaded {
+                opacity: 1;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Sistema de detecção de categoria ativa durante scroll
+        const enableCategoryScrollTracking = () => {
+            const sections = document.querySelectorAll('.category-section');
+            const tabs = document.querySelectorAll('.category-tab');
+            const categoriesScroll = document.getElementById('categories-scroll');
+            
+            if (!sections.length || !tabs.length) return;
+            
+            // IntersectionObserver para detectar qual seção está visível
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const catId = entry.target.dataset.catId;
+                        
+                        // Remove active de todos os tabs
+                        tabs.forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        
+                        // Adiciona active ao tab correspondente
+                        const activeTab = document.querySelector(`.category-tab[data-category="${catId}"]`);
+                        if (activeTab) {
+                            activeTab.classList.add('active');
+                            
+                            // Auto-scroll da barra de categorias para manter tab visível
+                            if (categoriesScroll) {
+                                const tabRect = activeTab.getBoundingClientRect();
+                                const containerRect = categoriesScroll.getBoundingClientRect();
+                                
+                                // Se tab saiu da visibilidade horizontal, scroll o container
+                                if (tabRect.left < containerRect.left) {
+                                    activeTab.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'start'});
+                                } else if (tabRect.right > containerRect.right) {
+                                    activeTab.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'end'});
+                                }
+                            }
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '-80px 0px -20px 0px'
+            });
+            
+            sections.forEach(section => sectionObserver.observe(section));
+            
+            // Click nos tabs para scroll manual
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const catId = tab.dataset.category;
+                    const section = document.getElementById(`cat-${catId}`);
+                    if (section) {
+                        section.scrollIntoView({behavior: 'smooth', block: 'start'});
+                    }
+                });
+            });
+        };
         
         // Helper Slugify para criar links amigáveis
         const createSlug = (text) => {
@@ -949,7 +1161,7 @@
                             <div id="promo-slider" class="absolute inset-0 w-full h-full">
                                 ${state.hubData.promoBanners.map((b, i) => `
                                     <div class="absolute inset-0 w-full h-full transition-opacity duration-1000 ${i===0?'opacity-100':'opacity-0'}" data-idx="${i}">
-                                        <img src="${b}" class="w-full h-full object-contain transition-transform duration-[2s] group-hover:scale-105">
+                                        <img src="${b}" class="w-full h-full object-cover">
                                     </div>
                                 `).join('')}
                             </div>
@@ -990,7 +1202,7 @@
             const query = el('hub-search-input').value.toLowerCase();
             const grid = el('shops-grid');
             
-            let filtered = state.shops.filter(s => s.status !== 'pending');
+            let filtered = state.shops.filter(s => s.status === 'active');
 
             if(state.activeHubTab === 'national') {
                 filtered = filtered.filter(s => !s.deliveryType || s.deliveryType === 'national' || s.deliveryType === 'dropshipping');
@@ -1007,16 +1219,29 @@
             }
 
             if(filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-zinc-500 font-bold uppercase tracking-widest flex flex-col items-center gap-4"><iconify-icon icon="solar:sad-square-bold-duotone" width="48"></iconify-icon>Nenhuma loja encontrada nesta categoria.</div>`;
+                // Se não tem lojas E não carregou ainda, mostra mensagem de carregamento
+                if(state.shops.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-zinc-500 font-bold uppercase tracking-widest flex flex-col items-center gap-4">
+                        <iconify-icon icon="solar:loading-3-bold" width="48" style="animation: spin 2s linear infinite;"></iconify-icon>
+                        Carregando lojas...
+                        <p style="font-size: 12px; margin-top: 10px; color: #666;">
+                            Se continuar aguardando, verifique as <a href="https://console.firebase.google.com/project/loja2-c1305/firestore/rules" target="_blank" style="color: #8b5cf6;">Firestore Rules</a>
+                        </p>
+                    </div>`;
+                } else {
+                    // Tem lojas mas nenhuma corresponde ao filtro
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center text-zinc-500 font-bold uppercase tracking-widest flex flex-col items-center gap-4"><iconify-icon icon="solar:sad-square-bold-duotone" width="48"></iconify-icon>Nenhuma loja encontrada nesta categoria.</div>`;
+                }
             } else {
                 grid.innerHTML = filtered.map(s => `
                 <div onclick="enterShop('${s.id}')" class="group relative overflow-hidden rounded-[2.5rem] bg-surfaceLight border border-white/5 cursor-pointer shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2">
+                    ${s.promoLabel ? `<div class="absolute top-4 right-4 z-10 bg-red-500 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">${s.promoLabel}</div>` : ''}
                     <div class="h-56 overflow-hidden">
-                        <img src="${s.banner||'https://via.placeholder.com/500'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-70">
+                        <img data-lazy-src="${optimizeImageUrl(s.banner||'https://via.placeholder.com/500', 500, 70)}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Crect fill='%23222' width='500' height='400'/%3E%3C/svg%3E" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-70">
                     </div>
                     <div class="p-8 relative">
                         <div class="w-20 h-20 rounded-2xl bg-surface border border-white/10 p-2 absolute -top-10 left-8 shadow-xl">
-                            <img src="${s.logo||'https://via.placeholder.com/150'}" class="w-full h-full object-contain rounded-xl">
+                            <img data-lazy-src="${optimizeImageUrl(s.logo||'https://via.placeholder.com/150', 150, 80)}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Crect fill='%23222' width='150' height='150'/%3E%3C/svg%3E" class="w-full h-full object-contain rounded-xl">
                         </div>
                         <div class="mt-10 flex justify-between items-end">
                             <div>
@@ -1029,6 +1254,9 @@
                         </div>
                     </div>
                 </div>`).join('');
+                
+                // Ativa lazy loading para cards das lojas
+                setTimeout(() => enableLazyLoading(), 50);
             }
         };
 
@@ -1081,8 +1309,8 @@
             
             el('shop-name-detail').innerText = shop.name;
             el('shop-name-mobile').innerText = shop.name;
-            el('shop-logo-detail').src = shop.logo || 'https://via.placeholder.com/150';
-            el('shop-banner-img').src = shop.banner || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070';
+            el('shop-logo-detail').src = optimizeImageUrl(shop.logo || 'https://via.placeholder.com/150', 150, 85);
+            el('shop-banner-img').src = optimizeImageUrl(shop.banner || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070', 1200, 80);
             el('nav-title').innerText = shop.name;
             
             if(shop.city && shop.state) {
@@ -1123,10 +1351,6 @@
         };
 
         function renderShopUI() {
-            const catContainer = el('categories-scroll');
-            catContainer.innerHTML = `<button onclick="scrollToCat('all')" class="whitespace-nowrap px-6 py-2 rounded-full bg-primary text-white text-[10px] font-black uppercase shadow-lg shadow-primary/20 border border-transparent hover:border-white/20 transition-all">Todos</button>` +
-                state.shopCategories.map(c => `<button onclick="scrollToCat('${c.id}')" class="whitespace-nowrap px-6 py-2 rounded-full bg-surface border border-white/10 hover:border-primary text-zinc-400 hover:text-white transition-all text-[10px] font-black uppercase flex items-center gap-2 tracking-widest">${c.icon ? `<iconify-icon icon="${c.icon}"></iconify-icon>` : ''} ${c.name}</button>`).join('');
-
             const prodContainer = el('products-container');
             if(!state.shopProducts.length) { 
                 prodContainer.innerHTML = `<div class="text-center py-20 flex flex-col items-center gap-4"><iconify-icon icon="solar:box-minimalistic-bold-duotone" class="text-zinc-800 text-8xl"></iconify-icon><p class="text-zinc-600 font-bold uppercase tracking-widest">Nenhum produto cadastrado ainda.</p></div>`; 
@@ -1136,20 +1360,56 @@
             let html = '';
             const looseProds = state.shopProducts.filter(p => !p.category || p.category === 'all');
             if(looseProds.length) {
-                html += `<div class="pt-4"><h3 class="text-2xl font-black text-white mb-8 flex items-center gap-3 italic uppercase"><iconify-icon icon="solar:star-bold-duotone" class="text-accent"></iconify-icon> Destaques</h3>${renderProductGrid(looseProds)}</div>`;
+                html += `
+                    <div id="cat-all" class="pt-4 scroll-mt-32 category-section" data-cat-id="all">
+                        <div class="mb-10 flex items-center gap-4">
+                            <div class="flex-1 h-px bg-gradient-to-r from-primary to-transparent"></div>
+                            <h2 class="text-3xl font-black text-white flex items-center gap-3 italic uppercase whitespace-nowrap">
+                                <iconify-icon icon="solar:star-bold-duotone" class="text-accent text-4xl"></iconify-icon> 
+                                Destaques
+                            </h2>
+                            <div class="flex-1 h-px bg-gradient-to-l from-primary to-transparent"></div>
+                        </div>
+                        ${renderProductGrid(looseProds)}
+                    </div>
+                `;
             }
 
             state.shopCategories.forEach(cat => {
                 const prods = state.shopProducts.filter(p => p.category === cat.id);
                 if(prods.length || cat.banner) {
-                    html += `<div id="cat-${cat.id}" class="pt-12 mb-8 border-t border-white/5 scroll-mt-32">
-                        ${cat.banner ? `<div class="w-full h-48 md:h-64 rounded-[2rem] overflow-hidden mb-8 relative border border-white/5 shadow-2xl"><img src="${cat.banner}" class="w-full h-full object-cover"></div>` : ''}
-                        <h3 class="text-2xl font-black text-white mb-8 flex items-center gap-3 italic uppercase"><span class="w-3 h-8 bg-primary rounded-full"></span> ${cat.name}</h3>
-                        ${prods.length ? renderProductGrid(prods) : '<p class="text-zinc-600 text-xs font-bold uppercase tracking-widest pl-4">Em breve novidades nesta coleção.</p>'}
-                    </div>`;
+                    html += `
+                        <div id="cat-${cat.id}" class="pt-16 pb-8 scroll-mt-32 category-section" data-cat-id="${cat.id}">
+                            ${cat.banner ? `
+                                <div class="w-full h-56 md:h-80 rounded-[2rem] overflow-hidden mb-12 relative border border-white/10 shadow-2xl group">
+                                    <img 
+                                        data-lazy-src="${optimizeImageUrl(cat.banner, 1200, 75)}" 
+                                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400'%3E%3Crect fill='%23222' width='1200' height='400'/%3E%3C/svg%3E" 
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        alt="${cat.name}"
+                                    />
+                                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors"></div>
+                                </div>
+                            ` : ''}
+                            <div class="mb-10 flex items-center gap-4">
+                                <span class="w-1.5 h-12 bg-gradient-to-b from-primary to-accent rounded-full"></span>
+                                <h2 class="text-3xl font-black text-white italic uppercase">
+                                    ${cat.icon ? `<iconify-icon icon="${cat.icon}" class="inline mr-3 text-accent"></iconify-icon>` : ''}
+                                    ${cat.name}
+                                </h2>
+                                ${cat.desc ? `<p class="ml-auto text-zinc-400 text-sm">${cat.desc}</p>` : ''}
+                            </div>
+                            ${prods.length ? renderProductGrid(prods) : '<div class="text-center py-12"><p class="text-zinc-600 text-sm font-bold uppercase tracking-widest">Em breve novidades nesta coleção.</p></div>'}
+                        </div>
+                    `;
                 }
             });
             prodContainer.innerHTML = html;
+            
+            // Ativa lazy loading após renderizar
+            setTimeout(() => {
+                enableLazyLoading();
+            }, 50);
         }
 
         function renderProductGrid(products) {
@@ -1157,7 +1417,12 @@
                 ${products.map(p => `
                     <div class="group bg-surfaceLight rounded-[2rem] p-3 border border-white/5 hover:border-primary/50 transition-all hover:-translate-y-2 shadow-xl cursor-pointer" onclick="openProductModal('${p.id}')">
                         <div class="aspect-[4/5] rounded-[1.5rem] overflow-hidden bg-surface relative mb-4">
-                            <img src="${p.images?.[0] || ''}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <img 
+                                data-lazy-src="${optimizeThumbUrl(p.images?.[0] || '', 300, 75)}"
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'%3E%3Crect fill='%23222' width='300' height='400'/%3E%3C/svg%3E"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                                alt="${p.name}"
+                            />
                             <button class="absolute bottom-3 right-3 w-10 h-10 bg-white text-black rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform active:scale-90 z-10">
                                 <iconify-icon icon="solar:eye-bold" width="20"></iconify-icon>
                             </button>
@@ -1177,13 +1442,47 @@
             else document.getElementById(`cat-${id}`)?.scrollIntoView({behavior: 'smooth', block: 'start'});
         };
 
+        // --- FUNÇÕES DO MODAL DE CATEGORIAS ---
+        window.openCategoryModal = () => {
+            const content = el('category-modal-content');
+            
+            // Renderiza todas as categorias
+            let html = `
+                <button onclick="selectCategory('all'); closeCategoryModal()" class="p-6 bg-gradient-to-br from-primary to-accent rounded-2xl border-2 border-white/20 hover:border-white/40 transition-all hover:scale-105 active:scale-95 text-white font-black text-center group">
+                    <iconify-icon icon="solar:star-bold-duotone" width="32" class="mb-2"></iconify-icon>
+                    <p class="text-sm uppercase tracking-widest">Todos os Produtos</p>
+                </button>
+            `;
+            
+            state.shopCategories.forEach(cat => {
+                html += `
+                    <button onclick="selectCategory('${cat.id}'); closeCategoryModal()" class="p-6 bg-surface/60 border-2 border-white/10 hover:border-primary/50 rounded-2xl transition-all hover:scale-105 active:scale-95 group">
+                        ${cat.icon ? `<iconify-icon icon="${cat.icon}" width="28" class="text-accent mb-2"></iconify-icon>` : `<div class="w-8 h-8 bg-primary/30 rounded-full flex items-center justify-center text-xs font-bold mb-2 mx-auto">📦</div>`}
+                        <p class="text-white font-black text-sm uppercase tracking-widest group-hover:text-primary transition-colors">${cat.name}</p>
+                        ${cat.desc ? `<p class="text-zinc-500 text-[10px] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">${cat.desc}</p>` : ''}
+                    </button>
+                `;
+            });
+            
+            content.innerHTML = html;
+            show('category-modal');
+        };
+
+        window.closeCategoryModal = () => hide('category-modal');
+
+        window.selectCategory = (catId) => {
+            closeCategoryModal();
+            setTimeout(() => scrollToCat(catId), 100);
+        };
+
         // --- 2. MODAL DE PRODUTO & GALERIA ---
         window.openProductModal = (id) => {
             const p = state.shopProducts.find(x => x.id === id);
             if(!p) return;
             
             const mainImg = el('modal-main-img');
-            mainImg.src = p.images?.[0] || '';
+            // Otimiza imagem principal com qualidade mais alta
+            mainImg.src = optimizeImageUrl(p.images?.[0] || '', 600, 85);
             
             el('modal-title').innerText = p.name;
             el('modal-price').innerText = formatBRL(p.price);
@@ -1349,10 +1648,7 @@
             hide('checkout-step-1');
             show('checkout-step-2');
             
-            const subtotal = state.cart.reduce((a,b)=>a+Number(b.price),0);
-            const total = subtotal; // Sem frete para serviços
-            
-            el('chk-final-total').innerText = formatBRL(total);
+            const total = calculateCheckoutTotal();
             
             const shop = state.currentShop;
             if(shop.pixKey) {
@@ -1572,6 +1868,33 @@
             hide('checkout-step-2');
         };
 
+        window.calculateCheckoutTotal = () => {
+            const subtotal = state.cart.reduce((a, b) => a + Number(b.price), 0);
+            let total = subtotal + state.checkoutData.shippingCost;
+
+            // Aplica cupom se existir
+            if(state.appliedCoupon) {
+                const coupon = state.appliedCoupon;
+                if(coupon.type === 'percentage') {
+                    total = total * (1 - coupon.value / 100);
+                } else if(coupon.type === 'fixed') {
+                    total = Math.max(0, total - coupon.value);
+                }
+            }
+
+            el('chk-final-total').innerText = formatBRL(total);
+            
+            // Regenera QR code do Pix com o novo valor
+            const shop = state.currentShop;
+            if(shop?.pixKey) {
+                const payload = generateEMVPix(shop.pixKey, shop.pixName, shop.pixCity, total.toFixed(2));
+                el('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}&color=000000&bgcolor=ffffff`;
+                el('pix-code-text').value = payload;
+            }
+            
+            return total;
+        };
+
         window.goToPayment = () => {
             hide('checkout-step-1');
             show('checkout-step-2');
@@ -1579,10 +1902,7 @@
             el('upload-text').innerText = "Enviar Comprovante"; 
             el('btn-upload-receipt').classList.remove('border-success', 'text-success');
             
-            const subtotal = state.cart.reduce((a,b)=>a+Number(b.price),0);
-            const total = subtotal + state.checkoutData.shippingCost;
-            
-            el('chk-final-total').innerText = formatBRL(total);
+            const total = calculateCheckoutTotal();
             
             const shop = state.currentShop;
             if(shop.pixKey) {
@@ -1638,6 +1958,71 @@
 
         window.copyPix = () => { el("pix-code-text").select(); document.execCommand("copy"); alert("Código Pix copiado! Cole no seu banco. 💜"); };
         
+        // APLICAR CUPOM DE DESCONTO
+        window.applyCoupon = async () => {
+            const code = el('chk-coupon-code').value.toUpperCase().trim();
+            const msgDiv = el('coupon-message');
+
+            if(!code) {
+                msgDiv.innerText = '';
+                return;
+            }
+
+            if(!state.currentShop?.id) {
+                msgDiv.innerText = '❌ Nenhuma loja selecionada';
+                msgDiv.classList.add('text-danger');
+                return;
+            }
+
+            try {
+                const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.currentShop.id, 'coupons'), 
+                    where('code', '==', code));
+                const snap = await getDocs(q);
+
+                if(snap.empty) {
+                    msgDiv.innerText = '❌ Cupom não encontrado';
+                    msgDiv.classList.remove('text-success');
+                    msgDiv.classList.add('text-danger');
+                    state.appliedCoupon = null;
+                } else {
+                    const coupon = snap.docs[0].data();
+                    
+                    // Valida se o cupom é válido para o tipo de itens no carrinho
+                    const hasProducts = state.cart.some(item => item.type !== 'servico');
+                    const hasServices = state.cart.some(item => item.type === 'servico');
+                    
+                    let isValid = true;
+                    if(coupon.appliesTo === 'products' && !hasProducts) {
+                        msgDiv.innerText = '❌ Este cupom é válido apenas para produtos';
+                        msgDiv.classList.remove('text-success');
+                        msgDiv.classList.add('text-danger');
+                        state.appliedCoupon = null;
+                        isValid = false;
+                    } else if(coupon.appliesTo === 'services' && !hasServices) {
+                        msgDiv.innerText = '❌ Este cupom é válido apenas para serviços';
+                        msgDiv.classList.remove('text-success');
+                        msgDiv.classList.add('text-danger');
+                        state.appliedCoupon = null;
+                        isValid = false;
+                    }
+                    
+                    if(isValid) {
+                        state.appliedCoupon = coupon;
+                        msgDiv.innerText = `✅ ${coupon.type === 'percentage' ? coupon.value + '%' : 'R$ ' + coupon.value.toFixed(2)} de desconto!`;
+                        msgDiv.classList.remove('text-danger');
+                        msgDiv.classList.add('text-success');
+                        
+                        // Recalcula o total com o cupom e regenera QR code
+                        calculateCheckoutTotal();
+                    }
+                }
+            } catch(e) {
+                console.error('Erro ao validar cupom:', e);
+                msgDiv.innerText = '❌ Erro ao validar cupom';
+                msgDiv.classList.add('text-danger');
+            }
+        };
+
         window.handleReceiptUpload = async (input) => {
             if(input.files?.[0]) {
                 const btn = el('btn-upload-receipt'), txt = el('upload-text'); 
@@ -1692,40 +2077,59 @@
             if(state.receiptUrl) msg += `\n🧾 *Comprovante:* ${state.receiptUrl}`;
             
             // Salva o pedido no Firebase
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
-                shopId: shop.id, 
-                shopName: shop.name, 
-                total, 
-                subtotal,
-                shipping,
-                shippingMethod: method,
-                address: addr,
-                clientEmail: clientEmail,
-                clientPhone: clientPhone,
-                receipt: state.receiptUrl, 
-                at: Date.now(), 
-                items: state.cart.map(i=>i.name) 
-            });
-
-            // Se o cliente não está logado, salva como lead
-            if(!state.user && (clientEmail || clientPhone)) {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leads'), {
-                    name: addr.name,
-                    email: clientEmail,
-                    phone: clientPhone,
-                    shopId: shop.id,
-                    shopName: shop.name,
-                    totalSpent: total,
-                    createdAt: Date.now()
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
+                    shopId: shop.id, 
+                    shopName: shop.name, 
+                    total, 
+                    subtotal,
+                    shipping,
+                    shippingMethod: method,
+                    address: addr,
+                    clientEmail: clientEmail,
+                    clientPhone: clientPhone,
+                    receipt: state.receiptUrl, 
+                    at: Date.now(), 
+                    items: state.cart.map(i=>i.name) 
                 });
-            }
 
-            window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
-            closeCheckout(); 
-            state.cart = []; 
-            updateCartUI();
+                // Se o cliente não está logado, salva como lead
+                if(!state.user && (clientEmail || clientPhone)) {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'leads'), {
+                        name: addr.name,
+                        email: clientEmail,
+                        phone: clientPhone,
+                        shopId: shop.id,
+                        shopName: shop.name,
+                        totalSpent: total,
+                        createdAt: Date.now()
+                    });
+                }
+
+                window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+                closeCheckout(); 
+                state.cart = []; 
+                updateCartUI();
+            } catch(error) {
+                console.error('❌ Erro ao salvar pedido:', error.message);
+                if(error.code === 'permission-denied') {
+                    alert('⚠️ Erro de permissão ao salvar pedido.\n\nAinda assim, você será direcionado ao WhatsApp para completar a compra.');
+                } else {
+                    alert('❌ Erro ao salvar pedido: ' + error.message);
+                }
+                // Abre WhatsApp mesmo com erro (pedido manual)
+                window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+                closeCheckout();
+                state.cart = [];
+                updateCartUI();
+            }
         };
-        window.closeCheckout = () => hide('checkout-modal');
+        window.closeCheckout = () => {
+            hide('checkout-modal');
+            state.appliedCoupon = null;
+            el('chk-coupon-code').value = '';
+            el('coupon-message').innerText = '';
+        };
 
         // --- 6. AUTENTICAÇÃO E ADMINISTRAÇÃO ---
         
@@ -1753,19 +2157,32 @@
             if(!agree) return alert("Você precisa concordar com os termos para continuar.");
 
             try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops'), {
-                    name, email, password: pass, whatsapp: wa, description: desc, 
-                    at: Date.now(),
-                    status: 'pending',
+                // ✅ NOVO: Cria usuário no Firebase Auth PRIMEIRO
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                const uid = userCred.user.uid;
+
+                // ✅ NOVO: Cria loja vinculada ao usuário (ownerId = uid é essencial!)
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', 'shop-' + uid), {
+                    name,
+                    email,
+                    ownerId: uid,  // 🔑 CRUCIAL: permite que o lojista edite sua própria loja
+                    whatsapp: wa,
+                    description: desc,
                     deliveryType: type,
                     state: uf,
-                    city: city
+                    city: city,
+                    status: 'pending',
+                    logo: '',
+                    banner: '',
+                    pixKey: '',
+                    createdAt: new Date().toISOString()
                 });
-                alert("Solicitação enviada com sucesso! Aguarde a aprovação do administrador.");
+
+                alert("Loja registrada com sucesso! Aguarde a aprovação do administrador.");
                 closeRegistrationModal();
             } catch(e) {
                 console.error(e);
-                alert("Erro ao enviar solicitação.");
+                alert("Erro ao registrar: " + e.message);
             }
         };
 
@@ -1891,7 +2308,94 @@
                 setTimeout(() => renderAdminContent(state.activeAdminTab), 50);
             } 
         };
-        window.closeAdmin = () => hide('admin-panel');
+        window.closeAdmin = () => {
+            // Remove listener de cupons se existir
+            if(couponsUnsubscribe) {
+                couponsUnsubscribe();
+                couponsUnsubscribe = null;
+            }
+            hide('admin-panel');
+        };
+
+        // --- FUNÇÃO PARA RENDERIZAR ABA DE CUPONS (FORA DE renderAdminContent) ---
+        function renderCouponsTab() {
+            const content = el('admin-content');
+            const shopId = state.currentShop.id;
+
+            content.innerHTML = `
+            <div class="space-y-8">
+                <!-- SEÇÃO: CRIAR NOVO CUPOM -->
+                <div class="bg-surfaceLight p-8 rounded-[2rem] border border-white/5">
+                    <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest">🎟️ Novo Cupom</h4>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Código do Cupom</label>
+                                <input id="new-coupon-code" placeholder="Ex: PROMO20" class="w-full glass-input p-4 rounded-2xl text-white uppercase font-bold tracking-widest">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Descrição</label>
+                                <input id="new-coupon-desc" placeholder="Ex: 20% OFF em todos os produtos" class="w-full glass-input p-4 rounded-2xl text-white">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Tipo de Desconto</label>
+                                <select id="new-coupon-type" class="w-full glass-input p-3 rounded-2xl text-white">
+                                    <option value="percentage">Percentual (%)</option>
+                                    <option value="fixed">Fixo (R$)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Valor</label>
+                                <input id="new-coupon-value" type="number" step="0.01" placeholder="0" class="w-full glass-input p-3 rounded-2xl text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Uso Máximo (0 = ilimitado)</label>
+                                <input id="new-coupon-limit" type="number" placeholder="0" class="w-full glass-input p-3 rounded-2xl text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2">Válido Para</label>
+                            <select id="new-coupon-applies-to" class="w-full glass-input p-3 rounded-2xl text-white">
+                                <option value="all">Produtos e Serviços</option>
+                                <option value="products">Apenas Produtos</option>
+                                <option value="services">Apenas Serviços</option>
+                            </select>
+                        </div>
+                        <button onclick="addCoupon('${shopId}')" class="w-full bg-green-500/20 hover:bg-green-500/40 text-green-400 font-black py-4 rounded-2xl uppercase tracking-widest transition-colors">➕ Criar Cupom</button>
+                    </div>
+                </div>
+
+                <!-- LISTA DE CUPONS -->
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold uppercase text-sm tracking-widest">Cupons Ativos</h4>
+                    ${(state.shopCoupons || []).length === 0 ? 
+                        '<p class="text-zinc-500 text-sm italic py-8">Nenhum cupom criado ainda.</p>' :
+                        (state.shopCoupons || []).map(c => `
+                            <div class="bg-surface p-6 rounded-2xl border border-white/5 flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="bg-primary/20 text-primary px-4 py-2 rounded-xl font-black text-sm uppercase tracking-widest">${c.code}</div>
+                                        <div>
+                                            <p class="text-white font-bold">${c.desc}</p>
+                                            <p class="text-zinc-400 text-xs">
+                                                Desconto: ${c.type === 'percentage' ? c.value + '%' : 'R$ ' + c.value.toFixed(2)} 
+                                                ${c.limit ? ` | Usos: 0/${c.limit}` : ' | Ilimitado'}
+                                                | Válido para: ${c.appliesTo === 'all' ? 'Todos' : (c.appliesTo === 'products' ? 'Apenas Produtos' : 'Apenas Serviços')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="deleteCoupon('${shopId}', '${c.id}')" class="text-danger hover:bg-danger/10 p-3 rounded-xl">
+                                    <iconify-icon icon="solar:trash-bin-trash-bold" width="24"></iconify-icon>
+                                </button>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>`;
+        }
 
         window.renderAdminContent = (tab) => {
             state.activeAdminTab = tab;
@@ -1901,6 +2405,24 @@
             if(!menu || !content || !title || !sub) {
                 console.error('Elementos do painel admin não encontrados');
                 return;
+            }
+
+            // Se role não foi definido, tenta detectar novamente
+            if(!state.role) {
+                const user = auth.currentUser;
+                if(user?.email === MASTER_EMAIL) {
+                    state.role = 'master';
+                } else if(state.currentShop) {
+                    state.role = 'shop';
+                }
+            }
+
+            // Se ainda não tem role ou currentShop (lojista que fez login), busca dos dados
+            if(state.role === 'shop' && !state.currentShop) {
+                const user = auth.currentUser;
+                if(user?.isAnonymous && state.tempLoginData) {
+                    state.currentShop = state.tempLoginData.shop;
+                }
             }
             
             sub.innerText = state.role === 'master' ? 'Acesso Mestre' : (state.currentShop?.name || 'Lojista');
@@ -1921,10 +2443,21 @@
                 mHtml += btn('estoque','solar:database-bold-duotone','Estoque'); 
                 mHtml += btn('products','solar:t-shirt-bold-duotone','Produtos'); 
                 mHtml += btn('categories','solar:tag-horizontal-bold-duotone','Categorias');
+                mHtml += btn('coupons','solar:ticket-bold-duotone','Cupons & Promoções');
                 mHtml += btn('orders','solar:bag-check-bold-duotone','Histórico de Pedidos'); 
                 mHtml += btn('tutorial','solar:book-bookmark-bold-duotone','Tutorial & Ajuda');
             }
             menu.innerHTML = mHtml;
+
+            // Recarrega dados se necessário para abas de shop
+            if(state.role === 'shop' && (tab === 'categories' || tab === 'products' || tab === 'estoque') && (!state.shopCategories || !state.shopProducts)) {
+                getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.currentShop.id, 'categories')).then(snap => {
+                    state.shopCategories = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0) - (b.order||0));
+                });
+                getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'shops', state.currentShop.id, 'products')).then(snap => {
+                    state.shopProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                });
+            }
 
             // --- ABA: DASHBOARD ---
             if(tab === 'dashboard') {
@@ -2007,6 +2540,14 @@
                                 <input id="edit-shop-cep" value="${s.originCep||''}" placeholder="00000-000" class="w-full glass-input p-4 rounded-2xl text-white font-bold tracking-widest bg-black/40 border-primary/30" maxlength="9">
                             </div>
                         `}
+                    </div>
+
+                    <div class="pt-8 border-t border-white/10">
+                        <h3 class="text-red-400 font-bold mb-6 uppercase text-sm flex items-center gap-2">
+                            <iconify-icon icon="solar:tag-bold"></iconify-icon> Balão de Promoção
+                        </h3>
+                        <p class="text-xs text-zinc-400 mb-4">Adicione um balão que aparece na sua loja no Hub (ex: "50% OFF", "Frete Grátis", "Black Friday")</p>
+                        <input id="edit-shop-promo" value="${s.promoLabel||''}" placeholder="Ex: 50% OFF ou Frete Grátis" class="w-full glass-input p-4 rounded-2xl text-white" maxlength="20">
                     </div>
 
                     <button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button>
@@ -2224,7 +2765,7 @@
                             <input id="new-prod-weight" type="number" step="0.1" placeholder="0.5" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Comprimento (cm)</label>
                             <input id="new-prod-height" type="number" step="0.1" placeholder="10" class="glass-input p-3 rounded-xl text-white w-full">
                         </div>
                         <div>
@@ -2320,6 +2861,27 @@
                         </div>`).join('')}
                 </div>`;
             }
+
+            // --- ABA: CUPONS E PROMOÇÕES ---
+            if(tab === 'coupons' && state.role === 'shop') {
+                title.innerText = "Cupons & Promoções";
+                const shopId = state.currentShop.id;
+
+                // Remove listener anterior se existir
+                if(couponsUnsubscribe) {
+                    couponsUnsubscribe();
+                    couponsUnsubscribe = null;
+                }
+
+                // Listener em TEMPO REAL para cupons
+                couponsUnsubscribe = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'coupons'), snap => {
+                    state.shopCoupons = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    renderCouponsTab();
+                });
+                
+                return;
+            }
+
             if(tab === 'orders' && state.role === 'shop') {
                 title.innerText = "Histórico de Pedidos";
                 const myOrders = state.orders.filter(o => o.shopId === state.currentShop.id).sort((a,b) => b.at - a.at);
@@ -2868,6 +3430,53 @@
                 renderAdminContent('categories'); 
             } 
         };
+
+        // CUPONS E PROMOÇÕES
+        window.addCoupon = async (shopId) => {
+            const code = el('new-coupon-code').value.toUpperCase().trim();
+            const desc = el('new-coupon-desc').value;
+            const type = el('new-coupon-type').value;
+            const value = parseFloat(el('new-coupon-value').value);
+            const limit = parseInt(el('new-coupon-limit').value) || 0;
+            const appliesTo = el('new-coupon-applies-to').value;
+
+            if(!code || !desc || !value || value <= 0) {
+                alert('❌ Preencha todos os campos corretamente');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'coupons'), {
+                    code, desc, type, value, limit, appliesTo,
+                    createdAt: Date.now()
+                });
+
+                el('new-coupon-code').value = '';
+                el('new-coupon-desc').value = '';
+                el('new-coupon-value').value = '';
+                el('new-coupon-limit').value = '';
+                el('new-coupon-applies-to').value = 'all';
+
+                alert('✅ Cupom criado com sucesso!');
+                // Listener em tempo real já atualiza a lista automaticamente
+            } catch(e) {
+                console.error('Erro ao criar cupom:', e);
+                alert('❌ Erro ao criar cupom');
+            }
+        };
+
+        window.deleteCoupon = async (shopId, couponId) => {
+            if(confirm('Tem certeza que deseja deletar este cupom?')) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'shops', shopId, 'coupons', couponId));
+                    alert('✅ Cupom deletado');
+                    // Listener em tempo real já atualiza a lista automaticamente
+                } catch(e) {
+                    console.error('Erro ao deletar cupom:', e);
+                    alert('❌ Erro ao deletar cupom');
+                }
+            }
+        };
         
         window.initCategoryDragAndDrop = (shopId) => {
             // Função removida - agora usa botões cima/baixo
@@ -2883,11 +3492,12 @@
             if(!current || !previous) return;
             
             try {
-                // Inverte as posições
-                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: (previous.order || 0) });
-                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',previous.id), { order: (current.order || 0) });
+                // Usa um valor intermediário para evitar conflitos
+                const tempOrder = -9999;
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: tempOrder });
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',previous.id), { order: currentIdx });
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: currentIdx - 1 });
                 
-                // A recarregar será automático via listener do Firestore
                 console.log('✅ Categoria movida para cima');
             } catch(error) {
                 console.error('Erro ao mover categoria para cima:', error);
@@ -2905,11 +3515,12 @@
             if(!current || !next) return;
             
             try {
-                // Inverte as posições
-                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: (next.order || 0) });
-                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',next.id), { order: (current.order || 0) });
+                // Usa um valor intermediário para evitar conflitos
+                const tempOrder = -9999;
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: tempOrder });
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',next.id), { order: currentIdx });
+                await updateDoc(doc(db,'artifacts',appId,'public','data','shops',shopId,'categories',current.id), { order: currentIdx + 1 });
                 
-                // A recarregar será automático via listener do Firestore
                 console.log('✅ Categoria movida para baixo');
             } catch(error) {
                 console.error('Erro ao mover categoria para baixo:', error);
@@ -2932,9 +3543,10 @@
                 pixKey: el('edit-shop-pixkey').value, 
                 pixName: el('edit-shop-pixname').value, 
                 pixCity: el('edit-shop-pixcity').value,
-                originCep: el('edit-shop-cep')?.value || '' // Salva CEP de Origem
+                originCep: el('edit-shop-cep')?.value || '',
+                promoLabel: el('edit-shop-promo')?.value || ''
             }); 
-            alert("Dados e CEP de origem salvos! 💜");
+            alert("Dados e balão de promoção salvos! 💜");
         };
 
         // Funções para gerenciar fretes de Dropshipping Manual
@@ -3197,7 +3809,7 @@
                                         <input id="edit-prod-weight" type="number" step="0.1" value="${prod.weight || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Profundidade (cm)</label>
+                                        <label class="text-[10px] font-bold text-zinc-500 uppercase ml-2 block mb-1">Largura (cm)</label>
                                         <input id="edit-prod-height" type="number" step="0.1" value="${prod.height || ''}" class="w-full glass-input p-4 rounded-2xl text-white">
                                     </div>
                                 </div>
@@ -3465,9 +4077,11 @@
 
         // --- 9. SINCRONIZAÇÃO INICIAL (DATA SYNC) ---
         onSnapshot(doc(db,'artifacts',appId,'public','data','config','hub'), s => { 
-            state.hubData = s.exists() ? s.data() : {name:"HUB MÍSTICO"}; 
-            if(!state.currentShop && el('nav-title')) { 
-                el('nav-title').innerText = state.hubData.name || "HUB MÍSTICO"; 
+            try {
+                state.hubData = s.exists() ? s.data() : {name:"HUB MÍSTICO"}; 
+                if(!state.currentShop && el('nav-title')) { 
+                    el('nav-title').innerText = state.hubData.name || "HUB MÍSTICO"; 
+                }
                 const heroTitle = state.hubData.heroTitle || 'Curadoria Exclusiva';
                 const heroDesc = state.hubData.heroDesc || 'Para Você.';
                 
@@ -3507,37 +4121,73 @@
                         promoBannersSection.innerHTML = '';
                     }
                 }
-            } 
+            } catch(e) {
+                console.warn('Erro ao sincronizar config hub:', e.message);
+            }
+        }, error => {
+            if(error.code === 'permission-denied') {
+                console.warn('Acesso negado ao hub config - usando dados padrão');
+            } else {
+                console.error('Erro ao carregar hub config:', error);
+            }
         });
         
         onSnapshot(collection(db,'artifacts',appId,'public','data','shops'), s => { 
-            state.shops = s.docs.map(d=>({id:d.id,...d.data()})); 
-            
-            if(!state.initialLoadDone) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const shopSlug = urlParams.get('shop'); 
-                if(shopSlug) {
-                    let foundShop = state.shops.find(s => s.id === shopSlug);
-                    if(!foundShop) foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
-                    if(foundShop) enterShop(foundShop.id, false);
+            try {
+                state.shops = s.docs.map(d=>({id:d.id,...d.data()}));
+                console.log('✅ LOJAS CARREGADAS:', state.shops.length, 'lojas');
+                
+                if(!state.initialLoadDone) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const shopSlug = urlParams.get('shop'); 
+                    if(shopSlug) {
+                        let foundShop = state.shops.find(s => s.id === shopSlug);
+                        if(!foundShop) foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
+                        if(foundShop) enterShop(foundShop.id, false);
+                    }
+                    state.initialLoadDone = true; 
                 }
-                state.initialLoadDone = true; 
-            }
 
-            if(el('view-hub') && !el('view-hub').classList.contains('hidden')) {
-                filterHubShops();
+                if(el('view-hub') && !el('view-hub').classList.contains('hidden')) {
+                    filterHubShops();
+                }
+                
+                if(state.currentShop) { const up = state.shops.find(x=>x.id===state.currentShop.id); if(up) state.currentShop=up; } 
+                
+                if(state.user && !el('admin-panel').classList.contains('hidden')) {
+                    renderAdminContent(state.activeAdminTab);
+                }
+            } catch(e) {
+                console.warn('Erro ao processar lojas:', e.message);
             }
-            
-            if(state.currentShop) { const up = state.shops.find(x=>x.id===state.currentShop.id); if(up) state.currentShop=up; } 
-            
-            if(state.user && !el('admin-panel').classList.contains('hidden')) {
-                renderAdminContent(state.activeAdminTab);
+        }, error => {
+            if(error.code === 'permission-denied') {
+                console.error('🔴 ERRO: Acesso negado às lojas!');
+                console.error('Motivo: Firestore Rules negou permissão de leitura');
+                console.error('Solução: Atualize as Firestore Rules no Firebase Console');
+                console.error('Link: https://console.firebase.google.com/project/loja2-c1305/firestore/rules');
+                state.shops = [];
+                if(!state.initialLoadDone) state.initialLoadDone = true;
+                filterHubShops(); // Mostra mensagem de erro
+            } else {
+                console.error('❌ Erro ao sincronizar lojas:', error.message);
             }
         });
         
         onSnapshot(collection(db,'artifacts',appId,'public','data','orders'), s => { 
-            state.orders = s.docs.map(d=>({id:d.id,...d.data()})); 
-            if(state.activeAdminTab==='finance' || state.activeAdminTab==='orders') renderAdminContent(state.activeAdminTab); 
+            try {
+                state.orders = s.docs.map(d=>({id:d.id,...d.data()})); 
+                if(state.activeAdminTab==='finance' || state.activeAdminTab==='orders') renderAdminContent(state.activeAdminTab); 
+            } catch(e) {
+                console.warn('Erro ao processar pedidos:', e.message);
+            }
+        }, error => {
+            if(error.code === 'permission-denied') {
+                console.warn('Acesso negado aos pedidos');
+                state.orders = [];
+            } else {
+                console.error('Erro ao sincronizar pedidos:', error);
+            }
         });
 
     </script>
