@@ -486,260 +486,189 @@
         }
 
         /* ==========================================
-           MOBILE VISUAL UNIQUENESS - APARÊNCIA COMPLETAMENTE DIFERENTE
+           MOBILE CUSTOM STYLES - VISUAL COMPLETO DIFERENTE
         =========================================== */
         @media (max-width: 768px) {
-            /* ============ CORE LAYOUT MOBILE ============ */
-            
-            /* Background mais vibrante no mobile com gradiente único */
-            html.dark {
-                background: linear-gradient(135deg, #0a0a15 0%, #1a0f2e 50%, #0f0510 100%) !important;
-                background-attachment: fixed !important;
-            }
-
-            /* Main app container mobile */
+            /* Page padding mobile */
             #app {
-                background: transparent !important;
+                padding-bottom: 2rem !important;
             }
 
-            /* NAVBAR MOBILE - Completamente diferente */
-            #main-nav {
-                background: linear-gradient(180deg, rgba(15,15,30,0.98) 0%, rgba(15,15,30,0.95) 100%) !important;
-                backdrop-filter: blur(20px) !important;
-                -webkit-backdrop-filter: blur(20px) !important;
-                border-bottom: 2px solid rgba(139, 92, 246, 0.25) !important;
-                height: auto !important;
-                padding: 0.75rem 0 !important;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+            /* Main content padding mobile agressivo */
+            #view-hub {
+                padding-top: 0.5rem !important;
+                padding-bottom: 2rem !important;
             }
 
-            #main-nav .max-w-7xl.mx-auto {
-                max-width: 100% !important;
-                padding: 0 1rem !important;
-                height: auto !important;
-                gap: 0.75rem !important;
+            #view-shop {
+                padding-top: 0.5rem !important;
             }
 
-            #main-nav .flex.items-center {
-                gap: 0.75rem !important;
-            }
-
-            /* Logo mobile reduzido */
-            #main-nav .w-12.h-12 {
-                width: 40px !important;
-                height: 40px !important;
-                border-radius: 0.75rem !important;
-            }
-
-            /* Hide nav texto mobile */
-            #nav-title, #nav-ticker {
-                display: none !important;
-            }
-
-            /* Buttons navbar mobile compact */
-            #main-nav button {
-                width: 40px !important;
-                height: 40px !important;
-                border-radius: 50% !important;
-            }
-
-            /* ============ HERO SECTION MOBILE ============ */
-            
-            #hub-hero-container {
-                min-height: 200px !important;
-                border-radius: 1.25rem !important;
-                background: linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(251,191,36,0.05) 100%) !important;
-                border: 1px solid rgba(139,92,246,0.2) !important;
-            }
-
-            #hub-hero-container .relative.z-20 {
-                padding: 1.25rem !important;
-            }
-
-            #hub-hero-container h2 {
-                font-size: 24px !important;
-                line-height: 1.15 !important;
-            }
-
-            #hub-hero-container span.inline-block {
-                background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%) !important;
-                padding: 0.25rem 0.75rem !important;
-                border-radius: 0.5rem !important;
-                font-size: 11px !important;
-            }
-
-            /* ============ SEARCH BAR MOBILE ============ */
-
-            .relative.max-w-2xl.mx-auto.-mt-12.md\\:-mt-16 {
-                margin-top: -1.5rem !important;
-                padding: 0 0.75rem !important;
-                z-index: 30 !important;
-            }
-
-            #hub-search-input {
-                border-radius: 0.875rem !important;
-                padding: 0.75rem 1rem !important;
-                font-size: 14px !important;
-                background: rgba(10,10,20,0.7) !important;
-                border: 1.5px solid rgba(139,92,246,0.4) !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
-            }
-
-            #hub-search-input::placeholder {
-                color: rgba(169,169,182,0.6) !important;
-            }
-
-            /* ============ SHOPS GRID MOBILE ============ */
-
-            #shops-grid {
-                padding: 0 0.75rem !important;
-                gap: 0.75rem !important;
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Shop card mobile list style */
-            #shops-grid > div {
-                display: flex !important;
-                align-items: center !important;
+            /* Hero container mobile compacto */
+            .max-w-7xl.mx-auto.px-3.md\\:px-4.space-y-8 {
                 gap: 1rem !important;
-                padding: 0.875rem !important;
-                border-radius: 1rem !important;
-                background: rgba(30,20,50,0.6) !important;
-                border: 1px solid rgba(139,92,246,0.2) !important;
-                transition: all 0.3s ease !important;
             }
 
-            #shops-grid > div:active {
-                transform: scale(0.98) !important;
-                background: rgba(30,20,50,0.8) !important;
-            }
-
-            #shops-grid > div > div:first-child {
-                display: none !important;
-            }
-
-            #shops-grid > div img {
-                width: 70px !important;
-                height: 70px !important;
-                border-radius: 0.75rem !important;
-                object-fit: cover !important;
-                flex-shrink: 0 !important;
-                border: 1px solid rgba(251,191,36,0.2) !important;
-            }
-
-            #shops-grid > div h3 {
-                font-size: 15px !important;
-                font-weight: 700 !important;
-                color: #fff !important;
-                margin: 0 !important;
-            }
-
-            #shops-grid > div p {
-                font-size: 11px !important;
-                color: rgba(169,169,182,0.8) !important;
-                margin: 0.25rem 0 0 0 !important;
-            }
-
-            #shops-grid > div > div:last-child {
-                display: none !important;
-            }
-
-            /* ============ PRODUCT CARDS MOBILE ============ */
-
-            #products-container .grid {
-                grid-template-columns: 1fr !important;
-                gap: 0.75rem !important;
+            /* Hub search mobile em destaque */
+            .relative.max-w-2xl.mx-auto.-mt-12.md\\:-mt-16 {
+                margin-top: -2.5rem !important;
                 padding: 0 0.75rem !important;
             }
 
-            #products-container .group {
+            /* Shops grid mobile organização */
+            .grid.grid-cols-1.sm\\:grid-cols-2 {
+                padding: 0 0.75rem !important;
+            }
+
+            /* Card de loja mobile estilo lista */
+            .group.relative.overflow-hidden.rounded-\\[2.5rem\\] {
                 border-radius: 1rem !important;
-                padding: 0.75rem !important;
             }
 
-            /* Product card mobile */
-            #products-container .group .aspect-\\[4\\/5\\] {
-                border-radius: 0.75rem !important;
-            }
-
-            /* ============ MODALS MOBILE ============ */
-
-            #product-modal .relative {
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                max-height: 95vh !important;
-            }
-
-            #checkout-modal .relative {
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                max-height: 95vh !important;
-            }
-
-            #cart-sidebar .absolute {
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
-            /* ============ PAGINATION/TABS MOBILE ============ */
-
-            .flex.p-1.bg-surfaceLight.rounded-xl {
-                flex-direction: column !important;
+            /* Navbar mobile espaço reduzido */
+            #main-nav .max-w-7xl {
                 gap: 0.5rem !important;
             }
 
-            .flex.p-1.bg-surfaceLight.rounded-xl button {
+            #main-nav .max-w-7xl > div:first-child {
+                gap: 0.5rem !important;
+            }
+
+            /* Título navbar mobile oculto parcialmente */
+            #nav-title {
+                display: none !important;
+            }
+
+            #nav-ticker {
+                display: none !important;
+            }
+
+            /* Logo navbar mobile maior destaque */
+            #main-nav .w-12 {
+                width: 44px !important;
+                height: 44px !important;
+            }
+
+            /* Botões navbar mobile maiores */
+            #main-nav .w-11.h-11 {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            /* Section spacing mobile */
+            #view-hub .space-y-8.md\\:space-y-12 {
+                gap: 1.5rem !important;
+            }
+
+            /* Footer mobile */
+            .border-t.border-white\\/10.mt-16.pt-12 {
+                margin-top: 3rem !important;
+                padding-top: 2rem !important;
+            }
+
+            /* Animation smooth no mobile */
+            * {
+                scroll-behavior: auto !important;
+            }
+
+            /* Z-index navigation mobile */
+            #main-nav {
+                z-index: 50 !important;
+            }
+
+            /* Modal overlay mobile */
+            #product-modal .absolute.inset-0 {
+                backdrop-filter: blur(4px) !important;
+            }
+
+            /* Sidebar cart mobile full height */
+            #cart-sidebar {
+                top: auto !important;
+                bottom: 0 !important;
+            }
+
+            /* Checkout step width mobile */
+            #checkout-step-1,
+            #checkout-step-2 {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            /* Produtos mobile em lista */
+            #products-container .grid.grid-cols-2.md\\:grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Admin sidebar mobile full */
+            #admin-panel aside nav {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                padding: 0.5rem !important;
+                gap: 0.5rem !important;
+            }
+
+            #admin-panel aside nav button {
+                flex: 1 !important;
+                min-width: 80px !important;
                 padding: 0.75rem !important;
+                font-size: 12px !important;
+            }
+
+            /* Authentication mobile */
+            #auth-layer .max-w-md {
+                max-width: calc(100% - 2rem) !important;
+            }
+
+            /* Registration modal mobile */
+            #registration-modal .max-w-2xl {
+                max-width: calc(100% - 2rem) !important;
+            }
+
+            /* Category tabs mobile */
+            .category-tab {
+                flex: 1 !important;
+                padding: 0.5rem !important;
                 font-size: 12px !important;
                 border-radius: 0.75rem !important;
             }
 
-            /* ============ FORMULÁRIOS MOBILE ============ */
-
-            input, textarea, select {
-                border-radius: 0.875rem !important;
-                font-size: 16px !important; /* Previne zoom */
-                padding: 0.75rem 1rem !important;
-                min-height: 44px !important;
+            /* Icon picker mobile */
+            #icon-grid {
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
             }
 
-            textarea {
-                resize: vertical !important;
+            /* Tab mobile com scroll horizontal */
+            .flex.p-1.bg-surfaceLight.rounded-xl {
+                overflow-x: auto !important;
+                scroll-behavior: smooth !important;
+                -webkit-overflow-scrolling: touch !important;
             }
 
-            /* ============ BUTTONS MOBILE ============ */
-
-            button {
-                border-radius: 0.875rem !important;
-                min-height: 44px !important;
-                font-size: 13px !important;
-                transition: all 0.2s ease !important;
-                font-weight: 700 !important;
+            /* Remove gaps excessivos */
+            .mb-6, .mb-4 {
+                margin-bottom: 1rem !important;
             }
 
-            button:active {
-                transform: scale(0.96) !important;
+            .gap-6 {
+                gap: 0.75rem !important;
             }
 
-            /* ============ TYPOGRAPHY MOBILE ============ */
-
-            body {
-                font-size: 14px !important;
+            .gap-8 {
+                gap: 1rem !important;
             }
 
-            h1, h2, h3, h4, h5, h6 {
-                letter-spacing: -0.5px !important;
+            /* Table mobile */
+            table {
+                font-size: 12px !important;
             }
 
-            /* ============ SPACING MOBILE ============ */
-
-            .space-y-8 {
-                gap: 1.5rem !important;
+            table td {
+                padding: 0.75rem !important;
             }
 
+            /* Form mobile spacing */
             .space-y-6 {
                 gap: 1rem !important;
             }
@@ -748,96 +677,58 @@
                 gap: 0.75rem !important;
             }
 
-            .gap-8 {
-                gap: 1rem !important;
+            /* Banner altura mobile */
+            .h-56.md\\:h-80 {
+                height: 180px !important;
             }
 
-            .gap-6 {
-                gap: 0.75rem !important;
+            /* Texto mobile legível */
+            .text-sm {
+                font-size: 13px !important;
             }
 
-            /* ============ ADMIN PANEL MOBILE ============ */
-
-            #admin-panel aside {
-                width: 100% !important;
-                height: auto !important;
-                border-right: none !important;
-                border-bottom: 1px solid rgba(139,92,246,0.2) !important;
+            .text-xs {
+                font-size: 11px !important;
             }
 
-            #admin-panel aside nav {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: wrap !important;
-                gap: 0.5rem !important;
+            /* Padding global mobile reduzido */
+            .p-8 {
+                padding: 1rem !important;
             }
 
-            #admin-panel aside nav button {
-                flex: 1 !important;
-                min-width: 70px !important;
+            .p-6 {
+                padding: 1rem !important;
             }
 
-            #admin-panel main {
-                min-height: auto !important;
+            .px-8 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
             }
 
-            /* ============ AUTHENTICATION MOBILE ============ */
-
-            #auth-layer .w-full.max-w-md {
-                max-width: calc(100% - 2rem) !important;
+            /* Bordas mobile arredondadas */
+            .rounded-\\[2rem\\] {
+                border-radius: 1.25rem !important;
             }
 
-            #registration-modal .w-full.max-w-2xl {
-                max-width: calc(100% - 2rem) !important;
+            .rounded-\\[2.5rem\\] {
+                border-radius: 1rem !important;
             }
 
-            /* ============ FOOTER MOBILE ============ */
-
-            .border-t.border-white\\/10.mt-16.pt-12 {
-                margin-top: 2rem !important;
-                padding-top: 1.5rem !important;
-                font-size: 12px !important;
+            .rounded-\\[3rem\\] {
+                border-radius: 1rem !important;
             }
 
-            /* ============ VISUAL EFFECTS MOBILE ============ */
-
-            /* Glow effect em elementos interativos */
-            #shops-grid > div:focus,
-            #shops-grid > div:active {
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.3) !important;
+            /* Containers mobile */
+            .max-w-7xl {
+                max-width: 100% !important;
             }
 
-            button:focus {
-                box-shadow: 0 0 15px rgba(139, 92, 246, 0.4) !important;
+            .max-w-4xl {
+                max-width: 100% !important;
             }
 
-            /* Ripple effect em cliques */
-            button {
-                position: relative !important;
-                overflow: hidden !important;
-            }
-
-            /* Smooth transitions */
-            * {
-                transition-duration: 0.2s !important;
-            }
-
-            /* ============ DEVICE NOTCH HANDLING ============ */
-
-            @supports (padding: max(0px)) {
-                #main-nav .max-w-7xl {
-                    padding-left: max(1rem, env(safe-area-inset-left)) !important;
-                    padding-right: max(1rem, env(safe-area-inset-right)) !important;
-                }
-
-                #view-hub, #view-shop {
-                    padding-left: max(0.75rem, env(safe-area-inset-left)) !important;
-                    padding-right: max(0.75rem, env(safe-area-inset-right)) !important;
-                }
-
-                #cart-sidebar .absolute.right-0 {
-                    padding-bottom: env(safe-area-inset-bottom) !important;
-                }
+            .max-w-3xl {
+                max-width: 100% !important;
             }
         }
     </style>
