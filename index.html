@@ -227,157 +227,80 @@
            RESPONSIVO MOBILE - Mantém as mesmas cores
         =========================================== */
         @media (max-width: 768px) {
-            /* Ajustes gerais */
+            /* Minimal, conservative mobile tweaks to preserve desktop design
+               - Keep original card/grid styles, only adjust spacing, sizes and modal behavior
+               - Do NOT reflow cards into new layouts or hide important elements
+            */
+
+            /* Base text size for mobile */
             body { font-size: 14px; }
-            
-            /* Navbar responsive */
-            #main-nav .max-w-7xl {
-                padding: 0 0.75rem;
-            }
 
-            #main-nav .flex.items-center.gap-2 {
-                gap: 0.5rem;
-            }
+            /* Navbar: reduce horizontal padding and keep logo + actions visible */
+            #main-nav .max-w-7xl { padding: 0 0.75rem; }
+            #main-nav .w-12.h-12 { width: 40px; height: 40px; }
 
-            #main-nav .w-12.h-12 {
-                width: 40px;
-                height: 40px;
-            }
+            /* Hero: keep visual but reduce height for small screens */
+            #hub-hero-container { min-height: 220px; border-radius: 1.25rem; }
+            #hub-hero-container .relative.z-20 { padding: 1rem; }
+            #hub-hero-container h2 { font-size: 24px; }
 
-            #main-nav .hidden.sm\\:block {
-                display: none !important;
-            }
+            /* Search bar: keep centered and touch friendly */
+            .max-w-2xl.mx-auto.-mt-12 { margin-top: -0.9rem; padding: 0 0.75rem; }
+            #hub-search-input { padding: 0.6rem 0.9rem; font-size: 15px; }
 
-            /* Hero section mobile */
-            #hub-hero-container {
-                min-height: 200px;
-                border-radius: 1.5rem;
-                margin-bottom: 0;
-            }
+            /* Shops grid: preserve card appearance, single column on narrow phones */
+            #shops-grid { grid-template-columns: 1fr; gap: 1rem; padding: 0 0.75rem; }
+            #shops-grid > div { display: block; }
+            #shops-grid > div .h-56 { height: 160px; }
+            #shops-grid > div .p-8 { padding: 0.75rem; }
 
-            #hub-hero-container .relative.z-20 {
-                padding: 1rem;
-            }
+            /* Product grids: two columns on typical phones, fallback to one column on very narrow */
+            #products-container .grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+            @media (max-width: 420px) { #products-container .grid { grid-template-columns: 1fr; } }
 
-            #hub-hero-container h2 {
-                font-size: 24px;
-            }
+            /* Ensure product cards keep original padding and visual style */
+            #products-container .group { padding: 0.6rem; border-radius: 1rem; }
+            #products-container .aspect-\[4\/5\] { border-radius: 0.75rem; }
 
-            /* Search bar mobile */
-            .max-w-2xl.mx-auto.-mt-12 {
-                margin-top: -0.75rem;
-                padding: 0 0.75rem;
-            }
-
-            /* Grid responsive */
-            #shops-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 0 0.75rem;
-            }
-
-            #products-container .grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
-            }
-
-            /* Padding geral */
-            #view-hub, #view-shop, #admin-content {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-            }
-
-            /* Modals mobile - aparecem em fullscreen */
-            #product-modal .relative {
-                border-radius: 1.5rem 1.5rem 0 0;
-                max-height: 90vh;
-            }
-
+            /* Modals: make them comfortable on mobile but keep internal structure unchanged */
+            #registration-modal .w-full.max-w-2xl,
+            #product-modal .relative,
             #checkout-modal .relative {
-                border-radius: 1.5rem 1.5rem 0 0;
-                max-height: 90vh;
-            }
-
-            /* Inputs melhor tamanho em mobile */
-            input:not([type="radio"]):not([type="checkbox"]),
-            textarea,
-            select {
-                min-height: 44px;
-                font-size: 16px;
-                border-radius: 0.75rem;
-            }
-
-            /* Buttons touch-friendly */
-            button {
-                min-height: 44px;
-                font-size: 13px;
-                border-radius: 0.75rem;
-            }
-
-            /* Tabs responsivo */
-            .flex.p-1.bg-surfaceLight.rounded-xl {
-                gap: 0.25rem;
-            }
-
-            .flex.p-1.bg-surfaceLight.rounded-xl button {
-                padding: 0.5rem;
-                font-size: 11px;
-            }
-
-            /* Admin panel mobile */
-            #admin-panel {
-                flex-direction: column;
-            }
-
-            #admin-panel aside {
+                max-width: calc(100% - 1.5rem);
                 width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                position: relative;
-                top: auto;
+                margin: 0 auto;
+                border-radius: 1rem;
+                max-height: calc(100vh - 3.5rem);
+                overflow: hidden;
             }
 
-            #admin-panel aside nav {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 0.5rem;
+            /* Make modal internals scroll when content is large */
+            #registration-modal .overflow-y-auto,
+            #product-modal .overflow-y-auto,
+            #checkout-modal .overflow-y-auto {
+                max-height: calc(100vh - 10rem);
+                overflow-y: auto;
             }
 
-            #admin-panel aside nav button {
-                flex: 1;
-                min-width: auto;
-                padding: 0.5rem;
-            }
+            /* Inputs and buttons: accessible sizes */
+            input:not([type="radio"]):not([type="checkbox"]), textarea, select { min-height: 44px; font-size: 15px; border-radius: 0.75rem; }
+            button { min-height: 44px; font-size: 13px; border-radius: 0.75rem; }
 
-            #admin-panel .hidden.md\\:flex,
-            #admin-panel .hidden.md\\:block {
-                display: none !important;
-            }
+            /* Admin panel: stack on small screens but preserve component spacing */
+            #admin-panel { flex-direction: column; }
+            #admin-panel aside { width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.04); }
 
-            /* Spacing ajustes mobile */
+            /* Keep spacing reasonable */
             .space-y-8 { gap: 1.5rem; }
             .space-y-6 { gap: 1rem; }
-            .gap-8 { gap: 1rem; }
 
-            /* Typography mobile */
-            h1, h2, h3 { letter-spacing: -0.5px; }
+            /* Typography tweaks */
+            h1, h2, h3 { letter-spacing: -0.4px; }
 
-            /* Safe area para notches */
+            /* Safe-area handling for notches */
             @supports (padding: max(0px)) {
-                #main-nav .max-w-7xl {
-                    padding-left: max(0.75rem, env(safe-area-inset-left));
-                    padding-right: max(0.75rem, env(safe-area-inset-right));
-                }
-
-                #view-hub, #view-shop {
-                    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-                }
-
-                #cart-sidebar .absolute.right-0 {
-                    padding-bottom: env(safe-area-inset-bottom);
-                }
+                #main-nav .max-w-7xl { padding-left: max(0.75rem, env(safe-area-inset-left)); padding-right: max(0.75rem, env(safe-area-inset-right)); }
+                #view-hub, #view-shop { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
             }
         }
     </style>
@@ -4265,7 +4188,7 @@
                     } else if (state.hubData.heroDefault) {
                         slider.innerHTML = `<img src="${state.hubData.heroDefault}" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                     } else {
-                        slider.innerHTML = `<img src="https://images.unsplash.com/photo-1531973576160-7125cd663d86?q=80&w=2070" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
+                        slider.innerHTML = `<img src="https://i.ibb.co/39SRrTgB/Hoje.png" class="absolute inset-0 w-full h-full object-cover opacity-60">`;
                     }
                 }
 
