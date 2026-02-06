@@ -42,15 +42,10 @@
                         'fade-in': 'fadeIn 0.3s ease-out forwards',
                         'slide-up': 'slideUp 0.4s ease-out forwards',
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bounce-mobile': 'bounce 0.6s ease-in-out',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                        'bounce-mobile': { 
-                            '0%, 100%': { transform: 'translateY(0)' }, 
-                            '50%': { transform: 'translateY(-4px)' } 
-                        }
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
                     }
                 }
             }
@@ -68,236 +63,6 @@
             -webkit-tap-highlight-color: transparent; 
         }
 
-        /* ==========================================
-           DESIGN MOBILE ÚNICO - COMPLETAMENTE DIFERENTE
-        =========================================== */
-        @media (max-width: 768px) {
-            /* Background gradiente no mobile */
-            body {
-                background: linear-gradient(135deg, #0f0f1e 0%, #1a0f2e 50%, #0f0f1e 100%);
-                background-attachment: fixed;
-            }
-
-            /* Navbar mobile minimalista */
-            #main-nav {
-                background: rgba(15, 15, 30, 0.98) !important;
-                backdrop-filter: blur(20px) !important;
-                border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
-                padding: 0.75rem 0 !important;
-            }
-
-            #main-nav .max-w-7xl {
-                padding: 0 1rem !important;
-                height: auto !important;
-            }
-
-            /* Hero section mobile compacto */
-            #hub-hero-container {
-                min-height: 220px !important;
-                margin-bottom: 1rem !important;
-                border-radius: 1.5rem !important;
-            }
-
-            /* Search bar mobile menor */
-            #hub-search-input {
-                font-size: 14px !important;
-                padding: 12px 14px !important;
-                border-radius: 1rem !important;
-            }
-
-            /* Título hero mobile maior */
-            #hub-hero-container h2 {
-                font-size: 28px !important;
-                line-height: 1.1 !important;
-            }
-
-            /* Cards de lojas em formato lista no mobile */
-            #shops-grid {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
-            }
-
-            #shops-grid > div {
-                display: grid !important;
-                grid-template-columns: 80px 1fr !important;
-                gap: 1rem !important;
-                padding: 1rem !important;
-                border-radius: 1.5rem !important;
-                align-items: center !important;
-            }
-
-            #shops-grid > div > div:first-child {
-                grid-column: 1 / -1 !important;
-            }
-
-            #shops-grid > div > img {
-                width: 80px !important;
-                height: 80px !important;
-                object-fit: cover !important;
-                border-radius: 1rem !important;
-                grid-column: 1 !important;
-                grid-row: 2 !important;
-            }
-
-            #shops-grid > div h3 {
-                font-size: 16px !important;
-                grid-column: 2 !important;
-                grid-row: 2 !important;
-                align-self: start !important;
-            }
-
-            #shops-grid > div p {
-                font-size: 11px !important;
-                grid-column: 2 !important;
-                grid-row: 3 !important;
-            }
-
-            #shops-grid > div > div:last-child {
-                display: none !important;
-            }
-
-            /* Abas mobile full width */
-            .flex.p-1.bg-surfaceLight.rounded-xl {
-                flex-direction: column !important;
-                gap: 0.5rem !important;
-            }
-
-            .flex.p-1.bg-surfaceLight.rounded-xl button {
-                padding: 0.75rem !important;
-                font-size: 12px !important;
-            }
-
-            /* Filtros de localização mobile */
-            #local-filters {
-                gap: 0.5rem !important;
-            }
-
-            #local-filters select,
-            #local-filters input {
-                padding: 10px !important;
-                font-size: 13px !important;
-            }
-
-            /* Shop view header mobile */
-            #view-shop header {
-                min-height: 180px !important;
-            }
-
-            #view-shop header .relative.z-20 {
-                padding: 1rem !important;
-            }
-
-            /* Produto grid mobile */
-            #products-container .grid {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
-            }
-
-            /* Modais mobile fullscreen */
-            #product-modal .relative.w-full {
-                max-width: 100% !important;
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-                max-height: 95vh !important;
-            }
-
-            #product-modal .flex.flex-col.md\\:flex-row {
-                flex-direction: column !important;
-            }
-
-            #product-modal .w-1\\/2 {
-                width: 100% !important;
-            }
-
-            /* Checkout mobile simplificado */
-            #checkout-modal .relative.w-full {
-                max-width: 100% !important;
-                max-height: 100vh !important;
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-            }
-
-            /* Cart mobile otimizado */
-            #cart-sidebar .absolute.right-0 {
-                width: 100% !important;
-                max-width: 100% !important;
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-            }
-
-            /* Admin panel mobile */
-            #admin-panel {
-                flex-direction: column !important;
-            }
-
-            #admin-panel aside {
-                width: 100% !important;
-                border-right: none !important;
-                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
-            }
-
-            #admin-panel header {
-                padding: 1rem !important;
-            }
-
-            /* Botões mobile maiores */
-            button {
-                min-height: 44px !important;
-            }
-
-            /* Input fields mobile maiores */
-            input, textarea, select {
-                min-height: 44px !important;
-                font-size: 16px !important; /* Previne zoom ao focus */
-            }
-
-            /* Textos mobile legíveis */
-            body {
-                font-size: 14px !important;
-            }
-
-            /* Tab mobile no topo */
-            .sticky.top-20.md\\:top-24 {
-                top: 72px !important;
-            }
-
-            /* Cards de produtos em coluna mobile */
-            #products-container .grid.grid-cols-2 {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Modal de ícones mobile */
-            #icon-picker-modal .relative.w-full {
-                max-width: 100% !important;
-                max-height: 90vh !important;
-                border-radius: 1.5rem 1.5rem 0 0 !important;
-            }
-
-            #icon-grid {
-                grid-template-columns: repeat(4, 1fr) !important;
-            }
-
-            /* Category modal mobile */
-            #category-modal .w-full {
-                max-width: 100% !important;
-            }
-
-            #category-modal-content {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Promo banners mobile */
-            #promo-banners-section {
-                margin-top: 1rem !important;
-            }
-
-            #promo-slider-container {
-                height: 200px !important;
-            }
-
-            /* Approval modal mobile */
-            #shop-approval-modal .w-full {
-                max-width: 100% !important;
-            }
-        }
-
         /* Efeito de Vidro (Glassmorphism) */
         .glass { 
             background: rgba(24, 24, 27, 0.7); 
@@ -310,19 +75,6 @@
             background: rgba(24, 24, 27, 0.4); 
             backdrop-filter: blur(12px); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-
-        /* Mobile glass effect diferente - mais opaco */
-        @media (max-width: 768px) {
-            .glass {
-                background: rgba(15, 15, 30, 0.95) !important;
-                border-bottom: 1px solid rgba(139, 92, 246, 0.2) !important;
-            }
-            
-            .glass-panel {
-                background: rgba(20, 20, 35, 0.8) !important;
-                backdrop-filter: blur(8px) !important;
-            }
         }
 
         /* Inputs Modernos */
@@ -343,21 +95,6 @@
             color: #71717a;
         }
 
-        /* Mobile inputs com estilo diferente */
-        @media (max-width: 768px) {
-            .glass-input {
-                background: rgba(10, 10, 20, 0.6) !important;
-                border: 1px solid rgba(139, 92, 246, 0.3) !important;
-                border-radius: 1rem !important;
-            }
-            
-            .glass-input:focus {
-                background: rgba(10, 10, 20, 0.9) !important;
-                border-color: #fbbf24 !important;
-                box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15) !important;
-            }
-        }
-
         /* Barra de Rolagem Personalizada */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #09090b; }
@@ -368,6 +105,7 @@
         /* Utilitários de Texto */
         .text-gradient { 
             background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); 
+            background-clip: text;
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
         }
@@ -486,249 +224,160 @@
         }
 
         /* ==========================================
-           MOBILE CUSTOM STYLES - VISUAL COMPLETO DIFERENTE
+           RESPONSIVO MOBILE - Mantém as mesmas cores
         =========================================== */
         @media (max-width: 768px) {
-            /* Page padding mobile */
-            #app {
-                padding-bottom: 2rem !important;
-            }
-
-            /* Main content padding mobile agressivo */
-            #view-hub {
-                padding-top: 0.5rem !important;
-                padding-bottom: 2rem !important;
-            }
-
-            #view-shop {
-                padding-top: 0.5rem !important;
-            }
-
-            /* Hero container mobile compacto */
-            .max-w-7xl.mx-auto.px-3.md\\:px-4.space-y-8 {
-                gap: 1rem !important;
-            }
-
-            /* Hub search mobile em destaque */
-            .relative.max-w-2xl.mx-auto.-mt-12.md\\:-mt-16 {
-                margin-top: -2.5rem !important;
-                padding: 0 0.75rem !important;
-            }
-
-            /* Shops grid mobile organização */
-            .grid.grid-cols-1.sm\\:grid-cols-2 {
-                padding: 0 0.75rem !important;
-            }
-
-            /* Card de loja mobile estilo lista */
-            .group.relative.overflow-hidden.rounded-\\[2.5rem\\] {
-                border-radius: 1rem !important;
-            }
-
-            /* Navbar mobile espaço reduzido */
+            /* Ajustes gerais */
+            body { font-size: 14px; }
+            
+            /* Navbar responsive */
             #main-nav .max-w-7xl {
-                gap: 0.5rem !important;
+                padding: 0 0.75rem;
             }
 
-            #main-nav .max-w-7xl > div:first-child {
-                gap: 0.5rem !important;
+            #main-nav .flex.items-center.gap-2 {
+                gap: 0.5rem;
             }
 
-            /* Título navbar mobile oculto parcialmente */
-            #nav-title {
+            #main-nav .w-12.h-12 {
+                width: 40px;
+                height: 40px;
+            }
+
+            #main-nav .hidden.sm\\:block {
                 display: none !important;
             }
 
-            #nav-ticker {
-                display: none !important;
+            /* Hero section mobile */
+            #hub-hero-container {
+                min-height: 200px;
+                border-radius: 1.5rem;
+                margin-bottom: 0;
             }
 
-            /* Logo navbar mobile maior destaque */
-            #main-nav .w-12 {
-                width: 44px !important;
-                height: 44px !important;
+            #hub-hero-container .relative.z-20 {
+                padding: 1rem;
             }
 
-            /* Botões navbar mobile maiores */
-            #main-nav .w-11.h-11 {
-                width: 40px !important;
-                height: 40px !important;
+            #hub-hero-container h2 {
+                font-size: 24px;
             }
 
-            /* Section spacing mobile */
-            #view-hub .space-y-8.md\\:space-y-12 {
-                gap: 1.5rem !important;
+            /* Search bar mobile */
+            .max-w-2xl.mx-auto.-mt-12 {
+                margin-top: -0.75rem;
+                padding: 0 0.75rem;
             }
 
-            /* Footer mobile */
-            .border-t.border-white\\/10.mt-16.pt-12 {
-                margin-top: 3rem !important;
-                padding-top: 2rem !important;
+            /* Grid responsive */
+            #shops-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0 0.75rem;
             }
 
-            /* Animation smooth no mobile */
-            * {
-                scroll-behavior: auto !important;
+            #products-container .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
             }
 
-            /* Z-index navigation mobile */
-            #main-nav {
-                z-index: 50 !important;
+            /* Padding geral */
+            #view-hub, #view-shop, #admin-content {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
             }
 
-            /* Modal overlay mobile */
-            #product-modal .absolute.inset-0 {
-                backdrop-filter: blur(4px) !important;
+            /* Modals mobile - aparecem em fullscreen */
+            #product-modal .relative {
+                border-radius: 1.5rem 1.5rem 0 0;
+                max-height: 90vh;
             }
 
-            /* Sidebar cart mobile full height */
-            #cart-sidebar {
-                top: auto !important;
-                bottom: 0 !important;
+            #checkout-modal .relative {
+                border-radius: 1.5rem 1.5rem 0 0;
+                max-height: 90vh;
             }
 
-            /* Checkout step width mobile */
-            #checkout-step-1,
-            #checkout-step-2 {
-                display: flex !important;
-                flex-direction: column !important;
+            /* Inputs melhor tamanho em mobile */
+            input:not([type="radio"]):not([type="checkbox"]),
+            textarea,
+            select {
+                min-height: 44px;
+                font-size: 16px;
+                border-radius: 0.75rem;
             }
 
-            /* Produtos mobile em lista */
-            #products-container .grid.grid-cols-2.md\\:grid-cols-4 {
-                grid-template-columns: 1fr !important;
+            /* Buttons touch-friendly */
+            button {
+                min-height: 44px;
+                font-size: 13px;
+                border-radius: 0.75rem;
             }
 
-            /* Admin sidebar mobile full */
+            /* Tabs responsivo */
+            .flex.p-1.bg-surfaceLight.rounded-xl {
+                gap: 0.25rem;
+            }
+
+            .flex.p-1.bg-surfaceLight.rounded-xl button {
+                padding: 0.5rem;
+                font-size: 11px;
+            }
+
+            /* Admin panel mobile */
+            #admin-panel {
+                flex-direction: column;
+            }
+
+            #admin-panel aside {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                position: relative;
+                top: auto;
+            }
+
             #admin-panel aside nav {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: wrap !important;
-                padding: 0.5rem !important;
-                gap: 0.5rem !important;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.5rem;
             }
 
             #admin-panel aside nav button {
-                flex: 1 !important;
-                min-width: 80px !important;
-                padding: 0.75rem !important;
-                font-size: 12px !important;
+                flex: 1;
+                min-width: auto;
+                padding: 0.5rem;
             }
 
-            /* Authentication mobile */
-            #auth-layer .max-w-md {
-                max-width: calc(100% - 2rem) !important;
+            #admin-panel .hidden.md\\:flex,
+            #admin-panel .hidden.md\\:block {
+                display: none !important;
             }
 
-            /* Registration modal mobile */
-            #registration-modal .max-w-2xl {
-                max-width: calc(100% - 2rem) !important;
-            }
+            /* Spacing ajustes mobile */
+            .space-y-8 { gap: 1.5rem; }
+            .space-y-6 { gap: 1rem; }
+            .gap-8 { gap: 1rem; }
 
-            /* Category tabs mobile */
-            .category-tab {
-                flex: 1 !important;
-                padding: 0.5rem !important;
-                font-size: 12px !important;
-                border-radius: 0.75rem !important;
-            }
+            /* Typography mobile */
+            h1, h2, h3 { letter-spacing: -0.5px; }
 
-            /* Icon picker mobile */
-            #icon-grid {
-                gap: 0.5rem !important;
-                padding: 0.5rem !important;
-            }
+            /* Safe area para notches */
+            @supports (padding: max(0px)) {
+                #main-nav .max-w-7xl {
+                    padding-left: max(0.75rem, env(safe-area-inset-left));
+                    padding-right: max(0.75rem, env(safe-area-inset-right));
+                }
 
-            /* Tab mobile com scroll horizontal */
-            .flex.p-1.bg-surfaceLight.rounded-xl {
-                overflow-x: auto !important;
-                scroll-behavior: smooth !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
+                #view-hub, #view-shop {
+                    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+                }
 
-            /* Remove gaps excessivos */
-            .mb-6, .mb-4 {
-                margin-bottom: 1rem !important;
-            }
-
-            .gap-6 {
-                gap: 0.75rem !important;
-            }
-
-            .gap-8 {
-                gap: 1rem !important;
-            }
-
-            /* Table mobile */
-            table {
-                font-size: 12px !important;
-            }
-
-            table td {
-                padding: 0.75rem !important;
-            }
-
-            /* Form mobile spacing */
-            .space-y-6 {
-                gap: 1rem !important;
-            }
-
-            .space-y-4 {
-                gap: 0.75rem !important;
-            }
-
-            /* Banner altura mobile */
-            .h-56.md\\:h-80 {
-                height: 180px !important;
-            }
-
-            /* Texto mobile legível */
-            .text-sm {
-                font-size: 13px !important;
-            }
-
-            .text-xs {
-                font-size: 11px !important;
-            }
-
-            /* Padding global mobile reduzido */
-            .p-8 {
-                padding: 1rem !important;
-            }
-
-            .p-6 {
-                padding: 1rem !important;
-            }
-
-            .px-8 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-
-            /* Bordas mobile arredondadas */
-            .rounded-\\[2rem\\] {
-                border-radius: 1.25rem !important;
-            }
-
-            .rounded-\\[2.5rem\\] {
-                border-radius: 1rem !important;
-            }
-
-            .rounded-\\[3rem\\] {
-                border-radius: 1rem !important;
-            }
-
-            /* Containers mobile */
-            .max-w-7xl {
-                max-width: 100% !important;
-            }
-
-            .max-w-4xl {
-                max-width: 100% !important;
-            }
-
-            .max-w-3xl {
-                max-width: 100% !important;
+                #cart-sidebar .absolute.right-0 {
+                    padding-bottom: env(safe-area-inset-bottom);
+                }
             }
         }
     </style>
