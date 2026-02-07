@@ -105,7 +105,6 @@
         /* Utilitários de Texto */
         .text-gradient { 
             background: linear-gradient(135deg, #fff 0%, #a78bfa 100%); 
-            background-clip: text;
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
         }
@@ -695,40 +694,15 @@
                 </div>
             </div>
 
-            <!-- ETAPA 2: SELEÇÃO MÉTODO PAGAMENTO -->
+            <!-- ETAPA 2: PAGAMENTO -->
             <div id="checkout-step-2" class="hidden transition-all duration-300 flex flex-col flex-1 min-h-0">
                 <div class="p-8 border-b border-white/10 bg-surfaceLight text-center relative shrink-0">
                     <button onclick="backToAddress()" class="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><iconify-icon icon="solar:arrow-left-bold" width="24"></iconify-icon></button>
-                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Escolha o Pagamento</h3>
-                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Qual forma você prefere?</p>
-                </div>
-                
-                <div class="p-6 md:p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar overscroll-contain flex flex-col items-center justify-center">
-                    <div class="w-full max-w-xs space-y-4">
-                        <button onclick="goToPaymentPix()" class="w-full bg-purple-600/20 border-2 border-purple-500 hover:bg-purple-600/40 text-white font-black py-6 rounded-2xl uppercase tracking-widest transition-all flex flex-col items-center gap-2 group">
-                            <iconify-icon icon="logos:pix" width="32" class="group-hover:scale-110 transition-transform"></iconify-icon>
-                            <span>Pagar com Pix</span>
-                            <span class="text-xs text-zinc-300">Instantâneo e sem taxa</span>
-                        </button>
-                        
-                        <button id="btn-mp-payment" onclick="goToPaymentMercadoPago()" class="w-full bg-orange-600/20 border-2 border-orange-500 hover:bg-orange-600/40 text-white font-black py-6 rounded-2xl uppercase tracking-widest transition-all flex flex-col items-center gap-2 group" style="display:none;">
-                            <iconify-icon icon="mdi:mercado-pago" width="32" class="group-hover:scale-110 transition-transform"></iconify-icon>
-                            <span>Pagar com Mercado Pago</span>
-                            <span class="text-xs text-zinc-300">Cartão, boleto, transferência+</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ETAPA 3: PAGAMENTO PIX -->
-            <div id="checkout-step-3-pix" class="hidden transition-all duration-300 flex flex-col flex-1 min-h-0">
-                <div class="p-8 border-b border-white/10 bg-surfaceLight text-center relative shrink-0">
-                    <button onclick="backToPaymentChoice()" class="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><iconify-icon icon="solar:arrow-left-bold" width="24"></iconify-icon></button>
                     <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Pagamento Seguro</h3>
                     <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1">Finalize via Pix</p>
                 </div>
                 
-                <div class="p-6 md:p-8 space-y-6 text-center flex-1 overflow-y-auto custom-scrollbar overscroll-contain" id="checkout-pix-content">
+                <div class="p-6 md:p-8 space-y-6 text-center flex-1 overflow-y-auto custom-scrollbar overscroll-contain">
                     <!-- CUPOM DE DESCONTO -->
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-accent uppercase tracking-widest">Cupom de Desconto (Opcional)</label>
@@ -760,55 +734,33 @@
                         </div>
                     </div>
 
-                    <div class="h-px bg-white/5 w-full my-4"></div>
+                    <div class="h-px bg-white/5 w-full my-6"></div>
 
-                    <div class="space-y-3">
+                    <div id="stripe-payment-area" class="hidden mb-8 border-b border-white/10 pb-6 animate-fade-in">
+                        <h4 class="text-white font-bold uppercase text-sm mb-3 flex items-center gap-2">
+                            <iconify-icon icon="solar:card-bold" class="text-indigo-400"></iconify-icon> 
+                            Cartão de Crédito
+                        </h4>
+
+                        <button id="btn-stripe-pay" onclick="checkoutStripe()" class="w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-black py-5 rounded-2xl shadow-xl hover:shadow-indigo-500/20 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm mb-2 group">
+                            <span>Pagar Agora</span>
+                            <iconify-icon icon="solar:arrow-right-bold" class="group-hover:translate-x-1 transition-transform"></iconify-icon>
+                        </button>
+
+                        <div class="flex justify-center gap-3 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 mt-2">
+                            <iconify-icon icon="logos:mastercard" width="24"></iconify-icon>
+                            <iconify-icon icon="logos:visa" width="24"></iconify-icon>
+                            <iconify-icon icon="logos:amex" width="24"></iconify-icon>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mt-4">
                         <p class="text-xs text-zinc-500 font-bold uppercase">Já pagou? Anexe o comprovante (Opcional)</p>
                         <input type="file" id="receipt-upload" accept="image/*" class="hidden" onchange="handleReceiptUpload(this)">
                         <button onclick="document.getElementById('receipt-upload').click()" id="btn-upload-receipt" class="w-full py-4 border border-dashed border-zinc-700 rounded-2xl text-zinc-400 hover:border-primary hover:text-white transition-all text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group">
                             <iconify-icon icon="solar:camera-minimalistic-bold" class="group-hover:scale-110 transition-transform"></iconify-icon> 
                             <span id="upload-text">Enviar Comprovante</span>
                         </button>
-                    </div>
-
-                    <div class="pt-2 pb-4">
-                        <button onclick="finishOrderWhatsApp()" class="w-full bg-success text-black font-black py-5 rounded-2xl shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-3 mt-6 uppercase tracking-widest text-sm shrink-0">
-                            <iconify-icon icon="logos:whatsapp-icon" width="20"></iconify-icon> 
-                            Confirmar no WhatsApp
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ETAPA 4: PAGAMENTO MERCADO PAGO -->
-            <div id="checkout-step-4-mp" class="hidden transition-all duration-300 flex flex-col flex-1 min-h-0">
-                <div class="p-8 border-b border-white/10 bg-surfaceLight text-center relative shrink-0">
-                    <button onclick="backToPaymentChoice()" class="absolute left-8 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><iconify-icon icon="solar:arrow-left-bold" width="24"></iconify-icon></button>
-                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">Mercado Pago</h3>
-                    <p class="text-zinc-500 text-xs font-bold uppercase tracking-widest mt-1" id="mp-status-text">Redirecionando...</p>
-                </div>
-                
-                <div class="p-6 md:p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar overscroll-contain flex flex-col items-center justify-center">
-                    <div class="text-center space-y-4 w-full max-w-sm">
-                        <div class="animate-spin">
-                            <iconify-icon icon="mdi:mercado-pago" width="64" class="text-orange-500"></iconify-icon>
-                        </div>
-                        <p class="text-white font-bold text-lg">Preparando seu pagamento...</p>
-                        <p class="text-zinc-400 text-sm" id="mp-loading-text">Aguarde enquanto redirecionamos você para o Mercado Pago de forma segura.</p>
-                        
-                        <div id="mp-payment-info" class="mt-6 space-y-3 hidden">
-                            <div class="bg-success/10 border border-success/20 p-4 rounded-xl">
-                                <p class="text-success text-sm font-bold">✓ Link de pagamento gerado com sucesso!</p>
-                            </div>
-                            <button id="mp-payment-btn" onclick="redirectToMercadoPago()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-2xl uppercase tracking-widest transition-all">
-                                Ir para Mercado Pago
-                            </button>
-                            <button onclick="backToPaymentChoice()" class="w-full bg-white/10 hover:bg-white/20 text-white font-black py-3 rounded-2xl uppercase tracking-widest transition-all text-sm">
-                                Cancelar
-                            </button>
-                        </div>
-                        
-                        <p class="text-[10px] text-zinc-400 mt-8">Após confirmar o pagamento, você será redirecionado de volta para seu pedido.</p>
                     </div>
                 </div>
             </div>
@@ -943,12 +895,50 @@
         </div>
     </div>
 
+    <!-- ==========================================
+         11. MODAL DE SUCESSO DE PAGAMENTO (STRIPE)
+    =========================================== -->
+    <div id="payment-success-modal" class="fixed inset-0 z-[150] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 hidden">
+        <div class="bg-surface border border-green-500/30 rounded-[2rem] p-8 max-w-md w-full text-center relative overflow-hidden animate-slide-up shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400"></div>
+
+            <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-400 animate-pulse">
+                <iconify-icon icon="solar:verified-check-bold" width="48"></iconify-icon>
+            </div>
+
+            <h2 class="text-3xl font-black text-white italic uppercase tracking-tighter mb-2">Pagamento Aprovado!</h2>
+            <p class="text-zinc-400 text-sm mb-8">Seu pedido foi confirmado e o pagamento já consta em nosso sistema.</p>
+
+            <button id="btn-whatsapp-success" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl shadow-xl transition-transform hover:scale-105 flex items-center justify-center gap-3 uppercase tracking-widest text-sm mb-4">
+                <iconify-icon icon="logos:whatsapp-icon" width="24"></iconify-icon>
+                Enviar Comprovante pra Loja
+            </button>
+            
+            <button onclick="document.getElementById('payment-success-modal').classList.add('hidden')" class="text-zinc-500 text-xs font-bold uppercase tracking-widest hover:text-white">
+                Fechar e Continuar Comprando
+            </button>
+        </div>
+    </div>
+
     <!-- Input Invisível para Uploads -->
     <input type="file" id="global-file-input" class="hidden" accept="image/*">
 
     <!-- ==========================================
          JAVASCRIPT & LÓGICA DO SISTEMA
     =========================================== -->
+    <script>
+        // Função auxiliar para abrir o modal de sucesso
+        function showSuccessModal(phone, msg) {
+            const modal = document.getElementById('payment-success-modal');
+            const btn = document.getElementById('btn-whatsapp-success');
+            
+            btn.onclick = () => {
+                window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+            };
+            
+            modal.classList.remove('hidden');
+        }
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
@@ -1179,9 +1169,6 @@
             } else {
                 goToHub(false);
             }
-            
-            // Verifica retorno do Mercado Pago
-            checkMercadoPagoReturn();
         };
 
         window.goToHub = (updateHistory = true) => {
@@ -1709,6 +1696,10 @@
             show('checkout-modal');
             hide('checkout-step-1');
             show('checkout-step-2');
+
+            // --- VERIFICA E MOSTRA/ESCONDE STRIPE ---
+            checkStripeAvailability();
+            // ----------------------------------------
             
             const total = calculateCheckoutTotal();
             
@@ -1957,35 +1948,33 @@
             return total;
         };
 
+        // Função auxiliar para verificar se mostra ou esconde o cartão
+        function checkStripeAvailability() {
+            const shop = state.currentShop;
+            const stripeArea = document.getElementById('stripe-payment-area');
+            
+            // Verifica se existe o ID e se ele parece válido (começa com acct_)
+            if (shop && shop.stripeAccountId && shop.stripeAccountId.startsWith('acct_')) {
+                stripeArea.classList.remove('hidden'); // MOSTRA O CARTÃO
+            } else {
+                stripeArea.classList.add('hidden');    // ESCONDE O CARTÃO
+            }
+        }
+
         window.goToPayment = () => {
             hide('checkout-step-1');
             show('checkout-step-2');
+
+            // --- VERIFICA E MOSTRA/ESCONDE STRIPE ---
+            checkStripeAvailability();
+            // ----------------------------------------
 
             el('upload-text').innerText = "Enviar Comprovante"; 
             el('btn-upload-receipt').classList.remove('border-success', 'text-success');
             
             const total = calculateCheckoutTotal();
+            
             const shop = state.currentShop;
-            
-            // Mostra/esconde botão de Mercado Pago se está configurado
-            const mpBtn = el('btn-mp-payment');
-            if(shop.mercadoPago?.appId && shop.mercadoPago?.accessToken) {
-                mpBtn.style.display = 'block';
-            } else {
-                mpBtn.style.display = 'none';
-            }
-            
-            // NÃO chama automaticamente - deixa usuário escolher!
-        };
-
-        window.goToPaymentPix = () => {
-            hide('checkout-step-2');
-            show('checkout-step-3-pix');
-            
-            const total = calculateCheckoutTotal();
-            const shop = state.currentShop;
-            
-            const pixContent = el('checkout-pix-content');
             if(shop.pixKey) {
                 const payload = generateEMVPix(shop.pixKey, shop.pixName, shop.pixCity, total.toFixed(2));
                 el('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}&color=000000&bgcolor=ffffff`;
@@ -1993,195 +1982,115 @@
             }
         };
 
-        window.backToPaymentChoice = () => {
-            show('checkout-step-2');
-            hide('checkout-step-3-pix');
-            hide('checkout-step-4-mp');
-        };
-
-        window.goToPaymentMercadoPago = async () => {
-            hide('checkout-step-2');
-            show('checkout-step-4-mp');
+        // Função para Pagamento via Stripe (usando a Extensão) - LOGIN ANÔNIMO + SPLIT
+        window.checkoutStripe = async () => {
+            // 1. RESOLVENDO O LOGIN: Autenticação Anônima Automática
+            let user = auth.currentUser;
             
-            const shop = state.currentShop;
-            if(!shop.mercadoPago?.accessToken) {
-                alert('❌ Loja não tem Mercado Pago configurado');
-                backToPaymentChoice();
-                return;
-            }
-            
-            try {
-                el('mp-loading-text').innerText = 'Conectando ao Mercado Pago...';
-                
-                // Cria preferência de pagamento
-                const preferenceUrl = await createMercadoPagoPreference();
-                
-                if(preferenceUrl) {
-                    state.mpPaymentUrl = preferenceUrl;
-                    el('mp-payment-info').classList.remove('hidden');
-                    el('mp-status-text').innerText = 'Pronto para Pagar';
-                } else {
-                    throw new Error('Erro ao gerar link de pagamento');
-                }
-            } catch(error) {
-                console.error('Erro Mercado Pago:', error);
-                el('mp-loading-text').innerText = '❌ Erro ao conectar. Tente novamente.';
-            }
-        };
-
-        window.createMercadoPagoPreference = async () => {
-            const shop = state.currentShop;
-            const token = shop.mercadoPago.accessToken;
-            
-            console.log('🔍 DEBUG Mercado Pago:');
-            console.log('Token:', token);
-            console.log('Shop:', shop.name);
-            
-            const subtotal = state.cart.reduce((a, b) => a + Number(b.price), 0);
-            let total = subtotal + state.checkoutData.shippingCost;
-            
-            // Aplica cupom se existir
-            if(state.appliedCoupon) {
-                if(state.appliedCoupon.type === 'percentage') {
-                    total -= (total * state.appliedCoupon.value / 100);
-                } else {
-                    total -= state.appliedCoupon.value;
+            if (!user) {
+                // Se não tem usuário, cria um "Fantasma" agora mesmo
+                try {
+                    const userCred = await signInAnonymously(auth);
+                    user = userCred.user;
+                    console.log("Usuário Anônimo criado:", user.uid);
+                } catch (error) {
+                    console.error("Erro no Login Anônimo:", error);
+                    alert("Erro ao iniciar sessão de convidado.");
+                    return;
                 }
             }
+
+            if (state.cart.length === 0) return alert("Sua sacola está vazia!");
+
+            // 2. RESOLVENDO O SPLIT: Verifica se a loja tem conta Stripe conectada
+            const shopStripeId = state.currentShop?.stripeAccountId; 
             
-            // Dados do cliente
-            const addr = state.checkoutData.address;
-            const clientEmail = state.user ? state.user.email : (el('chk-email')?.value || '');
-            const clientPhone = state.user ? '' : (el('chk-phone')?.value || '');
-            
-            const items = state.cart.map(item => ({
-                title: item.name,
-                quantity: 1,
-                currency_id: 'BRL',
-                unit_price: parseFloat(item.price)
-            }));
-            
-            const preference = {
-                items: items,
-                payer: {
-                    name: addr.name,
-                    email: clientEmail || undefined,
-                    phone: {
-                        area_code: clientPhone.substring(0, 2) || undefined,
-                        number: clientPhone.substring(2) || undefined
-                    },
-                    address: {
-                        zip_code: addr.cep.replace('-', ''),
-                        street_name: addr.street,
-                        street_number: addr.num,
-                        city_name: addr.city
-                    }
-                },
-                shipments: {
-                    receiver_address: {
-                        zip_code: addr.cep.replace('-', ''),
-                        street_name: addr.street,
-                        street_number: addr.num,
-                        city_name: addr.city,
-                        state_name: addr.uf
-                    }
-                },
-                back_urls: {
-                    success: window.location.origin + window.location.pathname + '?mp_success=1&shop=' + encodeURIComponent(shop.slug || shop.id),
-                    failure: window.location.origin + window.location.pathname + '?mp_failure=1&shop=' + encodeURIComponent(shop.slug || shop.id),
-                    pending: window.location.origin + window.location.pathname + '?mp_pending=1&shop=' + encodeURIComponent(shop.slug || shop.id)
-                },
-                external_reference: shop.id + '_' + Date.now()
-            };
-            
+            const btn = document.getElementById('btn-stripe-pay');
+            if (!btn) return alert('Botão de pagamento não encontrado.');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<iconify-icon icon="svg-spinners:ring-resize"></iconify-icon> Redirecionando...`;
+            btn.disabled = true;
+
             try {
-                console.log('📤 Enviando preferência para MP:', JSON.stringify(preference, null, 2));
-                
-                const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                // Prepara os itens
+                const line_items = state.cart.map(item => ({
+                    price_data: {
+                        currency: 'brl',
+                        product_data: {
+                            name: item.name,
+                            images: item.images ? [item.images[0]] : [],
+                            description: item.desc ? item.desc.substring(0, 100) : ''
+                        },
+                        unit_amount: Math.round(Number(item.price) * 100),
                     },
-                    body: JSON.stringify(preference)
+                    quantity: 1,
+                }));
+
+                // Adiciona Frete
+                if (state.checkoutData.shippingCost > 0) {
+                    line_items.push({
+                        price_data: {
+                            currency: 'brl',
+                            product_data: { name: `Frete - ${state.checkoutData.shippingMethod}` },
+                            unit_amount: Math.round(state.checkoutData.shippingCost * 100),
+                        },
+                        quantity: 1,
+                    });
+                }
+
+                // MONTA O PAYLOAD DA EXTENSÃO
+                const sessionData = {
+                    mode: 'payment',
+                    line_items: line_items,
+                    success_url: window.location.origin + window.location.pathname + '?status=success',
+                    cancel_url: window.location.origin + window.location.pathname + '?status=cancel',
+                    metadata: {
+                        shopId: state.currentShop?.id,
+                        shopName: state.currentShop?.name
+                    }
+                };
+
+                // 3. A MÁGICA DO SPLIT DE PAGAMENTO
+                if (shopStripeId) {
+                    sessionData.payment_intent_data = {
+                        transfer_data: {
+                            destination: shopStripeId,
+                        },
+                        // application_fee_amount: 500, // Exemplo de taxa do Hub (opcional)
+                    };
+                }
+
+                // Cria o doc no Firestore
+                const docRef = await addDoc(collection(db, 'customers', user.uid, 'checkout_sessions'), sessionData);
+
+                // 🔥 SEGURANÇA: Salva o ID do documento para conferir na volta
+                localStorage.setItem('pending_stripe_order', JSON.stringify({
+                    cart: state.cart,
+                    checkoutData: state.checkoutData,
+                    shop: state.currentShop,
+                    sessionId: docRef.id // <--- GUARDAMOS O ID AQUI
+                }));
+
+                // Escuta a resposta
+                onSnapshot(docRef, (snap) => {
+                    const data = snap.data() || {};
+                    const { error, url } = data;
+                    if (error) {
+                        console.error("Erro Stripe:", error);
+                        alert(`Erro: ${error.message}`);
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                    if (url) {
+                        window.location.assign(url);
+                    }
                 });
-                
-                console.log('📥 Resposta do MP - Status:', response.status);
-                
-                if(!response.ok) {
-                    const errorData = await response.json();
-                    console.error('❌ Erro da API MP:', errorData);
-                    throw new Error('Erro na API do Mercado Pago: ' + JSON.stringify(errorData));
-                }
-                
-                const data = await response.json();
-                console.log('✅ Preferência criada:', data);
-                return data.init_point; // URL de pagamento
-            } catch(e) {
-                console.error('❌ Erro ao criar preferência:', e);
-                alert('Erro ao conectar Mercado Pago:\n' + e.message);
-                return null;
-            }
-        };
 
-        window.redirectToMercadoPago = () => {
-            if(state.mpPaymentUrl) {
-                // Salva dados do pedido antes de redirecionar
-                saveMercadoPagoOrder();
-                
-                // Aguarda um pouco antes de redirecionar
-                setTimeout(() => {
-                    window.location.href = state.mpPaymentUrl;
-                }, 100);
-            }
-        };
-
-        window.saveMercadoPagoOrder = async () => {
-            const shop = state.currentShop;
-            const addr = state.checkoutData.address;
-            const subtotal = state.cart.reduce((a, b) => a + Number(b.price), 0);
-            const shipping = state.checkoutData.shippingCost;
-            let total = subtotal + shipping;
-            
-            if(state.appliedCoupon) {
-                if(state.appliedCoupon.type === 'percentage') {
-                    total -= (total * state.appliedCoupon.value / 100);
-                } else {
-                    total -= state.appliedCoupon.value;
-                }
-            }
-            
-            const clientEmail = state.user ? state.user.email : (el('chk-email')?.value || '');
-            const clientPhone = state.user ? '' : (el('chk-phone')?.value || '');
-            
-            const orderData = {
-                shopId: shop.id,
-                shopName: shop.name,
-                status: 'pending_payment_mp',
-                paymentMethod: 'mercado_pago',
-                items: state.cart.map(i => ({
-                    productId: i.id,
-                    name: i.name,
-                    price: i.price,
-                    type: i.type || 'produto'
-                })),
-                clientName: addr.name,
-                clientEmail: clientEmail,
-                clientPhone: clientPhone,
-                address: addr,
-                subtotal: subtotal,
-                shipping: shipping,
-                total: total,
-                appliedCoupon: state.appliedCoupon ? {code: state.appliedCoupon.code, discount: state.appliedCoupon.type === 'percentage' ? (total * state.appliedCoupon.value / 100) : state.appliedCoupon.value} : null,
-                at: Date.now(),
-                mpExternalRef: shop.id + '_' + Date.now()
-            };
-            
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), orderData);
-                console.log('✅ Pedido salvo no Firestore');
-            } catch(e) {
-                console.error('Erro ao salvar pedido:', e);
+            } catch (e) {
+                console.error("Erro checkout:", e);
+                alert("Erro ao processar.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         };
 
@@ -2351,34 +2260,20 @@
             
             // Salva o pedido no Firebase
             try {
-                const orderData = {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
                     shopId: shop.id, 
                     shopName: shop.name, 
                     total, 
                     subtotal,
                     shipping,
                     shippingMethod: method,
-                    paymentMethod: 'pix',
-                    status: state.receiptUrl ? 'pending_confirmation' : 'pending_payment_pix', // Se tem comprovante, é pending_confirmation; senão pending_payment
                     address: addr,
-                    clientName: addr.name,
                     clientEmail: clientEmail,
                     clientPhone: clientPhone,
                     receipt: state.receiptUrl, 
                     at: Date.now(), 
-                    items: state.cart.map(i => ({
-                        productId: i.id,
-                        name: i.name,
-                        price: i.price,
-                        type: i.type || 'produto'
-                    })),
-                    appliedCoupon: state.appliedCoupon ? {
-                        code: state.appliedCoupon.code,
-                        discount: state.appliedCoupon.type === 'percentage' ? (total * state.appliedCoupon.value / 100) : state.appliedCoupon.value
-                    } : null
-                };
-                
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), orderData);
+                    items: state.cart.map(i=>i.name) 
+                });
 
                 // Se o cliente não está logado, salva como lead
                 if(!state.user && (clientEmail || clientPhone)) {
@@ -2794,8 +2689,27 @@
                         </div>
                     </div>
 
+                    </div>
+
                     <div class="pt-8 border-t border-white/10">
-                        <h3 class="text-accent font-bold mb-6 uppercase text-sm flex items-center gap-2">
+                        <h3 class="text-[#635BFF] font-bold mb-6 uppercase text-sm flex items-center gap-2">
+                            <iconify-icon icon="logos:stripe"></iconify-icon> Recebimento por Cartão
+                        </h3>
+                        <div class="bg-[#635BFF]/10 p-6 rounded-2xl border border-[#635BFF]/20 mb-4">
+                            <p class="text-white text-sm font-bold mb-2">Como configurar:</p>
+                            <ol class="list-decimal list-inside text-zinc-400 text-xs space-y-1 mb-4">
+                                <li>Crie sua conta no <a href="https://dashboard.stripe.com/register" target="_blank" class="text-[#635BFF] underline">Dashboard da Stripe</a>.</li>
+                                <li>Ative sua conta preenchendo seus dados bancários.</li>
+                                <li>Vá em <strong>Configurações (engrenagem)</strong> &gt; <strong>Conta</strong>.</li>
+                                <li>Copie o <strong>ID da Conta</strong> (Começa com <code>acct_</code>).</li>
+                            </ol>
+                            
+                            <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2 block mb-1">ID da Sua Conta Stripe</label>
+                            <input id="edit-shop-stripe-id" value="${s.stripeAccountId || ''}" placeholder="Ex: acct_1PvXy2BH..." class="w-full glass-input p-4 rounded-2xl text-white font-mono tracking-widest border-[#635BFF]/30 focus:border-[#635BFF]">
+                            <p class="text-[10px] text-zinc-500 mt-2">Isso garante que o dinheiro das vendas venha direto para você.</p>
+                        </div>
+
+                    <h3 class="text-accent font-bold mb-6 uppercase text-sm flex items-center gap-2">
                             <iconify-icon icon="solar:truck-bold"></iconify-icon> Configuração de Frete
                         </h3>
                         
@@ -2835,24 +2749,6 @@
                         </h3>
                         <p class="text-xs text-zinc-400 mb-4">Adicione um balão que aparece na sua loja no Hub (ex: "50% OFF", "Frete Grátis", "Black Friday")</p>
                         <input id="edit-shop-promo" value="${s.promoLabel||''}" placeholder="Ex: 50% OFF ou Frete Grátis" class="w-full glass-input p-4 rounded-2xl text-white" maxlength="20">
-                    </div>
-
-                    <div class="pt-8 border-t border-white/10">
-                        <h3 class="text-orange-400 font-bold mb-6 uppercase text-sm flex items-center gap-2">
-                            <iconify-icon icon="mdi:mercado-pago"></iconify-icon> Mercado Pago (Pagamento Direto)
-                        </h3>
-                        <p class="text-xs text-zinc-400 mb-4">Cada cliente pagará direto para sua conta. O dinheiro vem 100% para você, sem intermediários.</p>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2 mb-1 block">App ID do Mercado Pago</label>
-                                <input id="edit-shop-mp-appid" value="${s.mercadoPago?.appId||''}" placeholder="Sua App ID aqui" class="w-full glass-input p-4 rounded-2xl text-white font-mono text-sm">
-                            </div>
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-zinc-500 ml-2 mb-1 block">Access Token do Mercado Pago</label>
-                                <input id="edit-shop-mp-token" value="${s.mercadoPago?.accessToken||''}" type="password" placeholder="Seu token aqui" class="w-full glass-input p-4 rounded-2xl text-white font-mono text-sm">
-                            </div>
-                            <p class="text-[10px] text-blue-400 bg-blue-500/10 p-3 rounded-xl border border-blue-500/20">📱 <strong>Como pegar suas credenciais:</strong> Acesse sua conta no <a href="https://www.mercadopago.com.br/developers/register" target="_blank" class="underline">Mercado Pago Developers</a>, copie o App ID e Access Token da sua aplicação.</p>
-                        </div>
                     </div>
 
                     <button onclick="saveShopConfig('${s.id}')" class="w-full bg-primary text-white font-black py-5 rounded-2xl mt-8 uppercase tracking-widest hover:bg-primaryDark transition-colors">Salvar Dados</button>
@@ -3841,10 +3737,14 @@
         
         // SALVAR DADOS DA LOJA (COM NOVO CEP)
         window.saveShopConfig = async (id) => { 
-            const mpAppId = el('edit-shop-mp-appid')?.value || '';
-            const mpToken = el('edit-shop-mp-token')?.value || '';
-            
-            const updateData = {
+            const stripeId = el('edit-shop-stripe-id')?.value?.trim() || '';
+
+            // Validação básica do ID da Stripe
+            if(stripeId && !stripeId.startsWith('acct_')) {
+                return alert("O ID da Stripe parece inválido. Ele deve começar com 'acct_'.");
+            }
+
+            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',id),{
                 name: el('edit-shop-name').value, 
                 logo: el('edit-shop-logo').value, 
                 banner: el('edit-shop-banner').value, 
@@ -3852,19 +3752,12 @@
                 pixName: el('edit-shop-pixname').value, 
                 pixCity: el('edit-shop-pixcity').value,
                 originCep: el('edit-shop-cep')?.value || '',
-                promoLabel: el('edit-shop-promo')?.value || ''
-            };
-            
-            // Adiciona dados de Mercado Pago se fornecidos
-            if(mpAppId || mpToken) {
-                updateData.mercadoPago = {
-                    appId: mpAppId,
-                    accessToken: mpToken
-                };
-            }
-            
-            await updateDoc(doc(db,'artifacts',appId,'public','data','shops',id), updateData); 
-            alert("✅ Dados, Pix e Mercado Pago salvos! 💜");
+                promoLabel: el('edit-shop-promo')?.value || '',
+
+                // Novo campo Stripe
+                stripeAccountId: stripeId
+            }); 
+            alert("Dados da loja atualizados com sucesso! 💜");
         };
 
         // Funções para gerenciar fretes de Dropshipping Manual
@@ -4393,128 +4286,6 @@
             }
         };
 
-        // --- VERIFICAÇÃO DE RETORNO DO MERCADO PAGO ---
-        window.checkMercadoPagoReturn = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const mpSuccess = urlParams.get('mp_success');
-            const mpFailure = urlParams.get('mp_failure');
-            const mpPending = urlParams.get('mp_pending');
-            const shopSlug = urlParams.get('shop');
-            
-            if(!mpSuccess && !mpFailure && !mpPending) return;
-            
-            // Aguarda dados da loja carregar
-            let shop = null;
-            let attempts = 0;
-            while(!shop && attempts < 20) {
-                shop = state.shops.find(s => s.id === shopSlug);
-                if(!shop) {
-                    await new Promise(r => setTimeout(r, 500));
-                    attempts++;
-                } else {
-                    break;
-                }
-            }
-            
-            if(!shop) return;
-            
-            // Limpa URL
-            window.history.replaceState({}, document.title, window.location.pathname + '?shop=' + encodeURIComponent(shopSlug));
-            
-            if(mpSuccess) {
-                // Busca o pedido recente dessa loja (que foi salvo antes do redirecionamento)
-                try {
-                    const recentOrders = await getDocs(
-                        query(
-                            collection(db, 'artifacts', appId, 'public', 'data', 'orders'),
-                            where('shopId', '==', shop.id)
-                        )
-                    );
-                    
-                    // Encontra o pedido mais recente com status pending_payment_mp
-                    const pendingOrder = recentOrders.docs
-                        .map(d => ({id: d.id, ...d.data()}))
-                        .filter(o => o.status === 'pending_payment_mp')
-                        .sort((a, b) => b.at - a.at)[0];
-                    
-                    if(pendingOrder) {
-                        // Atualiza status para PAID
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', pendingOrder.id), {
-                            status: 'paid',
-                            mpConfirmedAt: Date.now()
-                        });
-                        
-                        // Envia WhatsApp ao vendedor
-                        await notifyVendorPaymentConfirmed(shop, pendingOrder);
-                        
-                        // Mostra mensagem ao cliente
-                        alert('✅ Pagamento confirmado com sucesso! Seu pedido foi registrado.');
-                    }
-                } catch(err) {
-                    console.error('Erro ao confirmar pagamento:', err);
-                    alert('⚠️ Pagamento recebido, mas ocorreu um erro ao registrar. Contate o suporte.');
-                }
-                
-                closeCheckout();
-                goToHub();
-                
-            } else if(mpFailure) {
-                alert('❌ O pagamento foi recusado. Tente novamente ou escolha outro método.');
-                backToPaymentChoice();
-                
-            } else if(mpPending) {
-                alert('⏳ Seu pagamento está pendente de confirmação. Você receberá uma notificação em breve.');
-                backToPaymentChoice();
-            }
-        };
-
-        // Função para notificar vendedor que pagamento foi confirmado
-        window.notifyVendorPaymentConfirmed = async (shop, order) => {
-            try {
-                // Monta mensagem de confirmação
-                let msg = `✅ *PAGAMENTO CONFIRMADO - ${shop.name.toUpperCase()}*\n\n`;
-                msg += `🎉 *Novo Pedido Pago via Mercado Pago*\n\n`;
-                msg += `😎 *Cliente:* ${order.clientName}\n`;
-                msg += `📧 *Email:* ${order.clientEmail}\n`;
-                if(order.clientPhone) msg += `📱 *Telefone:* ${order.clientPhone}\n`;
-                msg += `\n`;
-                
-                msg += `📦 *Endereço de Entrega:*\n`;
-                msg += `${order.address.street}, ${order.address.num}\n`;
-                if(order.address.comp) msg += `${order.address.comp}\n`;
-                msg += `${order.address.bairro} - ${order.address.city}/${order.address.uf}\n`;
-                msg += `CEP: ${order.address.cep}\n\n`;
-                
-                msg += `👜 *ITENS:*\n`;
-                order.items.forEach(item => {
-                    msg += `• ${item.name} - ${formatBRL(item.price)}\n`;
-                });
-                
-                msg += `\n💰 *RESUMO FINANCEIRO:*\n`;
-                msg += `Subtotal: ${formatBRL(order.subtotal)}\n`;
-                msg += `Frete (${order.shippingMethod}): ${formatBRL(order.shipping)}\n`;
-                
-                if(order.appliedCoupon) {
-                    const discountAmount = order.appliedCoupon.discount || 0;
-                    msg += `Desconto: -${formatBRL(discountAmount)}\n`;
-                }
-                
-                msg += `\n*TOTAL PAGO: ${formatBRL(order.total)}* ✅\n`;
-                msg += `\n💳 *Método:* Mercado Pago\n`;
-                msg += `🕐 *Data:* ${new Date(order.at).toLocaleString()}\n`;
-                
-                // Abre WhatsApp com mensagem pré-preenchida
-                const waLink = `https://wa.me/${shop.whatsapp}?text=${encodeURIComponent(msg)}`;
-                console.log('📱 Link WhatsApp gerado:', waLink);
-                
-                // Abre em nova aba
-                window.open(waLink, '_blank');
-                
-            } catch(err) {
-                console.error('Erro ao notificar vendedor:', err);
-            }
-        };
-
         // --- 9. SINCRONIZAÇÃO INICIAL (DATA SYNC) ---
         onSnapshot(doc(db,'artifacts',appId,'public','data','config','hub'), s => { 
             try {
@@ -4585,10 +4356,7 @@
                         if(!foundShop) foundShop = state.shops.find(s => createSlug(s.name) === shopSlug);
                         if(foundShop) enterShop(foundShop.id, false);
                     }
-                    state.initialLoadDone = true;
-                    
-                    // Verifica retorno do Mercado Pago
-                    setTimeout(() => checkMercadoPagoReturn(), 500);
+                    state.initialLoadDone = true; 
                 }
 
                 if(el('view-hub') && !el('view-hub').classList.contains('hidden')) {
@@ -4632,6 +4400,144 @@
                 console.error('Erro ao sincronizar pedidos:', error);
             }
         });
+
+        // --- 10. HANDLER DE RETORNO DO STRIPE (COM SEGURANÇA MÁXIMA) ---
+        window.handleStripeReturn = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            if (!status) return;
+
+            // Limpa a URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            if (status === 'cancel') {
+                alert("Pagamento cancelado.");
+                localStorage.removeItem('pending_stripe_order');
+                return;
+            }
+
+            if (status === 'success') {
+                const savedData = localStorage.getItem('pending_stripe_order');
+                if (!savedData) return;
+
+                const orderData = JSON.parse(savedData);
+                const user = auth.currentUser;
+
+                if (!user || !orderData.sessionId) return;
+
+                // 1. CRIA UM LOADING DE TELA CHEIA (Pra pessoa saber que está processando)
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.id = 'payment-verifying-overlay';
+                loadingOverlay.className = 'fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in';
+                loadingOverlay.innerHTML = `
+                    <div class="bg-surface border border-white/10 p-8 rounded-[2rem] text-center max-w-sm w-full">
+                        <iconify-icon icon="svg-spinners:blocks-scale" class="text-primary text-5xl mb-4"></iconify-icon>
+                        <h3 class="text-white font-bold text-xl mb-2">Confirmando Pagamento...</h3>
+                        <p class="text-zinc-500 text-sm">Aguardando confirmação do banco.<br>Não feche esta página.</p>
+                    </div>
+                `;
+                document.body.appendChild(loadingOverlay);
+
+                // 2. TIMEOUT DE SEGURANÇA (Se demorar mais de 20 segundos, libera manual)
+                const timeoutId = setTimeout(() => {
+                    if(document.getElementById('payment-verifying-overlay')) {
+                        document.getElementById('payment-verifying-overlay').remove();
+                        alert("O banco está demorando para responder. Verifique seu email para confirmação ou atualize a página em 1 minuto.");
+                        // Opcional: Aqui você poderia liberar o pedido mesmo assim se confiar no cliente
+                    }
+                }, 20000); // 20 segundos
+
+                try {
+                    // 3. ESCUTA O DOCUMENTO EM TEMPO REAL (Listener)
+                    // Ficamos ouvindo alterações no documento até ele virar 'paid'
+                    const sessionRef = doc(db, 'customers', user.uid, 'checkout_sessions', orderData.sessionId);
+                    
+                    const unsubscribe = onSnapshot(sessionRef, async (snap) => {
+                        if (!snap.exists()) return;
+
+                        const sessionData = snap.data();
+                        
+                        // Verifica se já está pago
+                        const isPaid = sessionData.payment_status === 'paid' || sessionData.status === 'complete';
+
+                        if (isPaid) {
+                            // SUCESSO! O BANCO CONFIRMOU! 🎉
+                            clearTimeout(timeoutId); // Cancela o timer de erro
+                            unsubscribe(); // Para de ouvir o banco
+                            
+                            // Remove o Loading
+                            const overlay = document.getElementById('payment-verifying-overlay');
+                            if(overlay) overlay.remove();
+
+                            // --- SALVA O PEDIDO E MANDA PRO ZAP ---
+                            const subtotal = orderData.cart.reduce((a,b)=>a+Number(b.price),0);
+                            const shipping = orderData.checkoutData.shippingCost;
+                            const total = subtotal + shipping;
+
+                            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), { 
+                                shopId: orderData.shop.id, 
+                                shopName: orderData.shop.name, 
+                                total, 
+                                subtotal,
+                                shipping,
+                                shippingMethod: orderData.checkoutData.shippingMethod,
+                                address: orderData.checkoutData.address,
+                                paymentMethod: 'credit_card',
+                                status: 'paid',
+                                stripeSessionId: orderData.sessionId,
+                                at: Date.now(), 
+                                items: orderData.cart.map(i=>i.name) 
+                            });
+
+                            // Limpa cache
+                            localStorage.removeItem('pending_stripe_order');
+                            state.cart = [];
+                            updateCartUI();
+
+                            // Mostra o Modal de Sucesso (Zap)
+                            sendWhatsAppSuccess(orderData);
+                        }
+                    });
+
+                } catch (e) {
+                    console.error("Erro no listener:", e);
+                    document.getElementById('payment-verifying-overlay')?.remove();
+                    alert("Erro ao confirmar.");
+                }
+            }
+        };
+
+        // Função auxiliar para gerar o texto e abrir o WhatsApp
+        window.sendWhatsAppSuccess = (data) => {
+            const shop = data.shop;
+            const addr = data.checkoutData.address;
+            const cart = data.cart;
+            const shipping = data.checkoutData.shippingCost;
+            const total = cart.reduce((a,b)=>a+Number(b.price),0) + shipping;
+
+            // Emojis de festa!
+            let msg = `✅ *PAGAMENTO APROVADO - ${shop.name.toUpperCase()}* 🎉\n\n`; 
+            msg += `💳 *Método:* Cartão de Crédito (Stripe)\n`;
+            msg += `🆔 *Status:* PAGO AUTOMATICAMENTE\n\n`;
+            
+            msg += `😎 *Cliente:* ${addr.name}\n`;
+            msg += `📍 *Entrega:* ${addr.street}, ${addr.num} - ${addr.bairro}\n`;
+            msg += `🌆 *Cidade:* ${addr.city}/${addr.uf}\n\n`;
+            
+            msg += `👜 *ITENS COMPRADOS:*\n`;
+            cart.forEach(i => msg += `• ${i.name} - ${formatBRL(i.price)}\n`);
+            
+            msg += `\n📦 *Frete:* ${formatBRL(shipping)}`;
+            msg += `\n💰 *TOTAL PAGO: ${formatBRL(total)}*\n`;
+            msg += `\n🚀 *Pode preparar o envio!*`;
+
+            // Abre o WhatsApp direto
+            window.open(`https://wa.me/${shop.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+        };
+
+        // Chama o handler ao carregar a página
+        setTimeout(handleStripeReturn, 1000);
 
     </script>
 </body>
